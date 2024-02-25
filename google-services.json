@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "916162526509",
+    "project_id": "servicita-signin-fa66f",
+    "storage_bucket": "servicita-signin-fa66f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:916162526509:android:e1a62780960e29fe59a7a4",
+        "android_client_info": {
+          "package_name": "com.xdhunter6.FrontEnd"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBl7wIgTt9zyXO6rrpUF2HT1ki22umGzto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
