@@ -8,6 +8,8 @@ import Error from '@expo/vector-icons/MaterialIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { format } from 'date-fns';
+import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+
 
 function RegisterPage({props}) {
   const navigation = useNavigation();
@@ -25,7 +27,12 @@ function RegisterPage({props}) {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [userInfo, setUserInfo] = useState();
+  const [error, setError] = useState();
+  const [authenticated, setAuthenticated] = useState(false);
+
   
+
 
   const validateFields = () => {
 
@@ -99,9 +106,30 @@ function RegisterPage({props}) {
       }
     };
   
+    const GoogleSignIn = async () => {
+      try {
+        await GoogleSignin.hasPlayServices();
+        const user = await GoogleSignin.signIn();
+        setUserInfo(user);
+        setAuthenticated(true);
+        setError();
+      } catch (error) {
+        setError(error);
+      }
+    }
+  
+    const GoogleLogOut = () => {
+      setUserInfo();
+      setAuthenticated(false);
+      GoogleSignin.revokeAccess();
+      GoogleSignin.signOut();
+    }
+  
+
   const eighteenYearsAgo = new Date();
   eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
 
+  
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
       <View>
@@ -219,12 +247,21 @@ function RegisterPage({props}) {
               </TouchableOpacity>
               <Text style={styles.bottomText}>Facebook</Text>
             </View>
+            {authenticated ? (
+            <View style={styles.inBut2}>
+              {userInfo && userInfo.user && <Text>{JSON.stringify(userInfo.user)}</Text>}
+              <TouchableOpacity onPress={GoogleLogOut}>
+                <Text style={styles.bottomText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <TouchableOpacity style={styles.inBut2}>
+              <TouchableOpacity style={styles.inBut2} onPress={GoogleSignIn}>
                 <FontAwesome name="google" color="#fff" style={styles.smallIcon2} />
               </TouchableOpacity>
               <Text style={styles.bottomText}>Google</Text>
             </View>
+          )}
             <View style={{alignItems: 'center', justifyContent: 'center'}}>
                 <TouchableOpacity style={styles.inBut2}>
                   <FontAwesome name="mobile" color='#fff' style={styles.smallIcon2} />

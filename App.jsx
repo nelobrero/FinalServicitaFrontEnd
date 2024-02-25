@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { NavigationContainer, useNavigation, DrawerActions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -15,12 +15,13 @@ import LoginPage from './Screens/Login&Register/Login';
 import RegisterPage from './Screens/Login&Register/Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 console.log(Constants.systemFonts);
 
-SplashScreen.preventAutoHideAsync()
-  .then((result) => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
-  .catch(console.warn); // it's good to explicitly catch and inspect any error
+// SplashScreen.preventAutoHideAsync()
+//   .then((result) => console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`))
+//   .catch(console.warn); // it's good to explicitly catch and inspect any error
 
 const StackNav = ()=>{
     const Stack = createNativeStackNavigator();
@@ -78,6 +79,8 @@ function App() {
 
   const [appIsReady, setAppIsReady] = useState(false);  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState();
+  const [userInfo, setUserInfo] = useState();
     
     
     async function checkIfLoggedIn(){
@@ -86,27 +89,30 @@ function App() {
     }
 
     useEffect(() => {
-      async function prepare() {
-          try {
-              // Pre-load fonts, make any API calls you need to do here
-              await Font.loadAsync(Entypo.font);
-              // Artificially delay for two seconds to simulate a slow loading
-              // experience. Please remove this if you copy and paste the code!
-              await new Promise(resolve => setTimeout(resolve, 1000));
-          } catch (e) {
-              console.warn(e);
-          } finally {
-              // Tell the application to render
-              setAppIsReady(true);  // Assuming you want to show the app as ready after loading fonts
-              await SplashScreen.hideAsync();
-          }
-      }
-
+      
+      // async function prepare() {
+      //     try {
+      //         // Pre-load fonts, make any API calls you need to do here
+      //         await Font.loadAsync(Entypo.font);
+      //         // Artificially delay for two seconds to simulate a slow loading
+      //         // experience. Please remove this if you copy and paste the code!
+      //         await new Promise(resolve => setTimeout(resolve, 1000));
+      //     } catch (e) {
+      //         console.warn(e);
+      //     } finally {
+      //         // Tell the application to render
+      //         setAppIsReady(true);  // Assuming you want to show the app as ready after loading fonts
+      //         await SplashScreen.hideAsync();
+      //     }
+      // }
+      GoogleSignin.configure({
+        webClientId: "916162526509-cafrd93roeekc80suoporajs002l5l9q.apps.googleusercontent.com"
+      });
       checkIfLoggedIn();
-      prepare();
+      // prepare();
     }, []);
 
-
+    
     const Stack = createNativeStackNavigator();
     return(
         <NavigationContainer>

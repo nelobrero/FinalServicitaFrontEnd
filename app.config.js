@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "FrontEnd",
     "slug": "FrontEnd",
@@ -18,12 +18,12 @@
       "supportsTablet": true
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.xdhunter6.FrontEnd"
+      "package": "com.xdhunter6.FrontEnd",
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON
     },
     "web": {
       "favicon": "./assets/favicon.png"
