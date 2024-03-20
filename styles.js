@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     },
     smallIcon2: {
         fontSize: 40,
-        // marginRight: 10,
     },
     bottomText: {
         color: 'black',
@@ -348,6 +347,19 @@ const styles = StyleSheet.create({
         fontSize: 15,
         textAlign: 'center',
         fontWeight: '600',
+      },
+      FontFamily: {
+        quicksandRegular: "Quicksand-Regular",
+        quicksandSemiBold: "Quicksand-SemiBold",
+      },
+      FontSize: {
+        size_sm: 14,
+      },
+      Color: {
+        colorWhite: "white",
+        colorDarkgray: "#9a9797",
+        colorBlack: "#000",
+        colorSilver: "#c4c4c4",
       },
 })
 

@@ -1,0 +1,304 @@
+import React, { useState, useEffect, useRef } from "react";
+import { Text, StyleSheet, View, TextInput, Alert, Dimensions, Pressable, Image, SafeAreaView, ScrollView} from "react-native";
+import { Color, FontFamily, FontSize, Border, errorText } from "./../../GlobalStyles";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Feather from '@expo/vector-icons/Feather';
+import Error from '@expo/vector-icons/MaterialIcons';
+import auth from '@react-native-firebase/auth';
+import axios from "axios";
+import Button from "../../components/Button";
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
+export default function MobileLogin({navigation}) {
+    const [mobile, setMobile] = useState('+63');
+    const [mobileVerify, setMobileVerify] = useState(false);
+    const [code, setCode] = useState(['', '', '', '']);
+    const inputRefs = useRef([]);
+    const [confirm, setConfirm] = useState(null);
+
+
+    const signInWithPhoneNumber = async () => {
+        try {
+            const mobileExists = await checkIfMobileExists(mobile);
+            if(mobileExists) {
+                const confirmation = await auth().signInWithPhoneNumber(mobile);
+                setConfirm(confirmation);
+            } else {
+                Alert.alert("Mobile Number not found", "The mobile number you entered is not registered. Please register first.", [{ text: "OK", onPress: () => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}]);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const confirmCode = async () => {
+        try {
+            await confirm.confirm(code);
+            if(confirm) {
+                await axios.post("http://192.168.1.14:5000/user/verifyMobile", { mobile });
+                navigation.navigate("Home");
+            } else {
+                Alert.alert("Invalid code", "The code you entered is invalid. Please try again.", [{ text: "OK", onPress: () => console.log("OK Pressed")}]);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const checkIfMobileExists = async (mobile) => {
+        try {
+            const response = await axios.post("http://192.168.1.14:5000/user/getMobile", { mobile });
+            if(response.status === 200) {
+                if(response.data.status === "SUCCESS") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    };
+
+    const updateCode = (index, value) => {
+        const newCode = [...code];
+        newCode[index] = value;
+        setCode(newCode);
+        console.log(newCode);
+    
+        if (value === '' && index > 0) {
+            inputRefs.current[index - 1].focus();
+        } else if (value !== '' && index < code.length - 1) {
+            inputRefs.current[index + 1].focus();
+        }
+    };
+
+    return (
+        <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
+                        <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.07 }}>
+                            <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
+                                            <Image
+                                            style={styles.userroleChild}
+                                            contentFit="cover"
+                                            source={require("./../../assets/arrow-1.png")}
+                                            />
+                            </Pressable>
+
+                            <View style={{ marginVertical: windowHeight * 0.04 }}>
+                                <Text style={{
+                                    fontSize: windowWidth * 0.1,
+                                    fontWeight: 'bold',
+                                    color: Color.colorBlue,
+                                    bottom: windowHeight * 0.03,
+                                }}>
+                                    Mobile
+                                    {"\n"}
+                                    Login...
+                                </Text>
+                            </View>
+
+                        </View>
+                <View style={styles.container}>
+                   
+                        
+                {!confirm ? (
+                    <>
+                    <View style={{ marginBottom: windowHeight * 0.15, justifyContent: 'center' }}>
+                    <Text style={{
+                        fontSize: 16,
+                        fontWeight: '400',
+                        marginVertical: windowHeight * 0.01,
+                        color: Color.colorBlue
+
+                    }}>Mobile Number</Text>
+
+                    <View style={{
+                        width: '100%',
+                        height: windowHeight * 0.06,
+                        borderColor: mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed,
+                        borderWidth: 1,
+                        borderRadius: windowHeight * 0.015,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingLeft: windowWidth * 0.05,
+                        paddingHorizontal: windowWidth * 0.13,
+                        flexDirection: 'row'
+                    }}>
+                        <FontAwesome name="phone" color={mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed} style={{ marginRight: 5, fontSize: 24}} />
+                        <TextInput
+                        placeholder='+63'
+                        placeholderTextColor={Color.colorBlue1}
+                        keyboardType='numeric'
+                        style={{
+                            width: "12%",
+                            borderRightWidth: 1,
+                            borderColor: mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed,
+                            height: "100%",
+                        }}
+                        color={mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed}
+                        defaultValue='+63'
+                        editable={false}
+                        />
+                        <TextInput
+                            placeholder='Enter your phone number'
+                            placeholderTextColor={Color.colorBlue}
+                            keyboardType='numeric'
+                            style={{
+                                width: "80%",
+                                marginRight: 10,
+                                left: 10
+                            }}
+                            onChangeText={(text) => {
+                                const formattedMobile = "+63" + text;
+                                setMobile(formattedMobile);
+                                setMobileVerify(text.length > 1 && /^(\+63[89])[0-9]{9}$/.test(formattedMobile));
+                            }}
+                        />
+                        {mobile.length < 4 ? null : mobileVerify ? (
+                            <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                        ) : (
+                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
+                        )}
+                    </View>
+                    {mobile.length < 4 ? null : mobileVerify ? null : (
+                        <Text style={errorText}>Please enter a valid Philippine mobile number in the format +63*********.</Text>
+                    )}
+                </View>
+                <View style={{ marginBottom: windowHeight * 0.01, alignItems: 'center' }}>
+                <Button
+                    title="Send Code"
+                    filled
+                    Color={Color.colorWhite}
+                    style={{
+                        marginTop: windowHeight * 0.07,
+                        marginBottom: windowHeight * 0.05,
+                        width: windowWidth * 0.87,
+                        height: windowHeight * 0.08,
+                    }}
+                    disabled={!mobileVerify}
+                    onPress={signInWithPhoneNumber}
+                />
+                </View>
+                    </>
+                ) : (
+                    <>
+                    <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={[styles.text, styles.title]}>We’ve sent the code to:</Text>
+                <Text style={[styles.text, styles.email]}>{mobile}</Text>
+                
+                    <View style={styles.codeInputContainer}>
+                        {[0, 1, 2, 3].map((index) => (
+                            <TextInput
+                                key={index}
+                                ref={(ref) => (inputRefs.current[index] = ref)}
+                                style={styles.codeInput}
+                                keyboardType="numeric"
+                                maxLength={1}
+                                onKeyPress={({ nativeEvent }) => {
+                                    console.log(nativeEvent.key);
+                                    if (nativeEvent.key === 'Backspace' && code[index] === '') {
+                                        if (index !== 0) {
+                                            inputRefs.current[index - 1].focus();
+                                        }
+                                    } else if (!isNaN(nativeEvent.key) && code[index] && index !== 3) {
+                                        inputRefs.current[index + 1].setNativeProps({ text: nativeEvent.key });
+                                        updateCode(index + 1, nativeEvent.key);
+                                    }
+                                }}
+                                onChange={(e) => updateCode(index, e.nativeEvent.text)}
+                            />
+                        ))}
+                    </View>
+                    <Button
+            title="Verify"
+            filled
+            Color={Color.colorWhite}
+            style={{
+                marginTop: windowHeight * 0.07,
+                marginBottom: windowHeight * 0.05,
+                width: windowWidth * 0.87,
+                height: windowHeight * 0.08,
+            }}
+            onPress={confirmCode}
+            />
+            <Button
+            title="Send Again"
+            filledColor={Color.colorWhite}
+            style={{
+                marginTop: windowHeight * 0.001,
+                marginBottom: windowHeight * 0.05,
+                width: windowWidth * 0.87,
+                height: windowHeight * 0.08,
+            }}
+            onPress={signInWithPhoneNumber}
+            />
+                </View>
+                    </>
+                   
+                )}
+
+
+                </View>
+        </SafeAreaView>
+    )
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: Color.colorWhite,
+        marginHorizontal: windowWidth * 0.05,
+        flexDirection: 'column',
+    },
+    arrowContainer: {
+        bottom: windowHeight * 0.02,
+        left: windowWidth * 0.01,
+    },
+    userroleChild: {
+        top: windowHeight * 0.003,
+        left: windowWidth * 0.001,
+        maxHeight: "100%",
+        width: windowWidth * 0.07,
+    },
+    text: {
+        fontFamily: FontFamily.quicksandLight,
+        fontSize: FontSize.size_mini,
+        color: Color.colorBlack,
+    },
+    title: {
+        marginBottom: 10,
+        fontWeight: 300,
+        bottom: windowHeight * 0.02,
+    },
+    email: {
+        bottom: windowHeight * 0.03,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    timerContainer: {
+        marginBottom: 10,
+        flexDirection: 'row'
+    },
+    codeInputContainer: {
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    codeInput: {
+        width: 70,
+        height: 70,
+        borderWidth: 1,
+        borderColor: Color.colorGray,
+        backgroundColor: Color.colorGainsboro,
+        borderRadius: Border.br_3xs,
+        marginHorizontal: 5,
+        textAlign: 'center',
+        fontSize: FontSize.size_5xl,
+        marginHorizontal: 10,
+        paddingHorizontal: 10,
+        color: Color.colorBlue,
+    }
+});
