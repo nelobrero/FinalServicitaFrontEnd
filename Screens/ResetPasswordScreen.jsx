@@ -1,62 +1,165 @@
-import React, { useState } from "react";
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Platform } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo icons library
-import { FontSize, Color, FontFamily, Border } from "../GlobalStyles";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen"; // Import responsive screen dimensions
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, Image, Pressable, StyleSheet, Dimensions, SafeAreaView, Alert } from 'react-native'
+import { FontSize, Color, FontFamily, errorText } from "../GlobalStyles";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Ionicons } from "@expo/vector-icons";
+import Button from "../components/Button";
+import axios from 'axios';
+import Addition from '@expo/vector-icons/MaterialCommunityIcons';
 
-function ResetPasswordScreen(props) {
-    const [resetPasswordInput, setResetPasswordInput] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-    const handlePress = (role) => {
-        // Update selected role and trigger state change
-        
-      };
+export default function ResetPasswordScreen({navigation, route, params}) {
+    const [password, setPassword] = useState('');
+    const [passwordVerify, setPasswordVerify] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [confirmPasswordVerify, setConfirmPasswordVerify] = useState(false);
+    const [isPasswordShown, setIsPasswordShown] = useState(false);
+    const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false);
+
+    const { userId } = route.params;
+
+    useEffect(() => {
+        setConfirmPasswordVerify(confirmPassword === password);
+    }, [confirmPassword, password]);
+
+
+    const handleSubmit  = () => {
+        const userData = {
+            userId: userId,
+            newPassword: password,
+          }
+          axios.post("http://192.168.1.14:5000/forgot_password_otp/actualReset", userData).then((res) => {
+            if (res.data.status === 'SUCCESS') {
+                Alert.alert('Success', 'Password Reset Successful. Please Login Again', [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
+              } else {
+                Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+              }}).catch((err) => {
+                  Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+                  console.log(err.response.data.message);
+              });
+    }
 
     return (
+        <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
+        <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.07 }}>
+                            <Pressable onPress={() => navigation.navigation("Login")} style={styles.arrowContainer}>
+                                            <Image
+                                            style={styles.userroleChild}
+                                            contentFit="cover"
+                                            source={require("./../assets/arrow-1.png")}
+                                            />
+                            </Pressable>
+        </View>
+        
         <View style={styles.resetPasswordScreen}>
-            <Text style={[styles.resetPasswordHeader, styles.passwordFlexBox]}>
+            <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>
                 Reset Password
             </Text>
-            <Text style={[styles.enterNewPassword, styles.passwordFlexBox]}>
+            <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>
                 Enter your new password
             </Text>
 
-            <View style={[styles.passwordInputContainer, styles.childBorder]}>
-                <Ionicons
-                    name={showPassword ? "eye-off" : "eye"}
-                    size={24}
-                    color={Color.colorDarkslategray_200}
-                    style={styles.passwordIcon}
-                    onPress={togglePasswordVisibility}
-                />
-                <TextInput
-                    style={styles.passwordInput}
-                    value={resetPasswordInput}
-                    onChangeText={setResetPasswordInput}
-                    placeholder="New Password"
-                    secureTextEntry={!showPassword}
-                />
+            <View style={{ marginBottom: windowHeight * 0.01 }}>
+                <Text style={{
+                    fontSize: windowWidth * 0.05,
+                    fontWeight: '400',
+                    marginVertical: windowHeight * 0.01,
+                    color: Color.colorBlue
+                }}>Password</Text>
+
+                <View style={{
+                    width: '100%',
+                    height: windowHeight * 0.06,
+                    borderColor: password === null || password === '' ? Color.colorBlue1 : passwordVerify ? Color.colorGreen : Color.colorRed,
+                    borderWidth: 1,
+                    borderRadius: windowHeight * 0.015,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingLeft: windowWidth * 0.05,
+                    paddingHorizontal: windowWidth * 0.14,
+                    flexDirection: 'row'
+                }}>
+                    <FontAwesome name="lock" color={password === null || password === '' ? Color.colorBlue1 : passwordVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}} />
+                    <TextInput
+                        placeholder='Enter your password'
+                        placeholderTextColor={Color.colorBlue}
+                        secureTextEntry={isPasswordShown}
+                        style={{
+                            width: "100%"
+                        }}
+                        onChange={(e) => {
+                            const passwordInput = e.nativeEvent.text;
+                            setPassword(passwordInput);
+                            setPasswordVerify(passwordInput.length > 1 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(passwordInput));
+                        }}
+                    />
+                    <TouchableOpacity onPress={() => setIsPasswordShown(!isPasswordShown)} style={{ position: "absolute", right: 12 }}>
+                        <Ionicons name={isPasswordShown ? "eye-off" : "eye"} size={24} color={password === null || password === '' ? Color.colorBlue1 : passwordVerify ? 'green' : 'red'} />
+                    </TouchableOpacity>
+                </View>
+                {password.length < 1 ? null : passwordVerify ? null : (
+                    <Text style={errorText}>Password must be at least 8 characters long and include at least one uppercase letter and one digit.</Text>
+                )}
             </View>
 
-            <LinearGradient
-                style={styles.continueButton}
-                locations={[0, 1]}
-                colors={["#4e8daa", "#023349"]}
-            >
-                <TouchableOpacity
-                style={styles.continueButtonInner}
-                onPress={() => handlePress("SUBMIT")}
-                >
-                <Text style={styles.contText}>SUBMIT</Text>
-                </TouchableOpacity>
-            </LinearGradient>
+             <View style={ {marginBottom: windowHeight * 0.01} }>
+                <Text style={{
+                    fontSize: windowWidth * 0.05,
+                    fontWeight: '400',
+                    marginVertical: windowHeight * 0.01,
+                    color: Color.colorBlue
+                }}>Confirm Password</Text>
+
+                <View style={{
+                    width: '100%',
+                    height: windowHeight * 0.06,
+                    borderColor: confirmPassword === null || confirmPassword === '' ? Color.colorBlue1 : confirmPasswordVerify ? Color.colorGreen : Color.colorRed,
+                    borderWidth: 1,
+                    borderRadius: windowHeight * 0.015,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingLeft: windowWidth * 0.05,
+                    paddingHorizontal: windowWidth * 0.14,
+                    flexDirection: 'row'
+                }}>
+                    <Addition name="lock-check" color={confirmPassword === null || confirmPassword === '' ? Color.colorBlue1 : confirmPasswordVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}} />
+                    <TextInput
+                     placeholder='Confirm password'
+                     placeholderTextColor={Color.colorBlue}
+                     secureTextEntry={isConfirmPasswordShown}
+                     style={{
+                        width: "100%"
+                     }}
+                     onChange={(e) => {
+                        const confirmPasswordInput = e.nativeEvent.text;
+        setConfirmPassword(confirmPasswordInput);
+                    }}
+                    />
+                    <TouchableOpacity onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)} style={{ position: "absolute", right: 12 }}>
+                        <Ionicons name={isConfirmPasswordShown ? "eye-off" : "eye"} size={24} color={confirmPassword === null || confirmPassword === '' ? Color.colorBlue1 : confirmPasswordVerify ? 'green' : 'red'} />
+                    </TouchableOpacity>
+                </View>
+                {confirmPassword.length < 1 ? null : confirmPasswordVerify ? null : (
+                    <Text style={errorText}>Password should be 8 characters long and should match the password entered above.</Text>
+                )}
+            </View> 
+            
+            <Button
+                    title="Submit"
+                    filled
+                    Color={Color.colorWhite}
+                    style={{
+                        marginTop: windowHeight * 0.02,
+                        marginBottom: windowHeight * 0.05,
+                    }}
+                    onPress={handleSubmit}
+                    disabled={!passwordVerify || !confirmPasswordVerify}
+                />
             
         </View>
+        </SafeAreaView>
     );
 };
 
@@ -67,137 +170,47 @@ const styles = StyleSheet.create({
         display: "flex",
         textAlign: "center",
         lineHeight: 23,
-        position: "absolute",
+        marginBottom: windowHeight * 0.04,
     },
-    frameChildLayout: {
-        height: hp('7%'),
-        width: wp('80%'),
-    },
-    frameChild: {
-        top: 0,
-        left: 0,
-        borderRadius: Border.br_7xs,
-        shadowColor: "#afc7d2",
-        shadowOffset: {
-            width: wp('1%'),
-            height: hp('1.5%'),
-        },
-        shadowRadius: wp('1%'),
-        elevation: 3,
-        shadowOpacity: 1,
-        borderColor: Color.colorDarkslategray_200,
-        borderWidth: 0.2,
-        backgroundColor: "transparent",
-        height: hp('7%'),
-        width: wp('80%'),
-    },
-    childBorder: {
-        borderStyle: "solid",
-        position: "absolute",
-    },
-    resetPasswordHeader: {
-        top: hp('22%'),
-        left: wp('13%'),
+    passwordRecovery: {
         fontSize: FontSize.size_6xl,
         color: Color.colorDarkslategray_100,
-        width: wp('70%'),
-        height: hp('3%'),
         fontFamily: FontFamily.quicksandBold,
         fontWeight: "700",
         alignItems: "center",
         display: "flex",
         textAlign: "center",
-        lineHeight: hp('4%'),
+        lineHeight: windowHeight * 0.1,
     },
-    enterNewPassword: {
-        top: hp('26%'),
-        left: wp('3'),
+    enterYourEmail: {
         fontSize: FontSize.size_mini,
-        letterSpacing: 1.1,
+        letterSpacing: 0.5,
         fontWeight: "300",
         fontFamily: FontFamily.quicksandLight,
         color: Color.colorBlack,
-        width: wp('90%'),
-        height: hp('3%'),
         alignItems: "center",
         display: "flex",
         textAlign: "center",
-        lineHeight: hp('3.5%'),
-    },
-    passwordInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: Color.colorGainsboro,
-        borderColor: Color.colorGray_100,
-        borderWidth: 1,
-        width: wp('84%'),
-        height: hp('6%'),
-        top: hp('34%'),
-        left: wp('8%'),
-        position: "absolute",
-    },
-    passwordInput: {
-        flex: 1,
-        height: '100%',
-        paddingHorizontal: wp('2%'), // Add padding for text input
-    },
-    passwordIcon: {
-        marginHorizontal: wp('2%'), // Adjust icon position
-    },
-    submitButtonContainer: {
-        top: hp('56%'),
-        left: wp('10%'),
-        position: "absolute",
-        width: wp('80%'),
-    },
-    submitButtonText: {
-        top: hp('2%'),
-        left: wp('9%'),
-        fontSize: FontSize.size_5xl,
-        color: Color.colorWhite,
-        width: wp('60%'),
-        height: hp('4%'),
-        fontFamily: FontFamily.quicksandBold,
-        fontWeight: "700",
-        alignItems: "center",
-        display: "flex",
-        textAlign: "center",
-        lineHeight: hp('4%'),
+        lineHeight: windowHeight * 0.05,
+        bottom: windowHeight * 0.02,
     },
     resetPasswordScreen: {
+        flex: 1,
+        justifyContent: 'center',
         backgroundColor: Color.colorWhite,
-        flex: 1,
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
+        marginHorizontal: windowWidth * 0.05,
+        flexDirection: 'column',
     },
-    continueButton: {
-        width: wp('80%'),
-        height: hp('7%'),
-        borderRadius: 6,
-        overflow: "hidden",
-        position: "absolute",
-        top: hp('85%'),
-        left: wp('10%'),
-        ...Platform.select({
-          android: {
-            elevation: 4,
-          },
-        }),
-      },
-      continueButtonInner: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%",
-        height: "100%",
-      },
-      contText: {
-        color: "white",
-        fontSize: wp('5%'),
-        fontWeight: "700",
-        fontFamily: FontFamily.quicksandBold,
-      },
+    arrowContainer: {
+        top: windowHeight * 0.03,
+        left: windowWidth * 0.01,
+        zIndex: 2,
+    },
+    userroleChild: {
+        top: windowHeight * 0.001,
+        left: windowWidth * 0.001,
+        maxHeight: "100%",
+        width: windowWidth * 0.07,
+        zIndex: 1,
+    }
 });
-
-export default ResetPasswordScreen;

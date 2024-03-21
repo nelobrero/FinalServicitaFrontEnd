@@ -10,7 +10,6 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Feather from '@expo/vector-icons/Feather';
 import Error from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from "expo-linear-gradient";
-import firestore from '@react-native-firebase/firestore';
 import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -155,18 +154,18 @@ const LoginPage = ({ navigation }) => {
         }
       }
     
-    const checkIfEmailExists = async (email) => {
+      const checkIfEmailExists = async (email) => {
         try {
-          const querySnapshot = await firestore()
-            .collection('users')
-            .where('email', '==', email)
-            .get();
-          return !querySnapshot.empty;
+          const emailExists = await axios.post('http://192.168.1.14:5000/user/checkIfEmailExists', { email: email });
+            if (emailExists.data) {
+              return true;
+            } else {
+                return false;
+            }
         } catch (error) {
-          console.error('Error checking if email exists in Firestore:', error);
-          return false;
+          console.error('Error checking if email exists in MongoDB:', error);
         }
-      };
+    };
 
     const handleSubmit = () => {
         const userData = {

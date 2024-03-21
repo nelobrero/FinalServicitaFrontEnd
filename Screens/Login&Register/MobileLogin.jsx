@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Text, StyleSheet, View, TextInput, Alert, Dimensions, Pressable, Image, SafeAreaView, ScrollView} from "react-native";
+import React, { useState, useRef } from "react";
+import { Text, StyleSheet, View, TextInput, Alert, Dimensions, Pressable, Image, SafeAreaView } from "react-native";
 import { Color, FontFamily, FontSize, Border, errorText } from "./../../GlobalStyles";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Feather from '@expo/vector-icons/Feather';
@@ -7,6 +7,7 @@ import Error from '@expo/vector-icons/MaterialIcons';
 import auth from '@react-native-firebase/auth';
 import axios from "axios";
 import Button from "../../components/Button";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -14,9 +15,10 @@ const windowHeight = Dimensions.get('window').height;
 export default function MobileLogin({navigation}) {
     const [mobile, setMobile] = useState('+63');
     const [mobileVerify, setMobileVerify] = useState(false);
-    const [code, setCode] = useState(['', '', '', '']);
+    const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
     const [confirm, setConfirm] = useState(null);
+    const [mobileData, setMobileData] = useState("");
 
 
     const signInWithPhoneNumber = async () => {
@@ -26,7 +28,7 @@ export default function MobileLogin({navigation}) {
                 const confirmation = await auth().signInWithPhoneNumber(mobile);
                 setConfirm(confirmation);
             } else {
-                Alert.alert("Mobile Number not found", "The mobile number you entered is not registered. Please register first.", [{ text: "OK", onPress: () => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}]);
+                Alert.alert("Mobile Number not found", "The mobile number you entered is not registered.");
             }
         } catch (error) {
             console.log(error);
@@ -35,15 +37,24 @@ export default function MobileLogin({navigation}) {
 
     const confirmCode = async () => {
         try {
-            await confirm.confirm(code);
-            if(confirm) {
-                await axios.post("http://192.168.1.14:5000/user/verifyMobile", { mobile });
-                navigation.navigate("Home");
-            } else {
-                Alert.alert("Invalid code", "The code you entered is invalid. Please try again.", [{ text: "OK", onPress: () => console.log("OK Pressed")}]);
+            await confirm.confirm(code.join(''));
+            if(mobileData.verified.mobile === false) {
+                await axios.post("http://192.168.1.14:5000/user/verifyMobile", { userId: mobileData._id, mobile: mobile });
             }
+            await axios.post("http://192.168.1.14:5000/user/loginUsingMobile", { mobile: mobile }).then((res) => {
+        console.log(res.data)
+        if (res.data.status === 'SUCCESS') {
+            Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+            AsyncStorage.setItem('token', res.data.data);
+            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            navigation.navigate('Tab');
+        }
+    }). catch((error) => {
+        console.log(error);
+    })
+           
         } catch (error) {
-            console.log(error);
+            Alert.alert("Error", "An error occurred while verifying the code. Please try again OR NAGBINUGO RA KAG TYPE SA CODE.", [{ text: "OK", onPress: () => console.log("OK Pressed")}]);
         }
     };
 
@@ -52,6 +63,7 @@ export default function MobileLogin({navigation}) {
             const response = await axios.post("http://192.168.1.14:5000/user/getMobile", { mobile });
             if(response.status === 200) {
                 if(response.data.status === "SUCCESS") {
+                    setMobileData(response.data.data);
                     return true;
                 } else {
                     return false;
@@ -186,11 +198,11 @@ export default function MobileLogin({navigation}) {
                 ) : (
                     <>
                     <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={[styles.text, styles.title]}>We’ve sent the code to:</Text>
-                <Text style={[styles.text, styles.email]}>{mobile}</Text>
+                <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>We’ve sent the code to:</Text>
+                <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>{mobile}</Text>
                 
                     <View style={styles.codeInputContainer}>
-                        {[0, 1, 2, 3].map((index) => (
+                        {[0, 1, 2, 3, 4, 5].map((index) => (
                             <TextInput
                                 key={index}
                                 ref={(ref) => (inputRefs.current[index] = ref)}
@@ -223,6 +235,7 @@ export default function MobileLogin({navigation}) {
                 height: windowHeight * 0.08,
             }}
             onPress={confirmCode}
+            disabled={code.includes('')}
             />
             <Button
             title="Send Again"
@@ -269,16 +282,6 @@ const styles = StyleSheet.create({
         fontSize: FontSize.size_mini,
         color: Color.colorBlack,
     },
-    title: {
-        marginBottom: 10,
-        fontWeight: 300,
-        bottom: windowHeight * 0.02,
-    },
-    email: {
-        bottom: windowHeight * 0.03,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
     timerContainer: {
         marginBottom: 10,
         flexDirection: 'row'
@@ -288,8 +291,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     codeInput: {
-        width: 70,
-        height: 70,
+        width: 50,
+        height: 50,
         borderWidth: 1,
         borderColor: Color.colorGray,
         backgroundColor: Color.colorGainsboro,
@@ -297,8 +300,42 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
         textAlign: 'center',
         fontSize: FontSize.size_5xl,
-        marginHorizontal: 10,
         paddingHorizontal: 10,
         color: Color.colorBlue,
-    }
+    },
+    passwordFlexBox: {
+        justifyContent: "center",
+        alignItems: "center",
+        display: "flex",
+        textAlign: "center",
+        lineHeight: 23,
+        position: "absolute",
+    },
+    passwordRecovery: {
+        top: windowHeight * 0.05,
+        fontSize: FontSize.size_6xl,
+        color: Color.colorDarkslategray_100,
+        width: windowWidth * 0.7,
+        height: windowHeight * 0.1,
+        fontFamily: FontFamily.quicksandBold,
+        fontWeight: "700",
+        alignItems: "center",
+        display: "flex",
+        textAlign: "center",
+        lineHeight: windowHeight * 0.1,
+    },
+    enterYourEmail: {
+        top: windowHeight * 0.1,
+        fontSize: FontSize.size_mini,
+        letterSpacing: 0.5,
+        fontWeight: "300",
+        fontFamily: FontFamily.quicksandLight,
+        color: Color.colorBlack,
+        height: windowHeight * 0.05,
+        alignItems: "center",
+        display: "flex",
+        textAlign: "center",
+        lineHeight: windowHeight * 0.05,
+        width: windowWidth * 1,
+    },
 });

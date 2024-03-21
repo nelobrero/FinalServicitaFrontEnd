@@ -101,10 +101,6 @@ function VerificationScreen({ navigation, route, props }) {
     }
 
     const handleVerifyPress = () => {
-        if (timer <= 0) {
-            Alert.alert('Error', 'Verification code has expired. Please request a new one.', [{ text: 'OK' }]);
-            return;
-        }
         const userData = {
             userId: finalUserId,
             otp: code.join(''),
@@ -128,7 +124,7 @@ function VerificationScreen({ navigation, route, props }) {
     };
     
     const handleSendAgainPress = () => {
-        setTimer(1800);
+        setTimer(300);
         const userData = {
             userId: finalUserId,
             email: email,
@@ -163,6 +159,7 @@ function VerificationScreen({ navigation, route, props }) {
         <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
         <View style={styles.container}>
+
             <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
                     <Image
                     style={styles.userroleChild}
@@ -183,8 +180,8 @@ function VerificationScreen({ navigation, route, props }) {
                     </Text>
                 </View>
             <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={[styles.text, styles.title]}>We’ve sent the code to:</Text>
-                <Text style={[styles.text, styles.email]}>{email}</Text>
+                <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>We’ve sent the code to:</Text>
+                <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>{email}</Text>
                 <View style={styles.timerContainer}>
                     <Text style={styles.text}>Code expires in: </Text>
                     <Text style={[styles.text, {fontWeight: '800'}]}>{formatTime(timer)}</Text>
@@ -225,7 +222,7 @@ function VerificationScreen({ navigation, route, props }) {
                 height: windowHeight * 0.08,
             }}
             onPress={handleVerifyPress}
-            disabled={timer <= 0}
+            disabled={timer <= 0 || code.includes('')}
             />
             <Button
             title="Send Again"
@@ -272,16 +269,6 @@ const styles = StyleSheet.create({
         fontSize: FontSize.size_mini,
         color: Color.colorBlack,
     },
-    title: {
-        marginBottom: 10,
-        fontWeight: 300,
-        bottom: windowHeight * 0.02,
-    },
-    email: {
-        bottom: windowHeight * 0.03,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
     timerContainer: {
         marginBottom: 10,
         flexDirection: 'row'
@@ -303,7 +290,37 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         paddingHorizontal: 10,
         color: Color.colorBlue,
-    }
+    },
+    passwordFlexBox: {
+        justifyContent: "center",
+        alignItems: "center",
+        display: "flex",
+        textAlign: "center",
+        lineHeight: 23,
+        marginBottom: windowHeight * 0.04,
+    },
+    passwordRecovery: {
+        fontSize: FontSize.size_6xl,
+        color: Color.colorDarkslategray_100,
+        fontFamily: FontFamily.quicksandBold,
+        fontWeight: "700",
+        alignItems: "center",
+        display: "flex",
+        textAlign: "center",
+        lineHeight: windowHeight * 0.1,
+    },
+    enterYourEmail: {
+        fontSize: FontSize.size_mini,
+        letterSpacing: 0.5,
+        fontWeight: "300",
+        fontFamily: FontFamily.quicksandLight,
+        color: Color.colorBlack,
+        alignItems: "center",
+        display: "flex",
+        textAlign: "center",
+        lineHeight: windowHeight * 0.05,
+        bottom: windowHeight * 0.02,
+    },
 });
 
 export default VerificationScreen;

@@ -29,7 +29,7 @@ import ProviderEditProfileScreen from './Screens/ProviderEditProfileScreen';
 import VerificationScreen from './Screens/Login&Register/VerificationScreen';
 import Welcome from './Screens/Login&Register/Welcome';
 import ForgotPasswordScreen from './Screens/Login&Register/ForgotPasswordScreen';
-
+import ResetPasswordScreen from './Screens/ResetPasswordScreen';
 
 const LoginNav = ({userData}) => {
 
@@ -67,6 +67,7 @@ const LoginNav = ({userData}) => {
             <Stack.Screen name='Welcome' component={Welcome} />
             <Stack.Screen name='AddressForm' component={AddressForm} />
             <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
+            <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
         </Stack.Navigator>)
 }
 

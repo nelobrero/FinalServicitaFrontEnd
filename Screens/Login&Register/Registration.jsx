@@ -8,7 +8,6 @@ import Feather from '@expo/vector-icons/Feather';
 import Error from '@expo/vector-icons/MaterialIcons';
 import { AccessToken, GraphRequest, GraphRequestManager, LoginManager} from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import firestore from '@react-native-firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 
@@ -253,7 +252,6 @@ export default function RegisterPage ({navigation, route, props}) {
                         <TextInput
                             placeholder='Enter your last name'
                             placeholderTextColor={Color.colorBlue}
-                            keyboardType='phone-pad'
                             style={{
                                 width: '100%'
                             }}
@@ -298,7 +296,6 @@ export default function RegisterPage ({navigation, route, props}) {
                         <TextInput
                             placeholder='Enter your email address'
                             placeholderTextColor={Color.colorBlue}
-                            keyboardType='email-address'
                             style={{
                                 width: '100%'
                             }}

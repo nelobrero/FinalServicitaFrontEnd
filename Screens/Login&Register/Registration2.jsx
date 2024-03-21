@@ -12,7 +12,6 @@ import Button from '../../components/Button';
 import { AccessToken, GraphRequest, GraphRequestManager, LoginManager} from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import axios from 'axios';
-import firestore from '@react-native-firebase/firestore';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -36,6 +35,10 @@ export default function RegisterPage2 ({navigation, route, props}) {
     useEffect(() => {
         convertDate(birthDate);
     }, [birthDate]);
+
+    useEffect(() => {
+        setConfirmPasswordVerify(confirmPassword === password);
+    }, [confirmPassword, password]);
 
     const validateFields = () => {
         return mobileVerify  && passwordVerify && confirmPasswordVerify && isChecked;
@@ -397,7 +400,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
                      onChange={(e) => {
                         const confirmPasswordInput = e.nativeEvent.text;
                         setConfirmPassword(confirmPasswordInput);
-                        setConfirmPasswordVerify(confirmPasswordInput.length >= 8 && confirmPasswordInput === password);
+                        
                     }}
                     />
                     <TouchableOpacity onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)} style={{ position: "absolute", right: 12 }}>

@@ -22,14 +22,6 @@
           }
         },
         {
-          "client_id": "916162526509-ire5dhnqb76cjfqd8acfrsjjpne9oukh.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.xdhunter6.FrontEnd",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-          }
-        },
-        {
           "client_id": "916162526509-tvn3pvr4u7pmv8cf4av9qj665bgdpagj.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
