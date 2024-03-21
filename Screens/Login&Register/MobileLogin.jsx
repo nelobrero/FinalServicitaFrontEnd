@@ -18,7 +18,7 @@ export default function MobileLogin({navigation}) {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
     const [confirm, setConfirm] = useState(null);
-    const [mobileData, setMobileData] = useState("");
+    const [mobileData, setMobileData] = useState({});
 
 
     const signInWithPhoneNumber = async () => {
@@ -51,6 +51,7 @@ export default function MobileLogin({navigation}) {
         }
     }). catch((error) => {
         console.log(error);
+        Alert.alert('Error', "IMONG MAMA", [{ text: 'OK' }]);
     })
            
         } catch (error) {
@@ -198,8 +199,10 @@ export default function MobileLogin({navigation}) {
                 ) : (
                     <>
                     <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <View style = {{ marginBottom: windowHeight * 0.03 }}>
                 <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>We’ve sent the code to:</Text>
                 <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>{mobile}</Text>
+                </View>
                 
                     <View style={styles.codeInputContainer}>
                         {[0, 1, 2, 3, 4, 5].map((index) => (
@@ -309,33 +312,28 @@ const styles = StyleSheet.create({
         display: "flex",
         textAlign: "center",
         lineHeight: 23,
-        position: "absolute",
     },
     passwordRecovery: {
-        top: windowHeight * 0.05,
         fontSize: FontSize.size_6xl,
         color: Color.colorDarkslategray_100,
-        width: windowWidth * 0.7,
-        height: windowHeight * 0.1,
         fontFamily: FontFamily.quicksandBold,
         fontWeight: "700",
         alignItems: "center",
         display: "flex",
         textAlign: "center",
         lineHeight: windowHeight * 0.1,
+        bottom: windowHeight * 0.03,
     },
     enterYourEmail: {
-        top: windowHeight * 0.1,
         fontSize: FontSize.size_mini,
         letterSpacing: 0.5,
         fontWeight: "300",
         fontFamily: FontFamily.quicksandLight,
         color: Color.colorBlack,
-        height: windowHeight * 0.05,
         alignItems: "center",
         display: "flex",
         textAlign: "center",
         lineHeight: windowHeight * 0.05,
-        width: windowWidth * 1,
+        bottom: windowHeight * 0.02,
     },
 });
