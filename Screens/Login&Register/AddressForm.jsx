@@ -1,5 +1,5 @@
-import { View, Text, TextInput, TouchableOpacity, Image, Pressable, Dimensions, ScrollView, Alert, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity, Image, Pressable, Dimensions, ScrollView, Alert, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
+import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Color, errorText } from './../../GlobalStyles';
 import Button from './../../components/Button';
@@ -8,7 +8,6 @@ import Feather from '@expo/vector-icons/Feather';
 import Error from '@expo/vector-icons/MaterialIcons';
 import { AccessToken, GraphRequest, GraphRequestManager, LoginManager} from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import firestore from '@react-native-firebase/firestore';
 import axios from 'axios';
 
 const windowWidth = Dimensions.get('window').width;
@@ -18,19 +17,46 @@ export default function AddressForm ({navigation, route, props}) {
     const [streetAddress1, setStreetAddress1] = useState('');
     const [streetAddress1Verify, setStreetAddress1Verify] = useState(false);
     const [streetAddress2, setStreetAddress2] = useState('');
-    const [city, setCity] = useState('');
-    const [cityVerify, setCityVerify] = useState(false);
-    const [state, setState] = useState('');
-    const [stateVerify, setStateVerify] = useState(false);
-    const [postalCode, setPostalCode] = useState('');
-    const [postalCodeVerify, setPostalCodeVerify] = useState(false);
+    const [selectedValue, setSelectedValue] = useState(null);
+    const [showSelectList, setShowSelectList] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    // const [state, setState] = useState('');
+    // const [stateVerify, setStateVerify] = useState(false);
+    // const [postalCode, setPostalCode] = useState('');
+    // const [postalCodeVerify, setPostalCodeVerify] = useState(false);
+    
     
 
     const { name, email, role, birthDate } = route.params;
     const [roleText, setRoleText] = useState(role === 'Seeker' ? 'Seeking' : 'Servicing');
+    
     const validateFields = () => {
-        return streetAddress1Verify && cityVerify && stateVerify && postalCodeVerify;
+        return streetAddress1Verify && selectedValue;
     }
+
+    const handleSelect = (value) => {
+        setSelectedValue(value);
+        setShowSelectList(false);
+
+    };
+
+    const [data, setData] = useState([]);
+
+    const filteredData = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+
+    useEffect(() => {
+        fetchCities();
+    }, []);
+
+    const fetchCities = async () => {
+        try {
+            const response = await axios.get('http://192.168.1.14:5000/location/getCities');
+            setData(response.data.data);
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
+    };
 
     const onFacebookButtonPress = async () => {
         try {
@@ -123,7 +149,7 @@ export default function AddressForm ({navigation, route, props}) {
     
     const checkIfEmailExists = async (email) => {
         try {
-          const emailExists = await axios.post('http://192.168.1.14:5000/user/checkIfEmailExists', { email: email });
+          const emailExists = await axios.post('http://192.168.1.14:5000/user/getUserDetailsByEmail', { email: email });
             if (emailExists.data) {
               return true;
             } else {
@@ -246,51 +272,74 @@ export default function AddressForm ({navigation, route, props}) {
                     </View>
                 </View>
 
-                <View style={{ marginBottom: windowHeight * 0.01 }}>
-                    <Text style={{
-                        fontSize: windowWidth * 0.05,
-                        fontWeight: '400',
-                        marginVertical: windowHeight * 0.01,
-                        color: Color.colorBlue
-                    }}>City/Town</Text>
-                    
+                <TouchableWithoutFeedback onPress={() => setShowSelectList(false)}>
+            <View style={{ marginBottom: windowHeight * 0.01 }}>
+                <Text style={{
+                    fontSize: windowWidth * 0.05,
+                    fontWeight: '400',
+                    marginVertical: windowHeight * 0.01,
+                    color: Color.colorBlue,
+                }}>City/Municipality</Text>
+                <TouchableOpacity onPress={() => setShowSelectList(true)}>
                     <View style={{
                         width: '100%',
                         height: windowHeight * 0.06,
-                        borderColor: city === null || city === '' ? Color.colorBlue1 : cityVerify ? Color.colorGreen : Color.colorRed,
+                        borderColor: selectedValue ? Color.colorGreen : Color.colorBlue1,
                         borderWidth: 1,
                         borderRadius: windowHeight * 0.015,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        paddingLeft: windowWidth * 0.05,
-                        paddingHorizontal: windowWidth * 0.13,
+                        paddingLeft: windowWidth * 0.025,
+                        paddingHorizontal: windowWidth * 0.14,
                         flexDirection: 'row'
                     }}>
-                        <Error name="location-city" color = {city === null || city === '' ? Color.colorBlue1 : cityVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}} />
+                        <Error name="location-city" color = {selectedValue === null || selectedValue === '' ? Color.colorBlue1 : selectedValue ? Color.colorGreen : Color.colorBlue1} style={{marginRight: 5, fontSize: 24}}/>
                         <TextInput
-                            placeholder='Enter city or town'
+                            placeholder='Select City/Municipality'
                             placeholderTextColor={Color.colorBlue}
-                            style={{
-                                width: '100%'
-                            }}
-                            onChange={(e) => {
-                                const citi = e.nativeEvent.text;
-                                setCity(citi);
-                                setCityVerify(citi.length > 0 && citi.length <= 25);
-                            }}
+                            value={selectedValue ? selectedValue.name : '' }
+                            editable={false}
+                            style={{ flex: 1 }}
+                            color={selectedValue ? Color.colorBlack : Color.colorBlue}
                         />
-                        {city.length < 1 ? null : cityVerify ? (
+                        {selectedValue ? (
                             <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : (                                                                     
-                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
-                        )}
+                        ) : null}
                     </View>
-                    {city.length < 1 ? null : cityVerify ? null : (
-                        <Text style={errorText}>City/Town must not exceed 25 characters.</Text>
-                    )}
-                </View>
+                </TouchableOpacity>
 
-                <View style={{ marginBottom: windowHeight * 0.01 }}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={showSelectList}
+                    onRequestClose={() => setShowSelectList(false)}
+                >
+                    <TouchableWithoutFeedback onPress={() => setShowSelectList(false)}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                            <View style={{ backgroundColor: 'white', width: '80%', maxHeight: '80%', borderRadius: 10 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)', height: windowHeight * 0.06, }}>
+                                <FontAwesome name="search" color={Color.colorBlue} style={{ marginLeft: 10, fontSize: 20 }} />
+                                <TextInput
+                                    placeholder='Search...'
+                                    onChangeText={text => setSearchQuery(text)}
+                                    style={{ paddingHorizontal: 10 }}
+                                />
+                                </View>
+                                <ScrollView style={{ maxHeight: windowHeight * 0.5 }}>
+                                {filteredData.map((item, index) => (
+                                    <TouchableOpacity key={item.key} onPress={() => handleSelect(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
+                                        <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                                </ScrollView>
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </Modal>
+            </View>
+        </TouchableWithoutFeedback>
+
+                {/* <View style={{ marginBottom: windowHeight * 0.01 }}>
                     <Text style={{
                         fontSize: windowWidth * 0.05,
                         fontWeight: '400',
@@ -378,12 +427,12 @@ export default function AddressForm ({navigation, route, props}) {
                     {postalCode.length < 1 ? null : postalCodeVerify ? null : (
                          <Text style={errorText}>Postal Code/ZIP Code must be 4 digits long.</Text>
                     )}
-                </View>
+                </View> */}
 
 
                 <Button
                     title="Next"
-                    onPress={() => navigation.navigate("Register2", { name: name, email: email, role: role, address: streetAddress1 + " " + streetAddress2 + ", " + city + ", " + state + ", " + postalCode, birthDate: birthDate })}
+                    onPress={() => navigation.navigate("Register2", { name: name, email: email, role: role, address: streetAddress1 + " " + streetAddress2 + ", " + selectedValue.name, birthDate: birthDate })}
                     filled
                     Color={Color.colorWhite}
                     style={{

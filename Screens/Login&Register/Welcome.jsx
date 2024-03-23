@@ -1,14 +1,31 @@
-import { View, Text, Image, Pressable, Dimensions, ScrollView, SafeAreaView } from 'react-native'
-import React from 'react' 
+import { View, Text, Image, Pressable, Dimensions, SafeAreaView } from 'react-native'
+import React, { useEffect } from 'react' 
 import { LinearGradient } from "expo-linear-gradient";
 import { Color } from "./../../GlobalStyles";
 import Button from '../../components/Button';
+import { createNotifications, useNotifications } from 'react-native-notificated';
 
-const Welcome = ({ navigation, route }) => {
-  const { width, height } = Dimensions.get('window');
+export default function Welcome ({ navigation, route }) {
+    
+    const { NotificationsProvider } = createNotifications();
+    const { notify } = useNotifications();
+
+    const { width, height } = Dimensions.get('window');
+
+    useEffect(() => {
+        notify('info', {
+            params: {
+                title: 'Welcome to Servicita',
+                description: 'Login or Register to get started.'
+            },
+        });
+      }, [])
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite}}>
+            <View style = {{alignItems: 'center'}}>
+            <NotificationsProvider/>
+            </View>
             <LinearGradient
                 style={{
                     flex: 1
@@ -80,9 +97,6 @@ const Welcome = ({ navigation, route }) => {
                         </View>
                     </View>
             </LinearGradient>
-        </ScrollView>
     </SafeAreaView>
   )
 }
-
-export default Welcome

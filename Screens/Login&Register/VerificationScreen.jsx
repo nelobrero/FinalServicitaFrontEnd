@@ -9,7 +9,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 
-function VerificationScreen({ navigation, route, props }) {
+export default function VerificationScreen({ navigation, route, props }) {
     
     const [timer, setTimer] = useState(300);
     const [code, setCode] = useState(['', '', '', '']);
@@ -323,4 +323,3 @@ const styles = StyleSheet.create({
     },
 });
 
-export default VerificationScreen;

@@ -61,7 +61,7 @@ export default function ForgotPasswordScreen({navigation}) {
 
     const getUserId = async () => {
         try {
-            const response = await axios.post("http://192.168.1.14:5000/user/getuserid", { email: email });
+            const response = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", { email: email });
             setUserId(response.data.data._id);
         } catch (error) {
             console.log(error);

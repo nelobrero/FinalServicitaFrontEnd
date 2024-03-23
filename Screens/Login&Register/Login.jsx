@@ -1,5 +1,5 @@
 import {  View, Text, TextInput, TouchableOpacity, Image, Pressable, Platform, Dimensions, Alert, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Color, circleContainer, circleButton, errorText } from "./../../GlobalStyles";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,9 +12,13 @@ import Error from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from "expo-linear-gradient";
 import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useNotifications, createNotifications } from 'react-native-notificated';
 
-const LoginPage = ({ navigation }) => {
-    const [email, setEmail] = useState('');
+export default function LoginPage ({ navigation }) {
+  const { NotificationsProvider } = createNotifications();
+  const { notify } = useNotifications();  
+  
+  const [email, setEmail] = useState('');
     const [emailVerify, setEmailVerify] = useState(false);
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState(false);
@@ -24,6 +28,15 @@ const LoginPage = ({ navigation }) => {
     const validateFields = () => {
         return emailVerify && passwordVerify;
     }
+
+    useEffect(() => {
+      notify('info', {
+        params: {
+          title: 'Welcome Back!',
+          description: 'Login to your account.',
+        }
+      });
+    }, [])
 
     const onFacebookButtonPress = async () => {
         try {
@@ -160,10 +173,14 @@ const LoginPage = ({ navigation }) => {
             if (emailExists.data) {
               return true;
             } else {
-                return false;
+              return false;
             }
         } catch (error) {
-          console.error('Error checking if email exists in MongoDB:', error);
+          if (error.response.data.message === "Email does not exist"){
+            Alert.alert('Error', 'Email does not exist.', [{ text: 'OK' }]);
+          } else {
+            Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+          }
         }
     };
 
@@ -197,6 +214,9 @@ const LoginPage = ({ navigation }) => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
+            <View style = {{alignItems: 'center'}}>
+            <NotificationsProvider/>
+            </View>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
                 <LinearGradient
                     style={{ flex: 1 }}
@@ -274,7 +294,7 @@ const LoginPage = ({ navigation }) => {
                                 </TouchableOpacity>
                             </View>
                             {password.length < 1 ? null : passwordVerify ? null : (
-                                <Text style={[errorText, {color: Color.colorWhite }]}>Password must be at least 8 characters long and include at least one uppercase letter and one digit.</Text>
+                                <Text style={[errorText, {color: password === null || password === '' ? Color.colorWhite : passwordVerify ? Color.colorWhite : Color.colorCoralShade, textAlign: 'left' }]}>Password must be at least 8 characters long and include at least one uppercase letter and one digit.</Text>
                             )}
                         </View>
 
@@ -319,10 +339,7 @@ const LoginPage = ({ navigation }) => {
                     </View>
                 </LinearGradient>
             </ScrollView>
+            
         </SafeAreaView>
     )
 }
-
-
-
-export default LoginPage;

@@ -148,7 +148,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
     
     const checkIfEmailExists = async (email) => {
         try {
-          const emailExists = await axios.post('http://192.168.1.14:5000/user/checkIfEmailExists', { email: email });
+          const emailExists = await axios.post('http://192.168.1.14:5000/user/getUserDetailsByEmail', { email: email });
             if (emailExists.data) {
               return true;
             } else {

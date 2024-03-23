@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, Image, Pressable, Dimensions, ScrollView, Alert, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Color, errorText } from '../../GlobalStyles';
 import Button from '../../components/Button';
@@ -22,31 +22,22 @@ export default function MissingInfoPage ({navigation, route, props}) {
     const [streetAddress1, setStreetAddress1] = useState('');
     const [streetAddress1Verify, setStreetAddress1Verify] = useState(false);
     const [streetAddress2, setStreetAddress2] = useState('');
-    const [city, setCity] = useState('');
-    const [cityVerify, setCityVerify] = useState(false);
-    const [state, setState] = useState('');
-    const [stateVerify, setStateVerify] = useState(false);
-    const [postalCode, setPostalCode] = useState('');
-    const [postalCodeVerify, setPostalCodeVerify] = useState(false);
+    // const [state, setState] = useState('');
+    // const [stateVerify, setStateVerify] = useState(false);
+    // const [postalCode, setPostalCode] = useState('');
+    // const [postalCodeVerify, setPostalCodeVerify] = useState(false);
     const [mobile, setMobile] = useState('+63');
     const [mobileVerify, setMobileVerify] = useState(false);
-    const [selectedValue, setSelectedValue] = useState(null);
-    const [showSelectList, setShowSelectList] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedValueService, setSelectedValueService] = useState(null);
+    const [showSelectListService, setShowSelectListService] = useState(false);
+    const [searchQueryService, setSearchQueryService] = useState('');
+    const [selectedValueCity, setSelectedValueCity] = useState(null);
+    const [showSelectListCity, setShowSelectListCity] = useState(false);
+    const [searchQueryCity, setSearchQueryCity] = useState('');
     
-    const [data, setData] = useState([
-        { key: '1', value: 'Manicure/Pedicure Service' },
-        { key: '2', value: 'Hair and Makeup Service' },
-        { key: '3', value: 'Septic Tank Service' },
-        { key: '4', value: 'Home Cleaner Service' },
-        { key: '5', value: 'Massage Service' },
-        { key: '6', value: 'Plumbing Services' },
-        { key: '7', value: 'Electrical Services' },
-        { key: '8', value: 'Tutoring Services' },
-        { key: '9', value: 'Catering Services' }
-    ]);
     
-    const filteredData = data.filter(item => item.value.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    
 
     const today = new Date();
     const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
@@ -58,13 +49,41 @@ export default function MissingInfoPage ({navigation, route, props}) {
 
     const [roleText, setRoleText] = useState(role === 'Seeker' ? 'Seeking' : 'Servicing');
 
-    console.log(email, name, userId, role);
+    const [services, setServices] = useState([]);
+    const [cities, setCities] = useState([]);
+
+    const filteredServices = services.filter(item => item.name.toLowerCase().includes(searchQueryService.toLowerCase()));
+    const filteredCities = cities.filter(item => item.name.toLowerCase().includes(searchQueryCity.toLowerCase()));
+    
+
+    useEffect(() => {
+        fetchServices();
+        fetchCities();
+    }, []);
+
+    const fetchServices = async () => {
+        try {
+            const response = await axios.get('http://192.168.1.14:5000/service/getServices');
+            setServices(response.data.data);
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
+    };
+
+    const fetchCities = async () => {
+        try {
+            const response = await axios.get('http://192.168.1.14:5000/location/getCities');
+            setCities(response.data.data);
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
+    };
 
     const validateFields = () => {
         if (role === 'Provider') {
-            return birthdayVerify && streetAddress1Verify && cityVerify && stateVerify && postalCodeVerify && mobileVerify && selectedValue !== "";
+            return birthdayVerify && streetAddress1Verify && selectedValueCity && mobileVerify && selectedValueService;
         } else {
-            return birthdayVerify && streetAddress1Verify && cityVerify && stateVerify && postalCodeVerify && mobileVerify;
+            return birthdayVerify && streetAddress1Verify && selectedValueCity && mobileVerify;
         }
     }
 
@@ -75,9 +94,16 @@ export default function MissingInfoPage ({navigation, route, props}) {
         setBirthdayVerify(currentDate <= minDate);
     }
 
-    const handleSelect = (value) => {
-        setSelectedValue(value);
-        setShowSelectList(false);
+    const handleSelectService = (value) => {
+        setSelectedValueService(value);
+        setShowSelectListService(false);
+
+    };
+
+    const handleSelectCity = (value) => {
+        setSelectedValueCity(value);
+        setShowSelectListCity(false);
+
     };
 
     const saveDetails = async (userId) => {
@@ -86,15 +112,15 @@ export default function MissingInfoPage ({navigation, route, props}) {
                 const userRef = firestore().collection('providers').doc(userId);
                 await userRef.set({
                     name: name,
-                    address: streetAddress1 + " " + streetAddress2 + ", " + city + ", " + state + ", " + postalCode,
+                    address: streetAddress1 + " " + streetAddress2 + ", " + selectedValueCity.name,
                     birthDate: firestore.Timestamp.fromDate(new Date(birthday)),
-                    service: selectedValue.value
+                    service: selectedValueService.name
                 })
             } else if (role === 'Seeker') {
                 const userRef = firestore().collection('seekers').doc(userId);
                 await userRef.set({
                     name: name,
-                    address: streetAddress1 + " " + streetAddress2 + ", " + city + ", " + state + ", " + postalCode,
+                    address: streetAddress1 + " " + streetAddress2 + ", " + selectedValueCity.name,
                     birthDate: firestore.Timestamp.fromDate(new Date(birthday)),
                 })
             }
@@ -132,8 +158,9 @@ export default function MissingInfoPage ({navigation, route, props}) {
 
     const renderButton = () => {
         if (role === 'Provider') {
+
             return (
-                <TouchableWithoutFeedback onPress={() => setShowSelectList(false)}>
+                <TouchableWithoutFeedback onPress={() => setShowSelectListService(false)}>
             <View style={{ marginBottom: windowHeight * 0.01 }}>
                 <Text style={{
                     fontSize: windowWidth * 0.05,
@@ -141,11 +168,11 @@ export default function MissingInfoPage ({navigation, route, props}) {
                     marginVertical: windowHeight * 0.01,
                     color: Color.colorBlue,
                 }}>Service</Text>
-                <TouchableOpacity onPress={() => setShowSelectList(true)}>
+                <TouchableOpacity onPress={() => setShowSelectListService(true)}>
                     <View style={{
                         width: '100%',
                         height: windowHeight * 0.06,
-                        borderColor: selectedValue ? Color.colorGreen : Color.colorBlue1,
+                        borderColor: selectedValueService ? Color.colorGreen : Color.colorBlue1,
                         borderWidth: 1,
                         borderRadius: windowHeight * 0.015,
                         alignItems: 'center',
@@ -154,16 +181,16 @@ export default function MissingInfoPage ({navigation, route, props}) {
                         paddingHorizontal: windowWidth * 0.14,
                         flexDirection: 'row'
                     }}>
-                        <FontAwesome name="bell" color = {selectedValue === null || selectedValue === '' ? Color.colorBlue1 : selectedValue ? Color.colorGreen : Color.colorBlue1} style={{marginRight: 5, fontSize: 24}}/>
+                        <FontAwesome name="bell" color = {selectedValueService === null || selectedValueService === '' ? Color.colorBlue1 : selectedValueService ? Color.colorGreen : Color.colorBlue1} style={{marginRight: 5, fontSize: 24}}/>
                         <TextInput
                             placeholder='Select service'
                             placeholderTextColor={Color.colorBlue}
-                            value={selectedValue ? selectedValue.value : ''}
+                            value={selectedValueService ? selectedValueService.name : '' }
                             editable={false}
                             style={{ flex: 1 }}
-                            color={selectedValue ? Color.colorBlack : Color.colorBlue}
+                            color={selectedValueService ? Color.colorBlack : Color.colorBlue}
                         />
-                        {selectedValue ? (
+                        {selectedValueService ? (
                             <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
                         ) : null}
                     </View>
@@ -172,26 +199,26 @@ export default function MissingInfoPage ({navigation, route, props}) {
                 <Modal
                     animationType="slide"
                     transparent={true}
-                    visible={showSelectList}
-                    onRequestClose={() => setShowSelectList(false)}
+                    visible={showSelectListService}
+                    onRequestClose={() => setShowSelectListService(false)}
                 >
-                    <TouchableWithoutFeedback onPress={() => setShowSelectList(false)}>
+                    <TouchableWithoutFeedback onPress={() => setShowSelectListService(false)}>
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                             <View style={{ backgroundColor: 'white', width: '80%', maxHeight: '80%', borderRadius: 10 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)', height: windowHeight * 0.06, }}>
                                 <FontAwesome name="search" color={Color.colorBlue} style={{ marginLeft: 10, fontSize: 20 }} />
                                 <TextInput
                                     placeholder='Search...'
-                                    onChangeText={text => setSearchQuery(text)}
+                                    onChangeText={text => setSearchQueryService(text)}
                                     style={{ paddingHorizontal: 10 }}
                                 />
                                 </View>
-                                <ScrollView>
-                                    {filteredData.map((item, index) => (
-                                         <TouchableOpacity key={item.key} onPress={() => handleSelect(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
-                                         <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.value}</Text>
-                                     </TouchableOpacity>
-                                    ))}
+                                <ScrollView style={{ maxHeight: windowHeight * 0.5 }}>
+                                {filteredServices.map((item, index) => (
+                                    <TouchableOpacity key={item.key} onPress={() => handleSelectService(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
+                                        <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
                                 </ScrollView>
                             </View>
                         </View>
@@ -380,51 +407,74 @@ export default function MissingInfoPage ({navigation, route, props}) {
                     </View>
                 </View>
 
-                <View style={{ marginBottom: windowHeight * 0.01 }}>
-                    <Text style={{
-                        fontSize: windowWidth * 0.05,
-                        fontWeight: '400',
-                        marginVertical: windowHeight * 0.01,
-                        color: Color.colorBlue
-                    }}>City/Town</Text>
-                    
+                <TouchableWithoutFeedback onPress={() => setShowSelectListCity(false)}>
+            <View style={{ marginBottom: windowHeight * 0.01 }}>
+                <Text style={{
+                    fontSize: windowWidth * 0.05,
+                    fontWeight: '400',
+                    marginVertical: windowHeight * 0.01,
+                    color: Color.colorBlue,
+                }}>City/Municipality</Text>
+                <TouchableOpacity onPress={() => setShowSelectListCity(true)}>
                     <View style={{
                         width: '100%',
                         height: windowHeight * 0.06,
-                        borderColor: city === null || city === '' ? Color.colorBlue1 : cityVerify ? Color.colorGreen : Color.colorRed,
+                        borderColor: selectedValueCity ? Color.colorGreen : Color.colorBlue1,
                         borderWidth: 1,
                         borderRadius: windowHeight * 0.015,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        paddingLeft: windowWidth * 0.05,
-                        paddingHorizontal: windowWidth * 0.13,
+                        paddingLeft: windowWidth * 0.025,
+                        paddingHorizontal: windowWidth * 0.14,
                         flexDirection: 'row'
                     }}>
-                        <Error name="location-city" color = {city === null || city === '' ? Color.colorBlue1 : cityVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}} />
+                        <Error name="location-city" color = {selectedValueCity === null || selectedValueCity === '' ? Color.colorBlue1 : selectedValueCity ? Color.colorGreen : Color.colorBlue1} style={{marginRight: 5, fontSize: 24}}/>
                         <TextInput
-                            placeholder='Enter city or town'
+                            placeholder='Select City/Municipality'
                             placeholderTextColor={Color.colorBlue}
-                            style={{
-                                width: '100%'
-                            }}
-                            onChange={(e) => {
-                                const citi = e.nativeEvent.text;
-                                setCity(citi);
-                                setCityVerify(citi.length > 0 && citi.length <= 25);
-                            }}
+                            value={selectedValueCity ? selectedValueCity.name : '' }
+                            editable={false}
+                            style={{ flex: 1 }}
+                            color={selectedValueCity ? Color.colorBlack : Color.colorBlue}
                         />
-                        {city.length < 1 ? null : cityVerify ? (
+                        {selectedValueCity ? (
                             <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : (                                                                     
-                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
-                        )}
+                        ) : null}
                     </View>
-                    {city.length < 1 ? null : cityVerify ? null : (
-                        <Text style={errorText}>City/Town must not exceed 25 characters.</Text>
-                    )}
-                </View>
+                </TouchableOpacity>
 
-                <View style={{ marginBottom: windowHeight * 0.01 }}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={showSelectListCity}
+                    onRequestClose={() => setShowSelectListCity(false)}
+                >
+                    <TouchableWithoutFeedback onPress={() => setShowSelectListCity(false)}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                            <View style={{ backgroundColor: 'white', width: '80%', maxHeight: '80%', borderRadius: 10 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)', height: windowHeight * 0.06, }}>
+                                <FontAwesome name="search" color={Color.colorBlue} style={{ marginLeft: 10, fontSize: 20 }} />
+                                <TextInput
+                                    placeholder='Search...'
+                                    onChangeText={text => setSearchQueryCity(text)}
+                                    style={{ paddingHorizontal: 10 }}
+                                />
+                                </View>
+                                <ScrollView style={{ maxHeight: windowHeight * 0.5 }}>
+                                {filteredCities.map((item, index) => (
+                                    <TouchableOpacity key={item.key} onPress={() => handleSelectCity(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
+                                        <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                                </ScrollView>
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </Modal>
+            </View>
+        </TouchableWithoutFeedback>
+
+                {/* <View style={{ marginBottom: windowHeight * 0.01 }}>
                     <Text style={{
                         fontSize: windowWidth * 0.05,
                         fontWeight: '400',
@@ -512,7 +562,7 @@ export default function MissingInfoPage ({navigation, route, props}) {
                     {postalCode.length < 1 ? null : postalCodeVerify ? null : (
                          <Text style={errorText}>Postal Code/ZIP Code must be 4 digits long.</Text>
                     )}
-                </View>
+                </View> */}
 
                 <View style={{ marginBottom: windowHeight * 0.01 }}>
                     <Text style={{

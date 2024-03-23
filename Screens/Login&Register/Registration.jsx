@@ -10,6 +10,7 @@ import { AccessToken, GraphRequest, GraphRequestManager, LoginManager} from 'rea
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
+import { useNotifications } from 'react-native-notificated';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -25,6 +26,7 @@ export default function RegisterPage ({navigation, route, props}) {
     const [birthday, setBirthday] = useState(null);
     const [birthdayVerify, setBirthdayVerify] = useState(false);
     const [datePickerOpened, setDatePickerOpened] = useState(false);
+    const { notify } = useNotifications();
     
     
     const today = new Date();
@@ -145,7 +147,7 @@ export default function RegisterPage ({navigation, route, props}) {
     
     const checkIfEmailExists = async (email) => {
         try {
-          const emailExists = await axios.post('http://192.168.1.14:5000/user/checkIfEmailExists', { email: email });
+          const emailExists = await axios.post('http://192.168.1.14:5000/user/getUserDetailsByEmail', { email: email });
             if (emailExists.data) {
               return true;
             } else {
@@ -387,7 +389,6 @@ export default function RegisterPage ({navigation, route, props}) {
                     }}
                     disabled={!validateFields()}
                 />
-
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: windowHeight * 0.025 }}>
                     <View
                         style={{

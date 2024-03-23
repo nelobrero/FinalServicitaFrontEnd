@@ -1,18 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, TouchableOpacity, Platform, Pressable, Image} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { RFValue } from "react-native-responsive-fontsize";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import { useNotifications, createNotifications } from 'react-native-notificated';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function UserRoleScreen({navigation, route, props}){
+  const { NotificationsProvider } = createNotifications();
+  const { notify } = useNotifications();
+  
   const [selectedRole, setSelectedRole] = useState(null);
   
+ 
   const { email, name, userId } = route.params;
 
-  console.log(email, name, userId);
+  
+
   const handleRolePress = (role) => {
     setSelectedRole(role);
   };
+
+  useEffect(() => {
+    notify('info', {
+      params: {
+        title: 'Choose Your Role',
+        description: 'Sign up as a Seeker or Provider.',
+      },
+    });
+  }, [])
+
+  useEffect(() => {
+    if (selectedRole) {
+      notify('info', {
+        params: {
+          title: 'Role Selected',
+          description: `You are signing up as a ${selectedRole}.`
+        },
+      });
+    }
+  }, [selectedRole]);
 
   const handleContinuePress = () => {
     console.log(selectedRole);
@@ -33,7 +60,7 @@ function UserRoleScreen({navigation, route, props}){
   };
 
  return (
-    <View style={styles.userRoleScreen}>
+    <SafeAreaView style={styles.userRoleScreen}>
        <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
         <Image
           style={styles.userroleChild}
@@ -75,7 +102,8 @@ function UserRoleScreen({navigation, route, props}){
           <Text style={styles.contText}>CONTINUE</Text>
         </TouchableOpacity>
       </LinearGradient>
-    </View>
+      <NotificationsProvider/>
+    </SafeAreaView>
   );
 };
 

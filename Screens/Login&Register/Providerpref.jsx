@@ -14,31 +14,34 @@ export default function Providerpref ({navigation, route, params}) {
     
     const { name, email, role, address, birthDate, mobile, password } = route.params;
     const [birthday, setBirthday] = useState('');
-
     const [selectedValue, setSelectedValue] = useState(null);
     const [showSelectList, setShowSelectList] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-
-    const [data, setData] = useState([
-        { key: '1', value: 'Manicure/Pedicure Service' },
-        { key: '2', value: 'Hair and Makeup Service' },
-        { key: '3', value: 'Septic Tank Service' },
-        { key: '4', value: 'Home Cleaner Service' },
-        { key: '5', value: 'Massage Service' },
-        { key: '6', value: 'Plumbing Services' },
-        { key: '7', value: 'Electrical Services' },
-        { key: '8', value: 'Tutoring Services' },
-        { key: '9', value: 'Catering Services' }
-    ]);
-
-    const filteredData = data.filter(item => item.value.toLowerCase().includes(searchQuery.toLowerCase()));
 
     useEffect(() => {
         convertDate(birthDate);
     }, [birthDate]);
 
+    const [data, setData] = useState([]);
+
+    const filteredData = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+
+    useEffect(() => {
+        fetchServices();
+    }, []);
+
+    const fetchServices = async () => {
+        try {
+            const response = await axios.get('http://192.168.1.14:5000/service/getServices');
+            setData(response.data.data);
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
+    };
+
     const validateFields = () => {
-        return selectedValue !== "";
+        return selectedValue;
     }
     
     const handleSelect = (value) => {
@@ -66,7 +69,7 @@ export default function Providerpref ({navigation, route, params}) {
                 name, 
                 address, 
                 birthDate,
-                service: selectedValue.value
+                service: selectedValue.name
             }
             axios.post("http://192.168.1.14:5000/user/addTempDetails", userData).then(async (res) => {
                 const result = res.data;
@@ -111,15 +114,14 @@ export default function Providerpref ({navigation, route, params}) {
   return (
     
     <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
-                    <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.07 }}>
-                            <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
+                    <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
                                             <Image
                                             style={styles.userroleChild}
                                             contentFit="cover"
                                             source={require("./../../assets/arrow-1.png")}
                                             />
                             </Pressable>
-
+                    <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.07 }}>
                             <View style={{ marginVertical: windowHeight * 0.04 }}>
                                 <Text style={{
                                     fontSize: windowWidth * 0.1,
@@ -135,7 +137,7 @@ export default function Providerpref ({navigation, route, params}) {
 
                         </View>
             
-            <View style={{ flex: 1, marginHorizontal: windowWidth * 0.05, justifyContent: "center", flexDirection: "column"}}>
+            <View style={{ flex: 1, marginHorizontal: windowWidth * 0.05, justifyContent: "center", flexDirection: "column", marginBottom: windowHeight * 0.09}}>
 
         
 
@@ -164,7 +166,7 @@ export default function Providerpref ({navigation, route, params}) {
                         <TextInput
                             placeholder='Select service preferences'
                             placeholderTextColor={Color.colorBlue}
-                            value={selectedValue ? selectedValue.value : ''}
+                            value={selectedValue ? selectedValue.name : ''}
                             editable={false}
                             style={{ flex: 1 }}
                             color={selectedValue ? Color.colorBlack : Color.colorBlue}
@@ -192,12 +194,12 @@ export default function Providerpref ({navigation, route, params}) {
                                     style={{ paddingHorizontal: 10 }}
                                 />
                                 </View>
-                                <ScrollView>
-                                    {filteredData.map((item, index) => (
-                                         <TouchableOpacity key={item.key} onPress={() => handleSelect(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
-                                         <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.value}</Text>
-                                     </TouchableOpacity>
-                                    ))}
+                                <ScrollView style={{ maxHeight: windowHeight * 0.5 }}>
+                                {filteredData.map((item, index) => (
+                                    <TouchableOpacity key={item.key} onPress={() => handleSelect(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
+                                        <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.name}</Text>
+                                    </TouchableOpacity>
+                                ))}
                                 </ScrollView>
                             </View>
                         </View>
@@ -211,7 +213,7 @@ export default function Providerpref ({navigation, route, params}) {
             filled
             Color={Color.colorWhite}
             style={{
-                marginTop: windowHeight * 0.02,
+                marginTop: windowHeight * 0.09,
                 marginBottom: windowHeight * 0.05,
             }}
                 onPress={handleSubmit}
@@ -231,7 +233,7 @@ const styles = StyleSheet.create({
     },
     userroleChild: {
         top: windowHeight * 0.001,
-        left: windowWidth * 0.001,
+        left: windowWidth * 0.05,
         maxHeight: "100%",
         width: windowWidth * 0.07,
         zIndex: 1,

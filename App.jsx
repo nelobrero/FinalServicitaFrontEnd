@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, Dimensions} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,6 +10,7 @@ import { Settings } from 'react-native-fbsdk-next';
 import axios from 'axios';
 import { CommonActions } from '@react-navigation/native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import UserRoleScreen from './Screens/Login&Register/UserRoleScreen';
 import LoginPage from './Screens/Login&Register/Login';
@@ -31,9 +32,9 @@ import Welcome from './Screens/Login&Register/Welcome';
 import ForgotPasswordScreen from './Screens/Login&Register/ForgotPasswordScreen';
 import ResetPasswordScreen from './Screens/ResetPasswordScreen';
 
-const LoginNav = ({userData}) => {
+const LoginNav = () => {
 
-    const [userInfo, setUserInfos] = useState(userData);
+    const [userInfo, setUserInfos] = useState({});
 
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
@@ -50,7 +51,7 @@ const LoginNav = ({userData}) => {
         getUserData();
      }, [userInfo]);
 
-     
+       
 
     const Stack = createNativeStackNavigator();
     return (
@@ -246,13 +247,15 @@ function App() {
 
 
     return (
-        <NavigationContainer>
-        {isLoggedIn && userInfo.role ? (
-            <TabNavigator userInfo = {userInfo} />
-        ) : (
-            <LoginNav userInfo = {userInfo} />
-        )}
-    </NavigationContainer>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <NavigationContainer>
+            {isLoggedIn && userInfo.role ? (
+                <TabNavigator userData = {userInfo} />
+            ) : (
+                <LoginNav/>
+            )}
+            </NavigationContainer>
+        </GestureHandlerRootView>
     );
 }
 
