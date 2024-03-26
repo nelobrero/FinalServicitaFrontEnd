@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Text, StyleSheet, View, TextInput, Image, Pressable, Dimensions, SafeAreaView, ScrollView, Alert } from "react-native";
+import { Text, StyleSheet, View, TextInput, Image, Pressable, Dimensions, SafeAreaView, Alert, Modal, ScrollView} from "react-native";
 import { FontSize, Color, FontFamily, errorText, Border } from "../../GlobalStyles";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Feather from '@expo/vector-icons/Feather';
@@ -13,59 +13,48 @@ const windowHeight = Dimensions.get('window').height;
 export default function ForgotPasswordScreen({navigation}) {
     const [email, setEmail] = useState("");
     const [emailVerify, setEmailVerify] = useState(false);
-    const [confirm, setConfirm] = useState(null);
     const [code, setCode] = useState(["", "", "", ""]);
     const inputRefs = useRef([]);
-    const [timer, setTimer] = useState(300);
-    const [finalUserId, setUserId] = useState("");
+    const [timer, setTimer] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
-        
-        
-        fetchServerTime();
-        getUserId();
-        
-        const interval = setInterval(() => {
-            setTimer(prevTimer => {
-                if (prevTimer <= 0) {
-                    return prevTimer;
-                }
-                return prevTimer - 1;
-            });
-        }, 1000);
+        if (modalVisible !== false) {
+            setTimer(300);
+            const interval = setInterval(() => {
+                setTimer(prevTimer => {
+                    if (prevTimer <= 0) {
+                        return prevTimer;
+                    }
+                    return prevTimer - 1;
+                });
+            }, 1000);
 
-        return () => clearInterval(interval);
-    }, [timer]);
+            return () => clearInterval(interval);
+        }
+    }, [modalVisible]);
 
     const handlePress = async () => {
         try {
             const response = await axios.post("http://192.168.1.14:5000/forgot_password_otp/request", { email: email });
             console.log(response);
             if (response.status === 202) {
-                setConfirm(true);
-                console.log("SUCCESS");
+                setModalVisible(true);
             } else {
                 Alert.alert("An error occurred while processing your request. Please try again later.", [{ text: "OK" }]);
             }
 
         } catch (error) {
-            if (error.response.message === "No account with the said email exists!") {
-                Alert.alert("No account with the said email exists. Please register.", [ { text: "Yes", onPress: () => navigation.navigate("UserRole", {email: '', name: '', userId: ''}) }]);
-            } else if (error.response.message === "Email hasn't been verified yet. Check your inbox.") {
-                Alert.alert("Email has not been verified yet. Please verify your email.", [ { text: "Yes", onPress: () => navigation.navigate("VerificationScreen", {email: email, userId: finalUserId}) }]);
+            if (error.response.message === "No verified account with the said email exists!") {
+                Alert.alert("No verified account with the said email exists.", [{ text: "OK" }]);
             } else {
                 console.log(error);
             }
         }
     };
 
-    const getUserId = async () => {
-        try {
-            const response = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", { email: email });
-            setUserId(response.data.data._id);
-        } catch (error) {
-            console.log(error);
-        }
+    const hideModal = () => {
+        setModalVisible(false);
     }
 
     const updateCode = (index, value) => {
@@ -91,7 +80,7 @@ export default function ForgotPasswordScreen({navigation}) {
     const fetchServerTime = async () => {
         try {
             console.log('Fetching server time...');
-            const response = await axios.get(`http://192.168.1.14:5000/forgot_password_otp/getRemainingCurrentTime/${finalUserId}`);
+            const response = await axios.get(`http://192.168.1.14:5000/forgot_password_otp/getRemainingCurrentTime/${email}`);
             const remainingTime = Math.floor(response.data.remainingTime / 1000);
             if (remainingTime <= 0) {
                 setTimer(0);
@@ -108,12 +97,12 @@ export default function ForgotPasswordScreen({navigation}) {
     const handleSendAgainPress = () => {
         setTimer(300);
         const userData = {
-            userId: finalUserId,
             email: email,
           }
-        axios.post("http://192.168.1.14:5000/forgot_password_otp/resendOTPPasswordReset", userData).then((res) => {
+        axios.post("http://192.168.1.14:5000/forgot_password_otp/request", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'PENDING') {
+            fetchServerTime();
             Alert.alert('Resent', 'OTP has been resent. Please check your email.', [{ text: 'OK'}]);
           } else {
             Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
@@ -124,13 +113,13 @@ export default function ForgotPasswordScreen({navigation}) {
 
     const confirmCode = async () => {
         const userData = {
-            userId: finalUserId,
+            email: email,
             otp: code.join(''),
-            newPassword: "password",
           }
         axios.post("http://192.168.1.14:5000/forgot_password_otp/reset", userData).then((res) => {
             if (res.data.status === 'SUCCESS') {
-                Alert.alert('Success', 'OTP has been verified successfully. Please change your password.', [{ text: 'OK', onPress: () => navigation.navigate('ResetPassword', { userId: finalUserId}) }]);
+                setModalVisible(false);
+                Alert.alert('Success', 'OTP has been verified successfully. Please change your password.', [{ text: 'OK', onPress: () => navigation.navigate('ResetPassword', { email: email}) }]);
               } else {
                 Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
               }}).catch((err) => {
@@ -144,7 +133,9 @@ export default function ForgotPasswordScreen({navigation}) {
     }
 
     return (
+        
         <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
         <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.07 }}>
                             <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
                                             <Image
@@ -155,8 +146,7 @@ export default function ForgotPasswordScreen({navigation}) {
                             </Pressable>
         </View>
         <View style={styles.container}>
-        {!confirm ? (
-            <>
+        
             <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>
                 Forgot Password
             </Text>
@@ -209,6 +199,69 @@ export default function ForgotPasswordScreen({navigation}) {
                         <Text style={errorText}>Please enter a valid email address.</Text>
                     )}
                 </View>
+            
+                <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(false);
+          }}
+        >
+
+
+            <View style={styles.centeredView}>
+            
+              <View style={styles.modalView}>
+                <FontAwesome name="close" size={24} color={Color.colorBlue} style={{alignSelf: 'flex-start', marginLeft: -windowWidth * 0.05, marginBottom: windowHeight * 0.001, bottom: windowHeight * 0.02}} onPress={() => hideModal()} />
+              <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={[styles.passwordRecoverys, styles.passwordFlexBoxs]}>We’ve sent the code to:</Text>
+                <Text style={[styles.enterYourEmails, styles.passwordFlexBoxs]}>{email}</Text>
+                <View style={styles.timerContainer}>
+                    <Text style={styles.text}>Code expires in: </Text>
+                    <Text style={[styles.text, {fontWeight: '800'}]}>{formatTime(timer)}</Text>
+                </View>
+            </View>
+                <View style={styles.codeInputContainer}>
+                  {[0, 1, 2, 3].map((index) => (
+                    <TextInput
+                      key={index}
+                      ref={(ref) => (inputRefs.current[index] = ref)}
+                      style={styles.codeInput}
+                      keyboardType="numeric"
+                      maxLength={1}
+                      onKeyPress={({ nativeEvent }) => {
+                        if (nativeEvent.key === 'Backspace' && code[index] === '') {
+                          if (index !== 0) {
+                            inputRefs.current[index - 1].focus();
+                          }
+                        } else if (!isNaN(nativeEvent.key) && code[index] && index !== 3) {
+                          inputRefs.current[index + 1].setNativeProps({ text: nativeEvent.key });
+                          updateCode(index + 1, nativeEvent.key);
+                        }
+                      }}
+                      onChange={(e) => updateCode(index, e.nativeEvent.text)}
+                    />
+                  ))}
+                </View>
+                <Button
+                  title="Verify"
+                  filled
+                  Color={Color.colorWhite}
+                  onPress={confirmCode}
+                  disabled={timer === 0 || code.includes('')}
+                  style={styles.button}
+                />
+                <Button
+                  title="Send Again"
+                  Color={Color.colorWhite}
+                  onPress={handleSendAgainPress}
+                  style={styles.button}
+                />
+              </View>
+            </View>
+        </Modal>
+
 
             
             <Button
@@ -224,68 +277,13 @@ export default function ForgotPasswordScreen({navigation}) {
             }}
             onPress={handlePress}
             disabled={!emailVerify}
+            position="absolute"
            />
-            </>
-        ) : (
-            <>
-            <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>We’ve sent the code to:</Text>
-                <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>{email}</Text>
-                <View style={styles.timerContainer}>
-                    <Text style={styles.text}>Code expires in: </Text>
-                    <Text style={[styles.text, {fontWeight: '800'}]}>{formatTime(timer)}</Text>
-                </View>
-                    <View style={styles.codeInputContainer}>
-                        {[0, 1, 2, 3].map((index) => (
-                            <TextInput
-                                key={index}
-                                ref={(ref) => (inputRefs.current[index] = ref)}
-                                style={styles.codeInput}
-                                keyboardType="numeric"
-                                maxLength={1}
-                                onKeyPress={({ nativeEvent }) => {
-                                    console.log(nativeEvent.key);
-                                    if (nativeEvent.key === 'Backspace' && code[index] === '') {
-                                        if (index !== 0) {
-                                            inputRefs.current[index - 1].focus();
-                                        }
-                                    } else if (!isNaN(nativeEvent.key) && code[index] && index !== 3) {
-                                        inputRefs.current[index + 1].setNativeProps({ text: nativeEvent.key });
-                                        updateCode(index + 1, nativeEvent.key);
-                                    }
-                                }}
-                                onChange={(e) => updateCode(index, e.nativeEvent.text)}
-                            />
-                        ))}
-                    </View>
-                    <Button
-            title="Verify"
-            filled
-            Color={Color.colorWhite}
-            style={{
-                marginTop: windowHeight * 0.07,
-                marginBottom: windowHeight * 0.05,
-                width: windowWidth * 0.87,
-                height: windowHeight * 0.08,
-            }}
-            onPress={confirmCode}
-            disabled={code.includes('') || timer <= 0}
-            />
-            <Button
-            title="Send Again"
-            filledColor={Color.colorWhite}
-            style={{
-                marginTop: windowHeight * 0.001,
-                marginBottom: windowHeight * 0.05,
-                width: windowWidth * 0.87,
-                height: windowHeight * 0.08,
-            }}
-            onPress={handleSendAgainPress}
-            />
-                </View>
-            </>
-        )}
+
+            
+
         </View>
+        </ScrollView>
         </SafeAreaView>
     );
 };
@@ -300,7 +298,7 @@ const styles = StyleSheet.create({
         marginBottom: windowHeight * 0.04,
     },
     passwordRecovery: {
-        fontSize: FontSize.size_6xl,
+        fontSize: FontSize.size_5xl,
         color: Color.colorDarkslategray_100,
         fontFamily: FontFamily.quicksandBold,
         fontWeight: "700",
@@ -328,6 +326,8 @@ const styles = StyleSheet.create({
         marginHorizontal: windowWidth * 0.05,
         flexDirection: 'column',
         alignItems: 'center',
+        position: 'absolute',
+        top: windowHeight * 0.2,
     },
     arrowContainer: {
         bottom: windowHeight * 0.02,
@@ -339,27 +339,68 @@ const styles = StyleSheet.create({
         maxHeight: "100%",
         width: windowWidth * 0.07,
     },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
     codeInputContainer: {
         flexDirection: 'row',
-        marginBottom: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     codeInput: {
-        width: 70,
-        height: 70,
         borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        margin: 5,
+        width: 50,
+        textAlign: 'center',
+        color: Color.colorBlue,
         borderColor: Color.colorGray,
         backgroundColor: Color.colorGainsboro,
         borderRadius: Border.br_3xs,
-        marginHorizontal: 5,
-        textAlign: 'center',
-        fontSize: FontSize.size_5xl,
-        marginHorizontal: 10,
-        paddingHorizontal: 10,
-        color: Color.colorBlue,
+    },
+    button: {
+        marginTop: windowHeight * 0.02,
+        width: windowWidth * 0.5,
+        height: windowHeight * 0.08,
+    },
+    passwordFlexBoxs: {
+        marginVertical: windowHeight * 0.001,
+    },
+    passwordRecoverys: {
+        fontSize: windowHeight * 0.025,
+        fontWeight: 'bold',
+    },
+    enterYourEmails: {
+        fontSize: windowHeight * 0.018,
     },
     timerContainer: {
-        marginBottom: 10,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: windowHeight * 0.02,
     },
+    text: {
+        fontSize: windowHeight * 0.018,
+    },
+   
 });
 

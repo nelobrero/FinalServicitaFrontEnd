@@ -39,8 +39,7 @@ const LoginNav = () => {
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
         console.log(token);
-        axios.post("http://192.168.1.14:5000/user/userdata", {token: token}).then((res) => {
-          console.log(res.data);
+        axios.post("http://192.168.1.14:5000/user/userData", {token: token}).then((res) => {
           setUserInfos(res.data.data);
         }).catch((err) => {
           console.log(err);
@@ -55,7 +54,7 @@ const LoginNav = () => {
 
     const Stack = createNativeStackNavigator();
     return (
-        <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName='ProviderPrefer' screenOptions={{ headerShown: false }}>
             <Stack.Screen name='UserRole' component={UserRoleScreen} />
             <Stack.Screen name='Login' component={LoginPage} />
             <Stack.Screen name='Register' component={RegisterPage} />
@@ -110,8 +109,7 @@ const TabNavigator = ({userData}) => {
 
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
-        axios.post("http://192.168.1.14:5000/user/userdata", {token: token}).then((res) => {
-          console.log(res.data);
+        axios.post("http://192.168.1.14:5000/user/userData", {token: token}).then((res) => {;
           setUserInfo(res.data.data);
         }).catch((err) => {
           console.log(err);
@@ -225,8 +223,7 @@ function App() {
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
         console.log(token);
-        axios.post("http://192.168.1.14:5000/user/userdata", {token: token}).then((res) => {
-          console.log(res.data);
+        axios.post("http://192.168.1.14:5000/user/userData", {token: token}).then((res) => {
           setUserInfo(res.data.data);
         }).catch((err) => {
           console.log(err);

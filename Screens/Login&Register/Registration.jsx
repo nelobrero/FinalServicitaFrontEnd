@@ -1,7 +1,7 @@
-import { View, Text, TextInput, TouchableOpacity, Image, Pressable, Dimensions, ScrollView, Alert, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity, Image, Pressable, Dimensions, ScrollView, Alert, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Color, errorText } from '../../GlobalStyles';
+import { Color, errorText, Border } from '../../GlobalStyles';
 import Button from '../../components/Button';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Feather from '@expo/vector-icons/Feather';
@@ -10,12 +10,16 @@ import { AccessToken, GraphRequest, GraphRequestManager, LoginManager} from 'rea
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
-import { useNotifications } from 'react-native-notificated';
+import { useNotifications, createNotifications } from 'react-native-notificated';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 export default function RegisterPage ({navigation, route, props}) {
+    const { NotificationsProvider } = createNotifications();
+    const { notify } = useNotifications();
+    
+    const [timer, setTimer] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [firstNameVerify, setFirstNameVerify] = useState(false);
     const [lastName, setLastName] = useState('');
@@ -26,8 +30,9 @@ export default function RegisterPage ({navigation, route, props}) {
     const [birthday, setBirthday] = useState(null);
     const [birthdayVerify, setBirthdayVerify] = useState(false);
     const [datePickerOpened, setDatePickerOpened] = useState(false);
-    const { notify } = useNotifications();
-    
+    const [code, setCode] = useState(['', '', '', '']);
+    const inputRefs = useRef([]);
+    const [modalVisible, setModalVisible] = useState(false);
     
     const today = new Date();
     const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
@@ -37,6 +42,37 @@ export default function RegisterPage ({navigation, route, props}) {
 
     const { role } = route.params;
     const [roleText, setRoleText] = useState(role === 'Seeker' ? 'Seeking' : 'Servicing');
+
+
+    useEffect(() => {
+        if (modalVisible !== false) {
+            setTimer(300);
+            const interval = setInterval(() => {
+                setTimer(prevTimer => {
+                    if (prevTimer <= 0) {
+                        return prevTimer;
+                    }
+                    return prevTimer - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [modalVisible]);
+
+    
+
+    useEffect(() => {
+        notify('info', {
+          params: {
+            title: `Hello, future ${role}!`,
+            description: 'Please fill in the following details to get started.',
+            style: {
+                multiline: 2,
+            }
+          },
+        });
+      }, [])
 
     const validateName = (name, setName, setNameVerify) => {
         const trimmedName = name.trim();
@@ -81,7 +117,7 @@ export default function RegisterPage ({navigation, route, props}) {
                   .then((emailExists) => {
                     if (emailExists) {
                         if (emailExists) {
-                            Alert.alert('Error', 'An account with this email already exists.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
+                            Alert.alert('Error', 'An account with this email already exists. Please login again using Facebook', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
                         } else {
                             navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
                         }
@@ -117,7 +153,7 @@ export default function RegisterPage ({navigation, route, props}) {
           const emailExists = await checkIfEmailExists(userData.email);
           if (emailExists) {
             GoogleLogOut();
-            Alert.alert('Error', 'An account with this email already exists.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
+            Alert.alert('Error', 'An account with this email already exists. Please login again using Google.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
           } else {
             GoogleLogOut();
             navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
@@ -147,19 +183,128 @@ export default function RegisterPage ({navigation, route, props}) {
     
     const checkIfEmailExists = async (email) => {
         try {
-          const emailExists = await axios.post('http://192.168.1.14:5000/user/getUserDetailsByEmail', { email: email });
-            if (emailExists.data) {
-              return true;
-            } else {
+            const userData = {
+                email: email,
+            }
+            const res = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", userData);
+            if (res.data.status === 'SUCCESS') {
+                return true;
+            }
+          } catch (error) {
+            if (error.response.data.message === "User not found!") {
                 return false;
             }
+          }
+    }
+
+    const formatTime = (timeInSeconds) => {
+        const minutes = Math.floor(timeInSeconds / 60);
+        const seconds = timeInSeconds % 60;
+        const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        return formattedTime;
+    };
+
+    const hideModal = () => {
+        setModalVisible(false);
+    }
+
+    const handleContinuePress = () => {
+        
+        const userData = {
+            email: email,
+          }
+        axios.post("http://192.168.1.14:5000/email_verification_otp/sendEmail", userData).then((res) => {
+          console.log(res.data);
+          if (res.data.status === 'PENDING') {
+            setModalVisible(true);
+            Alert.alert('Verification', 'An email has been sent to your email address. Please enter the code to verify your email.', [{ text: 'OK' }]);
+          } else {
+            Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+          }}).catch((err) => {
+            if (err.response.data.message === "Email already exists in the system.") {
+              Alert.alert('Error', 'An account with this email already exists in the system.', [{ text: 'OK' }]);
+            } else if (err.response.data.message === "Email has recently been verified but has not finished the registration process yet.") {
+              Alert.alert('Error', 'Email has recently been verified but has not finished the registration process yet.', [{ text: 'OK' }]);
+            }
+            console.log(err);
+          });
+    }
+
+    const updateCode = (index, value) => {
+        const newCode = [...code];
+        newCode[index] = value;
+        setCode(newCode);
+        console.log(newCode);
+    
+        if (value === '' && index > 0) {
+            inputRefs.current[index - 1].focus();
+        } else if (value !== '' && index < code.length - 1) {
+            inputRefs.current[index + 1].focus();
+        }
+    };
+
+    const handleVerifyPress = () => {
+        const userData = {
+            email: email,
+            otp: code.join(''),
+        }
+          axios.post("http://192.168.1.14:5000/email_verification_otp/verifyOTP", userData).then((res) => {
+          console.log(res.data);
+          if (res.data.status === 'SUCCESS') {
+            setModalVisible(false);
+            Alert.alert('Success', 'Your email has been verified successfully. Please continue.', [{ text: 'OK', onPress: () => navigation.navigate('AddressForm', { firstName: firstName, lastName: lastName, email: email, role: role, birthDate: formattedBirthday  })}]);
+          } else {
+            Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+          }}).catch((err) => {
+            if(err.response.data.message === "Invalid code passed."){
+              Alert.alert('Error', 'Invalid code passed.', [{ text: 'OK'}]);
+            } else {
+              Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+              console.log(err.response.data.message);
+            }
+          });
+    };
+
+    const handleSendAgainPress = () => {
+        setTimer(300);
+        const userData = {
+            email: email,
+          }
+        axios.post("http://192.168.1.14:5000/email_verification_otp/sendEmail", userData).then((res) => {
+          console.log(res.data);
+          if (res.data.status === 'PENDING') {
+            fetchServerTime();
+            Alert.alert('Resent', 'OTP has been resent. Please check your email.', [{ text: 'OK'}]);
+          } else {
+            Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+          }}).catch((err) => {
+            console.log(err);
+          });
+    };
+
+
+    const fetchServerTime = async () => {
+        try {
+            console.log('Fetching server time...');
+            const response = await axios.get(`http://192.168.1.14:5000/email_verification_otp/getRemainingCurrentTime/${email}`);
+            const remainingTime = Math.floor(response.data.remainingTime / 1000);
+            if (remainingTime <= 0) {
+                setTimer(0);
+            } else {
+                setTimer(remainingTime);
+            }
+            
+            console.log('Server time fetched:', remainingTime)
         } catch (error) {
-          console.error('Error checking if email exists in MongoDB:', error);
+            console.log('Error fetching server time:', error);
         }
     };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
+        <View style={{ alignItems: 'center' }}>
+        <NotificationsProvider />
+        </View>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
             <View style={{ flex: 1, marginHorizontal: windowWidth * 0.05, justifyContent: "center", flexDirection: "column"}}>
                 
@@ -273,50 +418,6 @@ export default function RegisterPage ({navigation, route, props}) {
                         )
                     )}
                 </View>
-
-                <View style={{ marginBottom: windowHeight * 0.01 }}>
-                    <Text style={{
-                        fontSize: windowWidth * 0.05,
-                        fontWeight: '400',
-                        marginVertical: windowHeight * 0.01,
-                        color: Color.colorBlue
-                    }}>Email address</Text>
-
-                    <View style={{
-                        width: '100%',
-                        height: windowHeight * 0.06,
-                        borderColor: email === null || email === '' ? Color.colorBlue1 : emailVerify ? Color.colorGreen : Color.colorRed,
-                        borderWidth: 1,
-                        borderRadius: windowHeight * 0.015,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        paddingLeft: windowWidth * 0.05,
-                        paddingHorizontal: windowWidth * 0.14,
-                        flexDirection: 'row'                   
-                    }}>
-                        <FontAwesome name="envelope" color = {email === null || email === '' ? Color.colorBlue1 : emailVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}} />
-                        <TextInput
-                            placeholder='Enter your email address'
-                            placeholderTextColor={Color.colorBlue}
-                            style={{
-                                width: '100%'
-                            }}
-                            onChange={(e) => {
-                                const trimmedEmail = e.nativeEvent.text.trim();
-                                setEmail(trimmedEmail);
-                                setEmailVerify(trimmedEmail.length > 1 && /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/.test(trimmedEmail));
-                            }}
-                        />
-                        {email.length < 1 ? null : emailVerify ? (
-                            <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : (
-                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
-                        )}
-                    </View>
-                    {email.length < 1 ? null : emailVerify ? null : (
-                        <Text style={errorText}>Please enter a valid email address.</Text>
-                    )}
-                </View>
                 
                 <View style={{ marginBottom: windowHeight * 0.01 }}>
                     <Text style={{
@@ -378,17 +479,128 @@ export default function RegisterPage ({navigation, route, props}) {
                     {birthday === null ? null : birthdayVerify ? null : (
                         <Text style={errorText}>You must be at least 18 years old to register.</Text>
                     )}
+
+                <View style={{ marginBottom: windowHeight * 0.01 }}>
+                    <Text style={{
+                        fontSize: windowWidth * 0.05,
+                        fontWeight: '400',
+                        marginVertical: windowHeight * 0.01,
+                        color: Color.colorBlue
+                    }}>Email Address</Text>
+
+                    <View style={{
+                        width: '100%',
+                        height: windowHeight * 0.06,
+                        borderColor: email === null || email === '' ? Color.colorBlue1 : emailVerify ? Color.colorGreen : Color.colorRed,
+                        borderWidth: 1,
+                        borderRadius: windowHeight * 0.015,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingLeft: windowWidth * 0.05,
+                        paddingHorizontal: windowWidth * 0.14,
+                        flexDirection: 'row'                   
+                    }}>
+                        <FontAwesome name="envelope" color = {email === null || email === '' ? Color.colorBlue1 : emailVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}} />
+                        <TextInput
+                            placeholder='Enter your email address'
+                            placeholderTextColor={Color.colorBlue}
+                            style={{
+                                width: '100%'
+                            }}
+                            onChange={(e) => {
+                                const trimmedEmail = e.nativeEvent.text.trim();
+                                setEmail(trimmedEmail);
+                                setEmailVerify(trimmedEmail.length > 1 && /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/.test(trimmedEmail));
+                            }}
+                        />
+                        {email.length < 1 ? null : emailVerify ? (
+                            <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                        ) : (
+                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
+                        )}
+                    </View>
+                    {email.length < 1 ? null : emailVerify ? null : (
+                        <Text style={errorText}>Please enter a valid email address.</Text>
+                    )}
+                </View>
+                
+                <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(false);
+          }}
+        >
+
+
+            <View style={styles.centeredView}>
+            
+              <View style={styles.modalView}>
+                <FontAwesome name="close" size={24} color={Color.colorBlue} style={{alignSelf: 'flex-start', marginLeft: -windowWidth * 0.05, marginBottom: windowHeight * 0.001, bottom: windowHeight * 0.02}} onPress={() => hideModal()} />
+              <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>We’ve sent the code to:</Text>
+                <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>{email}</Text>
+                <View style={styles.timerContainer}>
+                    <Text style={styles.text}>Code expires in: </Text>
+                    <Text style={[styles.text, {fontWeight: '800'}]}>{formatTime(timer)}</Text>
+                </View>
+            </View>
+                <View style={styles.codeInputContainer}>
+                  {[0, 1, 2, 3].map((index) => (
+                    <TextInput
+                      key={index}
+                      ref={(ref) => (inputRefs.current[index] = ref)}
+                      style={styles.codeInput}
+                      keyboardType="numeric"
+                      maxLength={1}
+                      onKeyPress={({ nativeEvent }) => {
+                        if (nativeEvent.key === 'Backspace' && code[index] === '') {
+                          if (index !== 0) {
+                            inputRefs.current[index - 1].focus();
+                          }
+                        } else if (!isNaN(nativeEvent.key) && code[index] && index !== 3) {
+                          inputRefs.current[index + 1].setNativeProps({ text: nativeEvent.key });
+                          updateCode(index + 1, nativeEvent.key);
+                        }
+                      }}
+                      onChange={(e) => updateCode(index, e.nativeEvent.text)}
+                    />
+                  ))}
+                </View>
                 <Button
-                    title="Next"
-                    onPress={() => navigation.navigate("AddressForm", { name: firstName + " " + lastName, email: email, role: role, birthDate: formattedBirthday })}
-                    filled
-                    Color={Color.colorWhite}
-                    style={{
-                        marginTop: windowHeight * 0.02,
-                        marginBottom: windowHeight * 0.05,
-                    }}
-                    disabled={!validateFields()}
+                  title="Verify"
+                  filled
+                  Color={Color.colorWhite}
+                  onPress={handleVerifyPress}
+                  disabled={timer === 0 || code.includes('')}
+                  style={styles.button}
                 />
+                <Button
+                  title="Send Again"
+                  Color={Color.colorWhite}
+                  onPress={handleSendAgainPress}
+                  style={styles.button}
+                />
+              </View>
+            </View>
+        </Modal>
+
+
+                <Button
+                title="Continue"
+                onPress={handleContinuePress}
+                filled
+                Color={Color.colorWhite}
+                style={{
+                    marginTop: windowHeight * 0.02,
+                    marginBottom: windowHeight * 0.05,
+                }}
+                disabled={!validateFields()}
+            />
+
+
+
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: windowHeight * 0.025 }}>
                     <View
                         style={{
@@ -505,5 +717,67 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: windowHeight * 0.015,
         height: windowHeight * 0.045,
-    }
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    codeInputContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    codeInput: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        margin: 5,
+        width: 50,
+        textAlign: 'center',
+        color: Color.colorBlue,
+        borderColor: Color.colorGray,
+        backgroundColor: Color.colorGainsboro,
+        borderRadius: Border.br_3xs,
+    },
+    button: {
+        marginTop: windowHeight * 0.02,
+        width: windowWidth * 0.5,
+        height: windowHeight * 0.08,
+    },
+    passwordFlexBox: {
+        marginVertical: windowHeight * 0.001,
+    },
+    passwordRecovery: {
+        fontSize: windowHeight * 0.023,
+        fontWeight: 'bold',
+    },
+    enterYourEmail: {
+        fontSize: windowHeight * 0.018,
+    },
+    timerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: windowHeight * 0.02,
+    },
+    text: {
+        fontSize: windowHeight * 0.018,
+    },
 })

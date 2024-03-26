@@ -29,7 +29,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
     const [birthday, setBirthday] = useState('');
     
 
-    const { name, email, role, address, birthDate } = route.params;
+    const { firstName, lastName, email, role, streetAddress1, streetAddress2, city, barangay, birthDate } = route.params;
     const [roleText, setRoleText] = useState(role === 'Seeker' ? 'Seeking' : 'Servicing');
 
     useEffect(() => {
@@ -82,7 +82,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
                   .then((emailExists) => {
                     if (emailExists) {
                         if (emailExists) {
-                            Alert.alert('Error', 'An account with this email already exists.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
+                            Alert.alert('Error', 'An account with this email already exists. Please login again using Facebook.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
                         } else {
                             navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
                         }
@@ -118,7 +118,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
           const emailExists = await checkIfEmailExists(userData.email);
           if (emailExists) {
             GoogleLogOut();
-            Alert.alert('Error', 'An account with this email already exists.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
+            Alert.alert('Error', 'An account with this email already exists. Please login again using Google.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
           } else {
             GoogleLogOut();
             navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
@@ -148,23 +148,37 @@ export default function RegisterPage2 ({navigation, route, props}) {
     
     const checkIfEmailExists = async (email) => {
         try {
-          const emailExists = await axios.post('http://192.168.1.14:5000/user/getUserDetailsByEmail', { email: email });
-            if (emailExists.data) {
-              return true;
-            } else {
+            const userData = {
+                email: email,
+            }
+            const res = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", userData);
+            if (res.data.status === 'SUCCESS') {
+                return true;
+            }
+          } catch (error) {
+            if (error.response.data.message === "User not found!") {
                 return false;
             }
-        } catch (error) {
-          console.error('Error checking if email exists in MongoDB:', error);
-        }
-    };
+          }
+    }
 
-    const saveTempDetails = async (userId) => {
+    const saveTempDetails = async () => {
         try{
             const userData = { 
-                userId, 
-                name, 
-                address, 
+                email,
+                mobile,
+                password,
+                role,
+                name: {
+                    firstName: firstName,
+                    lastName: lastName
+                },
+                address: {
+                    streetAddress1: streetAddress1,
+                    streetAddress2: streetAddress2,
+                    cityMunicipality: city,
+                    barangay: barangay
+                },
                 birthDate,
             }
             axios.post("http://192.168.1.14:5000/user/addTempDetails", userData).then(async (res) => {
@@ -177,7 +191,18 @@ export default function RegisterPage2 ({navigation, route, props}) {
                 }
             })
         } catch (error) {
-            console.error('Error saving temporary details:', error);
+            if (error.response.data.message === "Temporary user already exists with the given email.") {
+                Alert.alert('Error', 'Email has recently been verified but has not finished the registration process yet.', [{ text: 'OK'}]);
+            } else if (error.response.data.message === "Temporary user already exists with the given mobile number.") {
+                Alert.alert('Error', 'A user with this mobile number is currently undergoing the registration process.', [{ text: 'OK' }]);
+            } else if (error.response.data.message === "User already exists with the given email.") { 
+                Alert.alert('Error', 'An account with this email already exists.', [{ text: 'OK' }]);
+            } else if (error.response.data.message === "User already exists with the given mobile number.") { 
+                Alert.alert('Error', 'An account with this mobile number already exists.', [{ text: 'OK'}]);
+            } else {
+                Alert.alert('Error', 'An error occurred while trying to sign up. Please try again.', [{ text: 'OK' }]);
+                console.error('Error saving temporary details:', error);
+            }
         }
     }
 
@@ -206,37 +231,20 @@ export default function RegisterPage2 ({navigation, route, props}) {
                         marginTop: windowHeight * 0.02,
                         marginBottom: windowHeight * 0.05,
                     }}
-                    onPress={() => navigation.navigate('ProviderPrefer', { name: name, email: email, role: role, address: address, birthDate: birthDate, mobile: mobile, password: password })}
+                    onPress={() => navigation.navigate('ProviderPrefer', { firstName: firstName, lastName: lastName, email: email, role: role, streetAddress1: streetAddress1, streetAddress2: streetAddress2, city: city, barangay: barangay, birthDate: birthDate, mobile: mobile, password: password })}
                     disabled={!validateFields()}
                 />
             );
         }
     };
 
-    const handleSubmit = () => {
-    
-        const userData = {
-          email: email,
-          mobile: mobile,
-          password: password,
-          role: role
+    const handleSubmit = async () => {
+        try {
+            await saveTempDetails();
+            Alert.alert('Verification', 'You will be redirected to the mobile verification screen.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { email }) }]);
+        } catch (error) {
+            console.error('Error saving temporary details:', error);
         }
-        axios.post("http://192.168.1.14:5000/user/signup", userData).then(async (res) => {
-        const result = res.data;
-        const { data, message, status } = result
-        if (res.data.status === 'PENDING') {
-            await saveTempDetails(data.userId);
-            Alert.alert('Verification', 'Please check your email for the OTP.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { ...data }) }]);
-        } else {
-          Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
-        }}).catch((err) => {
-          console.log(err);
-          if(err.response.data.message === "Email is being used by another user."){
-            Alert.alert('Error', 'Email is already being used by another user.', [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
-          } else {
-            Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
-          }
-        });
       }
 
     return (

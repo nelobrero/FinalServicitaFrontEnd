@@ -12,15 +12,25 @@ const windowHeight = Dimensions.get('window').height;
 
 export default function Providerpref ({navigation, route, params}) {
     
-    const { name, email, role, address, birthDate, mobile, password } = route.params;
+    // const { firstName, lastName, email, role, streetAddress1, streetAddress2, city, barangay, birthDate, mobile, password } = route.params;
     const [birthday, setBirthday] = useState('');
     const [selectedValue, setSelectedValue] = useState(null);
     const [showSelectList, setShowSelectList] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [showServiceModal, setShowServiceModal] = useState(false);
+    const [serviceName, setServiceName] = useState('');
+    const [description, setDescription] = useState('');
+    const [price, setPrice] = useState('')
+    const [availability, setAvailability] = useState([]);
+    const [modalServiceName, setModalServiceName] = useState('');
+    const [modalDescription, setModalDescription] = useState('');
+    const [modalPrice, setModalPrice] = useState('');
+    const [modalAvailability, setModalAvailability] = useState([]);
+    const [services, setServices] = useState([]);
 
-    useEffect(() => {
-        convertDate(birthDate);
-    }, [birthDate]);
+    // useEffect(() => {
+    //     convertDate(birthDate);
+    // }, [birthDate]);
 
     const [data, setData] = useState([]);
 
@@ -30,6 +40,32 @@ export default function Providerpref ({navigation, route, params}) {
     useEffect(() => {
         fetchServices();
     }, []);
+
+    function generateServiceId() {
+        const timestamp = new Date().getTime().toString(36);
+        const random = Math.random().toString(36).substr(2, 5);
+        const serviceId = timestamp + random;
+        return serviceId;
+    }
+    
+
+    const openServiceModal = () => {
+        setShowServiceModal(true);
+    };
+
+    const closeServiceModal = () => {
+        setShowServiceModal(false);
+    };
+
+    const handleModalSubmit = () => {
+        // Perform validation if needed
+        // Update service information or do any other necessary action
+        setServiceName(modalServiceName);
+        setDescription(modalDescription);
+        setPrice(modalPrice);
+        setAvailability(modalAvailability);
+        closeServiceModal(); // Close the modal
+    };
 
     const fetchServices = async () => {
         try {
@@ -62,15 +98,43 @@ export default function Providerpref ({navigation, route, params}) {
         }
     }
 
-    const saveTempDetails = async (userId) => {
+    const saveTempDetails = async () => {
         try{
             const userData = { 
-                userId, 
-                name, 
-                address, 
+                email,
+                mobile,
+                password,
+                role,
+                name: {
+                    firstName: firstName,
+                    lastName: lastName
+                },
+                address: {
+                    streetAddress1: streetAddress1,
+                    streetAddress2: streetAddress2,
+                    cityMunicipality: city,
+                    barangay: barangay
+                },
                 birthDate,
-                service: selectedValue.name
+                service: [],
+                
             }
+
+            if (services && services.length > 0) {
+                userData.service = services.map(service => ({
+                    serviceId: generateServiceId(),
+                    type: service.selectedValue.name,
+                    name: service.serviceName,
+                    description: service.description,
+                    price: service.price,
+                    availability: service.availability.map(slot => ({
+                        day: slot.day,
+                        startTime: slot.startTime,
+                        endTime: slot.endTime
+                    }))
+                }));
+            }
+
             axios.post("http://192.168.1.14:5000/user/addTempDetails", userData).then(async (res) => {
                 const result = res.data;
                 const { data, message, status } = result
@@ -81,34 +145,28 @@ export default function Providerpref ({navigation, route, params}) {
                 }
             })
         } catch (error) {
-            console.error('Error saving temporary details:', error);
+            if (error.response.data.message === "Temporary user already exists with the given email.") {
+                Alert.alert('Error', 'Email has recently been verified but has not finished the registration process yet.', [{ text: 'OK'}]);
+            } else if (error.response.data.message === "Temporary user already exists with the given mobile number.") {
+                Alert.alert('Error', 'A user with this mobile number is currently undergoing the registration process.', [{ text: 'OK' }]);
+            } else if (error.response.data.message === "User already exists with the given email.") { 
+                Alert.alert('Error', 'An account with this email already exists.', [{ text: 'OK' }]);
+            } else if (error.response.data.message === "User already exists with the given mobile number.") { 
+                Alert.alert('Error', 'An account with this mobile number already exists.', [{ text: 'OK'}]);
+            } else {
+                Alert.alert('Error', 'An error occurred while trying to sign up. Please try again.', [{ text: 'OK' }]);
+                console.error('Error saving temporary details:', error);
+            }
         }
     }
 
-    const handleSubmit = () => {
-    
-        const userData = {
-          email: email,
-          mobile: mobile,
-          password: password,
-          role: role
+    const handleSubmit = async () => {
+        try {
+            await saveTempDetails();
+            Alert.alert('Verification', 'You will be redirected to the mobile verification screen.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { email }) }]);
+        } catch (error) {
+            console.error('Error saving temporary details:', error);
         }
-        axios.post("http://192.168.1.14:5000/user/signup", userData).then(async (res) => {
-        const result = res.data;
-        const { data, message, status } = result
-        if (res.data.status === 'PENDING') {
-            await saveTempDetails(data.userId);
-            Alert.alert('Verification', 'Please check your email for the OTP.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { ...data }) }]);
-        } else {
-          Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
-        }}).catch((err) => {
-          console.log(err);
-          if(err.response.data.message === "Email is being used by another user."){
-            Alert.alert('Error', 'Email is already being used by another user.', [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
-          } else {
-            Alert.alert('Error', err.message, [{ text: 'OK' }]);
-          }
-        });
       }
 
   return (
@@ -142,7 +200,7 @@ export default function Providerpref ({navigation, route, params}) {
         
 
                 <TouchableWithoutFeedback onPress={() => setShowSelectList(false)}>
-            <View style={{ marginBottom: windowHeight * 0.01 }}>
+            <View style={{ marginBottom: windowHeight * 0.08 }}>
                 <Text style={{
                     fontSize: windowWidth * 0.05,
                     fontWeight: '400',
@@ -207,14 +265,16 @@ export default function Providerpref ({navigation, route, params}) {
                 </Modal>
             </View>
         </TouchableWithoutFeedback>
+    
+    
 
+            
           <Button
             title="Sign Up"
             filled
             Color={Color.colorWhite}
             style={{
                 marginTop: windowHeight * 0.09,
-                marginBottom: windowHeight * 0.05,
             }}
                 onPress={handleSubmit}
                 disabled={!validateFields()}

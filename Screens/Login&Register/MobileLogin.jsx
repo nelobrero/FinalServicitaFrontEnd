@@ -18,7 +18,6 @@ export default function MobileLogin({navigation}) {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
     const [confirm, setConfirm] = useState(null);
-    const [mobileData, setMobileData] = useState({});
 
 
     const signInWithPhoneNumber = async () => {
@@ -38,9 +37,6 @@ export default function MobileLogin({navigation}) {
     const confirmCode = async () => {
         try {
             await confirm.confirm(code.join(''));
-            if(mobileData.verified.mobile === false) {
-                await axios.post("http://192.168.1.14:5000/user/verifyMobile", { userId: mobileData._id, mobile: mobile });
-            }
             await axios.post("http://192.168.1.14:5000/user/loginUsingMobile", { mobile: mobile }).then((res) => {
         console.log(res.data)
         if (res.data.status === 'SUCCESS') {
@@ -51,25 +47,29 @@ export default function MobileLogin({navigation}) {
         }
     }). catch((error) => {
         console.log(error);
-        Alert.alert('Error', "IMONG MAMA", [{ text: 'OK' }]);
     })
            
         } catch (error) {
-            Alert.alert("Error", "An error occurred while verifying the code. Please try again OR NAGBINUGO RA KAG TYPE SA CODE.", [{ text: "OK", onPress: () => console.log("OK Pressed")}]);
+            if (error.code === 'auth/invalid-verification-code'){
+                Alert.alert("Error", "Invalid verification code. Please try again.", [{ text: "OK"}]);
+            } else if (error.code === 'auth/code-expired') {
+                Alert.alert("Error", "The verification code has expired. Please request a new one.", [{ text: "OK"}]);
+            } else  {
+                Alert.alert("Error", "An error occurred while verifying the code. Please try again or login using other options", [{ text: "OK"}]);
+            }
         }
     };
 
     const checkIfMobileExists = async (mobile) => {
         try {
-            const response = await axios.post("http://192.168.1.14:5000/user/getMobile", { mobile });
-            if(response.status === 200) {
-                if(response.data.status === "SUCCESS") {
-                    setMobileData(response.data.data);
-                    return true;
-                } else {
-                    return false;
-                }
+            const response = await axios.post("http://192.168.1.14:5000/user/getActualUserDetailsByMobile", { mobile });
+            
+            if(response.data.data) {
+                return true;
+            } else {
+                return false;
             }
+            
         } catch (error) {
             console.log(error);
             return false;
@@ -99,27 +99,20 @@ export default function MobileLogin({navigation}) {
                                             source={require("./../../assets/arrow-1.png")}
                                             />
                             </Pressable>
-
-                            <View style={{ marginVertical: windowHeight * 0.04 }}>
-                                <Text style={{
-                                    fontSize: windowWidth * 0.1,
-                                    fontWeight: 'bold',
-                                    color: Color.colorBlue,
-                                    bottom: windowHeight * 0.03,
-                                }}>
-                                    Mobile
-                                    {"\n"}
-                                    Login...
-                                </Text>
-                            </View>
-
+                            
                         </View>
-                <View style={styles.container}>
-                   
                         
+                <View style={styles.container}>
+                <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>
+                                Mobile Login
+                            </Text>
+                            <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>
+                                Enter your number to login
+                            </Text>
+                
                 {!confirm ? (
                     <>
-                    <View style={{ marginBottom: windowHeight * 0.15, justifyContent: 'center' }}>
+                    <View style={{marginTop: windowHeight * 0.05, width: windowWidth * 0.90 }}>
                     <Text style={{
                         fontSize: 16,
                         fontWeight: '400',
@@ -190,6 +183,7 @@ export default function MobileLogin({navigation}) {
                         marginBottom: windowHeight * 0.05,
                         width: windowWidth * 0.87,
                         height: windowHeight * 0.08,
+                        top: windowHeight * 0.1,
                     }}
                     disabled={!mobileVerify}
                     onPress={signInWithPhoneNumber}
@@ -244,7 +238,7 @@ export default function MobileLogin({navigation}) {
             title="Send Again"
             filledColor={Color.colorWhite}
             style={{
-                marginTop: windowHeight * 0.001,
+                marginTop: windowHeight * 0.07,
                 marginBottom: windowHeight * 0.05,
                 width: windowWidth * 0.87,
                 height: windowHeight * 0.08,
@@ -269,6 +263,8 @@ const styles = StyleSheet.create({
         backgroundColor: Color.colorWhite,
         marginHorizontal: windowWidth * 0.05,
         flexDirection: 'column',
+        position: 'absolute',
+        top: windowHeight * 0.2,
     },
     arrowContainer: {
         bottom: windowHeight * 0.02,
@@ -312,9 +308,10 @@ const styles = StyleSheet.create({
         display: "flex",
         textAlign: "center",
         lineHeight: 23,
+        marginBottom: windowHeight * 0.04,
     },
     passwordRecovery: {
-        fontSize: FontSize.size_6xl,
+        fontSize: FontSize.size_5xl,
         color: Color.colorDarkslategray_100,
         fontFamily: FontFamily.quicksandBold,
         fontWeight: "700",
@@ -322,7 +319,6 @@ const styles = StyleSheet.create({
         display: "flex",
         textAlign: "center",
         lineHeight: windowHeight * 0.1,
-        bottom: windowHeight * 0.03,
     },
     enterYourEmail: {
         fontSize: FontSize.size_mini,

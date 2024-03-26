@@ -6,17 +6,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
 
-function HomeScreen(props) {
-  const navigation = useNavigation();
+function HomeScreen({navigation, props}) {
   const route = useRoute();
-  console.log(props)
   const [userData, setUserData] = useState("");
   const [storeData, setStoreData] = useState("");
 
   async function getUserData() {
     const token = await AsyncStorage.getItem('token');
     console.log(token);
-    axios.post("http://172.16.3.248:5000/user/userdata", {token: token}).then((res) => {
+    axios.post("http://192.168.1.14:5000/user/userData", {token: token}).then((res) => {
       console.log(res.data);
       setUserData(res.data.data);
     }).catch((err) => {

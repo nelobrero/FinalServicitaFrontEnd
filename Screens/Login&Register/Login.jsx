@@ -1,5 +1,5 @@
 import {  View, Text, TextInput, TouchableOpacity, Image, Pressable, Platform, Dimensions, Alert, ScrollView } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Color, circleContainer, circleButton, errorText } from "./../../GlobalStyles";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,32 +12,19 @@ import Error from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from "expo-linear-gradient";
 import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { useNotifications, createNotifications } from 'react-native-notificated';
 
 export default function LoginPage ({ navigation }) {
-  const { NotificationsProvider } = createNotifications();
-  const { notify } = useNotifications();  
-  
-  const [email, setEmail] = useState('');
+    const [email, setEmail] = useState('');
     const [emailVerify, setEmailVerify] = useState(false);
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState(false);
     const [isPasswordShown, setIsPasswordShown] = useState(false);
+    const [type, setType] = useState('');
     const { width, height } = Dimensions.get('window');
 
     const validateFields = () => {
         return emailVerify && passwordVerify;
     }
-
-    useEffect(() => {
-      notify('info', {
-        params: {
-          title: 'Welcome Back!',
-          description: 'Login to your account.',
-        }
-      });
-    }, [])
-
     const onFacebookButtonPress = async () => {
         try {
           const loginResult = await LoginManager.logInWithPermissions(['public_profile', 'email']);
@@ -66,6 +53,7 @@ export default function LoginPage ({ navigation }) {
                           email: result.email,
                         }
                         FacebookLogOut();
+                        if (type === "permanent") {
                         axios.post("http://192.168.1.14:5000/user/loginOther", userEmail).then((res) => {
                             console.log(res.data)
                             if (res.data.status === 'SUCCESS') {
@@ -77,6 +65,9 @@ export default function LoginPage ({ navigation }) {
                         }).catch((err) => {
                             console.log(err);
                             });
+                        } else if (type === "temporary") {               
+                          Alert.alert('Pending Mobile Verification', 'You have not completed the mobile verification process yet. Please complete the process to continue.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { email: userData.email }) }]);
+                        }
                       } else {
                       navigation.navigate('UserRole', { email: userData.email, name: userData.name, userId: userData.userId });
                     }
@@ -97,23 +88,6 @@ export default function LoginPage ({ navigation }) {
           console.error('Error during Facebook login:', error);
         }
       };
-
-      const getUserId = async () => {
-        try {
-            const userData = {
-                email: email,
-            }
-            const res = await axios.post("http://192.168.1.14:5000/user/getuserid", userData);
-            const result = res.data;
-            const { data, status, message } = result;
-
-            if (res.data.status === 'SUCCESS') {
-                return data._id;
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     const GoogleSignIn = async () => {
         try {
@@ -167,22 +141,22 @@ export default function LoginPage ({ navigation }) {
         }
       }
     
-      const checkIfEmailExists = async (email) => {
+    const checkIfEmailExists = async (email) => {
         try {
-          const emailExists = await axios.post('http://192.168.1.14:5000/user/checkIfEmailExists', { email: email });
-            if (emailExists.data) {
-              return true;
-            } else {
-              return false;
+            const userData = {
+                email: email,
             }
-        } catch (error) {
-          if (error.response.data.message === "Email does not exist"){
-            Alert.alert('Error', 'Email does not exist.', [{ text: 'OK' }]);
-          } else {
-            Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
+            const res = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", userData);
+            if (res.data.status === 'SUCCESS') {
+                await setType(res.data.type);
+                return true;
+            }
+          } catch (error) {
+            if (error.response.data.message === "No user found with the given email.") {
+                return false;
+            }
           }
-        }
-    };
+    }
 
     const handleSubmit = () => {
         const userData = {
@@ -199,9 +173,8 @@ export default function LoginPage ({ navigation }) {
         }
     }).catch(async (err) => {
         console.log(err);
-        if(err.response.data.message === "Email has not been verified yet."){
-            const userId = await getUserId();
-            Alert.alert('Error', 'Email has not been verified yet.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { email, userId }) }]);
+        if(err.response.data.message === "User has not completed the registration process yet."){
+            Alert.alert('Error', 'User has not completed the registration process yet.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { email }) }]);
         } else if (err.response.data.message === "Invalid credentials entered!"){
             Alert.alert('Error', 'Invalid credentials entered!', [{ text: 'OK' }]);
         } else if (err.response.data.message === "Invalid password entered!"){
@@ -214,9 +187,6 @@ export default function LoginPage ({ navigation }) {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
-            <View style = {{alignItems: 'center'}}>
-            <NotificationsProvider/>
-            </View>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
                 <LinearGradient
                     style={{ flex: 1 }}
@@ -236,9 +206,9 @@ export default function LoginPage ({ navigation }) {
                         </View>
 
                         <View style={{ marginBottom: height * 0.02 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 8, color: Color.colorWhite }}>Email address</Text>
-                            <View style={{ width: "100%", height: 48, borderColor: Color.colorWhite, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", paddingLeft: 22, flexDirection: 'row', paddingHorizontal: 55}}>
-                              <FontAwesome name="envelope" color = { Color.colorWhite } style={{marginRight: 5, fontSize: 24}} />
+                            <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 8, color: Color.colorWhite }}>Email Address</Text>
+                            <View style={{ width: "100%", height: 48, borderColor:  email === null || email === '' ? Color.colorWhite : emailVerify ? Color.colorWhite : Color.colorCoralShade, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", paddingLeft: 22, flexDirection: 'row', paddingHorizontal: 55}}>
+                              <FontAwesome name="envelope" color = { email === null || email === '' ? Color.colorWhite : emailVerify ? Color.colorWhite : Color.colorCoralShade } style={{marginRight: 5, fontSize: 24}} />
                                 <TextInput 
                                     placeholder='Enter your email address' 
                                     placeholderTextColor={Color.colorWhite} 
@@ -255,7 +225,7 @@ export default function LoginPage ({ navigation }) {
                                 {email.length < 1 ? null : emailVerify ? (
                             <Feather name="check-circle" color={Color.colorWhite} size={24} style={{ position: "absolute", right: 12 }}/>
                         ) : (
-                            null
+                            <Error name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
                         )}
                             </View>
 
@@ -264,8 +234,7 @@ export default function LoginPage ({ navigation }) {
                                   null
                               ) : (
                                   <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                      <Error name="error" color={email === null || email === '' ? Color.colorWhite : emailVerify ? Color.colorWhite : Color.colorCoralShade} size={24} marginTop={6}/>
-                                      <Text style={[errorText, { color: Color.colorWhite}]}>Please enter a valid email address.</Text>
+                                      <Text style={[errorText, { color: Color.colorCoralShade}]}>Please enter a valid email address.</Text>
                                   </View>
                               )}
 
@@ -294,7 +263,7 @@ export default function LoginPage ({ navigation }) {
                                 </TouchableOpacity>
                             </View>
                             {password.length < 1 ? null : passwordVerify ? null : (
-                                <Text style={[errorText, {color: password === null || password === '' ? Color.colorWhite : passwordVerify ? Color.colorWhite : Color.colorCoralShade, textAlign: 'left' }]}>Password must be at least 8 characters long and include at least one uppercase letter and one digit.</Text>
+                                <Text style={[errorText, {color: Color.colorCoralShade, textAlign: 'left' }]}>Password must be at least 8 characters long and include at least one uppercase letter and one digit.</Text>
                             )}
                         </View>
 

@@ -60,6 +60,7 @@ export default function Welcome ({ navigation, route }) {
                                 fontStyle: 'normal',
                                 color: Color.colorWhite,
                                 textAlign: 'center'
+                                
                             }}>SERVICITA</Text>
 
                             <Button
@@ -70,6 +71,7 @@ export default function Welcome ({ navigation, route }) {
                                     width: "80%",
                                     alignSelf: 'center',
                                     borderWidth: 0,
+                                    borderColor: 'transparent'
                                 }}
                             />   
 

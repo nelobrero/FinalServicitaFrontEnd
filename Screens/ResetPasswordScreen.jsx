@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, Pressable, StyleSheet, Dimensions, SafeAreaView, Alert } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Image, Pressable, StyleSheet, Dimensions, SafeAreaView, Alert, ScrollView } from 'react-native'
 import { FontSize, Color, FontFamily, errorText } from "../GlobalStyles";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Ionicons } from "@expo/vector-icons";
@@ -18,7 +18,7 @@ export default function ResetPasswordScreen({navigation, route, params}) {
     const [isPasswordShown, setIsPasswordShown] = useState(false);
     const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false);
 
-    const { userId } = route.params;
+    const { email } = route.params;
 
     useEffect(() => {
         setConfirmPasswordVerify(confirmPassword === password);
@@ -27,10 +27,10 @@ export default function ResetPasswordScreen({navigation, route, params}) {
 
     const handleSubmit  = () => {
         const userData = {
-            userId: userId,
+            email: email,
             newPassword: password,
           }
-          axios.post("http://192.168.1.14:5000/forgot_password_otp/actualReset", userData).then((res) => {
+          axios.patch("http://192.168.1.14:5000/forgot_password_otp/actualReset", userData).then((res) => {
             if (res.data.status === 'SUCCESS') {
                 Alert.alert('Success', 'Password Reset Successful. Please Login Again', [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
               } else {
@@ -43,6 +43,7 @@ export default function ResetPasswordScreen({navigation, route, params}) {
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
         <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.07 }}>
                             <Pressable onPress={() => navigation.navigation("Login")} style={styles.arrowContainer}>
                                             <Image
@@ -61,7 +62,7 @@ export default function ResetPasswordScreen({navigation, route, params}) {
                 Enter your new password
             </Text>
 
-            <View style={{ marginBottom: windowHeight * 0.01 }}>
+            <View style={{  marginTop: windowHeight * 0.05, width: windowWidth * 0.9 }}>
                 <Text style={{
                     fontSize: windowWidth * 0.05,
                     fontWeight: '400',
@@ -104,7 +105,7 @@ export default function ResetPasswordScreen({navigation, route, params}) {
                 )}
             </View>
 
-             <View style={ {marginBottom: windowHeight * 0.01} }>
+             <View style={ { marginTop: windowHeight * 0.03, width: windowWidth * 0.90} }>
                 <Text style={{
                     fontSize: windowWidth * 0.05,
                     fontWeight: '400',
@@ -151,14 +152,18 @@ export default function ResetPasswordScreen({navigation, route, params}) {
                     filled
                     Color={Color.colorWhite}
                     style={{
-                        marginTop: windowHeight * 0.02,
+                        marginTop: windowHeight * 0.07,
                         marginBottom: windowHeight * 0.05,
+                        width: windowWidth * 0.87,
+                        height: windowHeight * 0.08,
+                        top: windowHeight * 0.03,
                     }}
                     onPress={handleSubmit}
                     disabled={!passwordVerify || !confirmPasswordVerify}
                 />
             
         </View>
+        </ScrollView>
         </SafeAreaView>
     );
 };
@@ -173,7 +178,7 @@ const styles = StyleSheet.create({
         marginBottom: windowHeight * 0.04,
     },
     passwordRecovery: {
-        fontSize: FontSize.size_6xl,
+        fontSize: FontSize.size_5xl,
         color: Color.colorDarkslategray_100,
         fontFamily: FontFamily.quicksandBold,
         fontWeight: "700",
@@ -200,17 +205,18 @@ const styles = StyleSheet.create({
         backgroundColor: Color.colorWhite,
         marginHorizontal: windowWidth * 0.05,
         flexDirection: 'column',
+        alignItems: 'center',
+        position: 'absolute',
+        top: windowHeight * 0.2,
     },
     arrowContainer: {
-        top: windowHeight * 0.03,
+        bottom: windowHeight * 0.02,
         left: windowWidth * 0.01,
-        zIndex: 2,
     },
     userroleChild: {
-        top: windowHeight * 0.001,
+        top: windowHeight * 0.003,
         left: windowWidth * 0.001,
         maxHeight: "100%",
         width: windowWidth * 0.07,
-        zIndex: 1,
-    }
+    },
 });
