@@ -537,7 +537,16 @@ export default function RegisterPage ({navigation, route, props}) {
             <View style={styles.centeredView}>
             
               <View style={styles.modalView}>
-                <FontAwesome name="close" size={24} color={Color.colorBlue} style={{alignSelf: 'flex-start', marginLeft: -windowWidth * 0.05, marginBottom: windowHeight * 0.001, bottom: windowHeight * 0.02}} onPress={() => hideModal()} />
+              <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>
+                            <Text style={{
+                                    fontSize: windowWidth * 0.06,
+                                    fontWeight: '400',
+                                    marginVertical: windowHeight * 0.01,
+                                    color: Color.colorBlue,
+                                    marginLeft: windowWidth * 0.05 
+                                }}>Verify OTP</Text>
+                            <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => hideModal()} />
+                            </View>
               <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>We’ve sent the code to:</Text>
                 <Text style={[styles.enterYourEmail, styles.passwordFlexBox]}>{email}</Text>

@@ -24,9 +24,6 @@ export default function MissingInfoPage ({navigation, route, props}) {
     const [streetAddress2, setStreetAddress2] = useState('');
     const [mobile, setMobile] = useState('+63');
     const [mobileVerify, setMobileVerify] = useState(false);
-    const [selectedValueService, setSelectedValueService] = useState(null);
-    const [showSelectListService, setShowSelectListService] = useState(false);
-    const [searchQueryService, setSearchQueryService] = useState('');
     const [selectedValueCity, setSelectedValueCity] = useState(null);
     const [showSelectListCity, setShowSelectListCity] = useState(false);
     const [searchQueryCity, setSearchQueryCity] = useState('');
@@ -44,10 +41,8 @@ export default function MissingInfoPage ({navigation, route, props}) {
 
     const [roleText, setRoleText] = useState(role === 'Seeker' ? 'Seeking' : 'Servicing');
 
-    const [services, setServices] = useState([]);
     const [cities, setCities] = useState([]);
 
-    const filteredServices = services.filter(item => item.name.toLowerCase().includes(searchQueryService.toLowerCase()));
     const filteredCities = cities.filter(item => item.name.toLowerCase().includes(searchQueryCity.toLowerCase()));
     const filteredBarangays = selectedValueCity ? selectedValueCity.barangays.filter(item => item.toLowerCase().includes(searchQueryBarangay.toLowerCase())) : [];
     
@@ -76,11 +71,7 @@ export default function MissingInfoPage ({navigation, route, props}) {
     };
 
     const validateFields = () => {
-        if (role === 'Provider') {
-            return birthdayVerify && streetAddress1Verify && selectedValueCity && selectedBarangay && mobileVerify && selectedValueService;
-        } else {
-            return birthdayVerify && streetAddress1Verify && selectedValueCity && selectedBarangay && mobileVerify;
-        }
+        return birthdayVerify && streetAddress1Verify && selectedValueCity && selectedBarangay && mobileVerify;
     }
 
     const handleDateChange = (event, selectedDate) => {
@@ -89,12 +80,6 @@ export default function MissingInfoPage ({navigation, route, props}) {
         setBirthday(currentDate);
         setBirthdayVerify(currentDate <= minDate);
     }
-
-    const handleSelectService = (value) => {
-        setSelectedValueService(value);
-        setShowSelectListService(false);
-
-    };
 
     const handleSelectCity = (city) => {
         setSelectedValueCity(city);
@@ -111,61 +96,26 @@ export default function MissingInfoPage ({navigation, route, props}) {
 
     const saveTempDetails = async () => {
         try {
-            let userData;
-    
-            if (role === 'Seeker') {
-                userData = {
-                    email,
-                    mobile,
-                    password: userId,
-                    role,
-                    name: {
-                        firstName: name,
-                        lastName: ""
-                    },
-                    address: {
-                        streetAddress1: streetAddress1,
-                        streetAddress2: streetAddress2,
-                        cityMunicipality: selectedValueCity.name,
-                        barangay: selectedBarangay
-                    },
-                    birthDate: formattedBirthday,
-                };
-            } else {
-                userData = {
-                    email,
-                    mobile,
-                    password: userId,
-                    role,
-                    name: {
-                        firstName: name,
-                        lastName: ""
-                    },
-                    address: {
-                        streetAddress1: streetAddress1,
-                        streetAddress2: streetAddress2,
-                        cityMunicipality: selectedValueCity.name,
-                        barangay: selectedBarangay
-                    },
-                    birthDate: formattedBirthday,
-                    service: [],
-                };
-            }
 
-            if (services && services.length > 0) {
-                userData.service = services.map(service => ({
-                    serviceId: generateServiceId(),
-                    type: service.selectedValue.name,
-                    name: service.serviceName,
-                    description: service.description,
-                    price: service.price,
-                    availability: service.availability.map(slot => ({
-                        day: slot.day,
-                        startTime: slot.startTime,
-                        endTime: slot.endTime
-                    }))
-                }));
-            }
+    
+            const userData = {
+                    email: email,
+                    mobile: mobile,
+                    password: userId,
+                    role,
+                    name: {
+                        firstName: name,
+                        lastName: ""
+                    },
+                    address: {
+                        streetAddress1: streetAddress1,
+                        streetAddress2: streetAddress2,
+                        cityMunicipality: selectedValueCity.name,
+                        barangay: selectedBarangay
+                    },
+                    birthDate: formattedBirthday,
+                };
+
 
             axios.post("http://192.168.1.14:5000/user/addTempDetails", userData).then(async (res) => {
                 const result = res.data;
@@ -182,6 +132,38 @@ export default function MissingInfoPage ({navigation, route, props}) {
             
     }
 
+    const renderButton = () => {
+        if (role === 'Seeker') {
+            return (
+                <Button
+                    title="Sign Up"
+                    filled
+                    Color={Color.colorWhite}
+                    style={{
+                        marginTop: windowHeight * 0.02,
+                        marginBottom: windowHeight * 0.05,
+                    }}
+                    onPress={handleSubmit}
+                    disabled={!validateFields()}
+                />
+            );
+        } else {
+            return (
+                <Button
+                    title="Next"
+                    filled
+                    Color={Color.colorWhite}
+                    style={{
+                        marginTop: windowHeight * 0.02,
+                        marginBottom: windowHeight * 0.05,
+                    }}
+                    onPress={() => navigation.navigate('ProviderPrefer', { firstName: name, lastName: "", email: email, role: role, streetAddress1: streetAddress1, streetAddress2: streetAddress2, city: selectedValueCity.name, barangay: selectedBarangay, birthDate: formattedBirthday, mobile: mobile, password: userId})}
+                    disabled={!validateFields()}
+                />
+            );
+        }
+    };
+
     const handleSubmit = async () => {
         try {
             await saveTempDetails();
@@ -189,88 +171,9 @@ export default function MissingInfoPage ({navigation, route, props}) {
         } catch (error) {
             console.error('Error saving temporary details:', error);
         }
-    }
+      }
 
-    const renderButton = () => {
-        if (role === 'Provider') {
-
-            return (
-                <TouchableWithoutFeedback onPress={() => setShowSelectListService(false)}>
-            <View style={{ marginBottom: windowHeight * 0.01 }}>
-                <Text style={{
-                    fontSize: windowWidth * 0.05,
-                    fontWeight: '400',
-                    marginVertical: windowHeight * 0.01,
-                    color: Color.colorBlue,
-                }}>Service</Text>
-                <TouchableOpacity onPress={() => setShowSelectListService(true)}>
-                    <View style={{
-                        width: '100%',
-                        height: windowHeight * 0.06,
-                        borderColor: selectedValueService ? Color.colorGreen : Color.colorBlue1,
-                        borderWidth: 1,
-                        borderRadius: windowHeight * 0.015,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        paddingLeft: windowWidth * 0.025,
-                        paddingHorizontal: windowWidth * 0.14,
-                        flexDirection: 'row'
-                    }}>
-                        <FontAwesome name="bell" color = {selectedValueService === null || selectedValueService === '' ? Color.colorBlue1 : selectedValueService ? Color.colorGreen : Color.colorBlue1} style={{marginRight: 5, fontSize: 24}}/>
-                        <TextInput
-                            placeholder='Select service'
-                            placeholderTextColor={Color.colorBlue}
-                            value={selectedValueService ? selectedValueService.name : '' }
-                            editable={false}
-                            style={{ flex: 1 }}
-                            color={selectedValueService ? Color.colorBlack : Color.colorBlue}
-                        />
-                        {selectedValueService ? (
-                            <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : null}
-                    </View>
-                </TouchableOpacity>
-
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={showSelectListService}
-                    onRequestClose={() => setShowSelectListService(false)}
-                >
-                    <TouchableWithoutFeedback onPress={() => setShowSelectListService(false)}>
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                            <View style={{ backgroundColor: 'white', width: '80%', maxHeight: '80%', borderRadius: 10 }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)', height: windowHeight * 0.06, }}>
-                                <FontAwesome name="search" color={Color.colorBlue} style={{ marginLeft: 10, fontSize: 20 }} />
-                                <TextInput
-                                    placeholder='Search...'
-                                    onChangeText={text => setSearchQueryService(text)}
-                                    style={{ paddingHorizontal: 10 }}
-                                />
-                                </View>
-                                <ScrollView style={{ maxHeight: windowHeight * 0.5 }}>
-                                {filteredServices.map((item, index) => (
-                                    <TouchableOpacity key={item.key} onPress={() => handleSelectService(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
-                                        <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.name}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                                </ScrollView>
-                            </View>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </Modal>
-            </View>
-        </TouchableWithoutFeedback>
-            
-            );
-                                    
-        
-        } else {
-            return (
-                null
-            );
-        }
-    };
+    
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
@@ -641,20 +544,8 @@ export default function MissingInfoPage ({navigation, route, props}) {
                         <Text style={errorText}>Please enter a valid Philippine mobile number in the format +63*********.</Text>
                     )}
                 </View>
-
+                
                 {renderButton()}
-
-                <Button
-                    title="Submit"
-                    onPress={handleSubmit}
-                    filled
-                    Color={Color.colorWhite}
-                    style={{
-                        marginTop: windowHeight * 0.02,
-                        marginBottom: windowHeight * 0.05,
-                    }}
-                    disabled={!validateFields()}
-                />
 
             </View>
         </ScrollView>
