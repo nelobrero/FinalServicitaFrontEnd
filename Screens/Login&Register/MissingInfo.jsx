@@ -37,7 +37,7 @@ export default function MissingInfoPage ({navigation, route, props}) {
     `${(birthday.getMonth() + 1).toString().padStart(2, '0')}/${birthday.getDate()}/${birthday.getFullYear()}` 
     : null;
 
-    const { email, name, userId, role } = route.params;
+    const { email, firstName, lastName, userId, role } = route.params;
 
     const [roleText, setRoleText] = useState(role === 'Seeker' ? 'Seeking' : 'Servicing');
 
@@ -48,25 +48,16 @@ export default function MissingInfoPage ({navigation, route, props}) {
     
 
     useEffect(() => {
-        fetchServices();
         fetchCities();
     }, []);
 
-    const fetchServices = async () => {
-        try {
-            const response = await axios.get('http://192.168.1.14:5000/service/getServices');
-            setServices(response.data.data);
-        } catch (error) {
-            console.error('Error fetching services:', error);
-        }
-    };
 
     const fetchCities = async () => {
         try {
-            const response = await axios.get('http://192.168.1.14:5000/location/getCities');
+            const response = await axios.get('http://192.168.1.10:5000/location/getCities');
             setCities(response.data.data);
         } catch (error) {
-            console.error('Error fetching services:', error);
+            console.error('Error fetching cities:', error);
         }
     };
 
@@ -102,10 +93,10 @@ export default function MissingInfoPage ({navigation, route, props}) {
                     email: email,
                     mobile: mobile,
                     password: userId,
-                    role,
+                    role: role,
                     name: {
-                        firstName: name,
-                        lastName: ""
+                        firstName: firstName,
+                        lastName: lastName
                     },
                     address: {
                         streetAddress1: streetAddress1,
@@ -117,7 +108,7 @@ export default function MissingInfoPage ({navigation, route, props}) {
                 };
 
 
-            axios.post("http://192.168.1.14:5000/user/addTempDetails", userData).then(async (res) => {
+            axios.post("http://192.168.1.10:5000/user/addTempDetails", userData).then(async (res) => {
                 const result = res.data;
                 const { data, message, status } = result
                 if (status === 'SUCCESS') {
@@ -157,7 +148,7 @@ export default function MissingInfoPage ({navigation, route, props}) {
                         marginTop: windowHeight * 0.02,
                         marginBottom: windowHeight * 0.05,
                     }}
-                    onPress={() => navigation.navigate('ProviderPrefer', { firstName: name, lastName: "", email: email, role: role, streetAddress1: streetAddress1, streetAddress2: streetAddress2, city: selectedValueCity.name, barangay: selectedBarangay, birthDate: formattedBirthday, mobile: mobile, password: userId})}
+                    onPress={() => navigation.navigate('ProviderPrefer', { firstName: firstName, lastName: lastName, email: email, role: role, streetAddress1: streetAddress1, streetAddress2: streetAddress2, city: selectedValueCity.name, barangay: selectedBarangay, birthDate: formattedBirthday, mobile: mobile, password: userId})}
                     disabled={!validateFields()}
                 />
             );

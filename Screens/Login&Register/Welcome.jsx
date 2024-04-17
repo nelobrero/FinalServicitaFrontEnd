@@ -1,5 +1,6 @@
-import { View, Text, Image, Pressable, Dimensions, SafeAreaView } from 'react-native'
+import { View, Text, Image, Pressable, Dimensions, SafeAreaView, Alert, BackHandler } from 'react-native';
 import React, { useEffect } from 'react' 
+import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from "expo-linear-gradient";
 import { Color } from "./../../GlobalStyles";
 import Button from '../../components/Button';
@@ -20,6 +21,31 @@ export default function Welcome ({ navigation, route }) {
             },
         });
       }, [])
+
+      const handleBackPress = () => {
+        Alert.alert(
+          "Exit App",
+          "Exiting the application?",
+          [
+            {
+              text: "Cancel",
+              onPress: () => null,
+              style: "cancel"
+            },
+            { text: "Exit", onPress: () => BackHandler.exitApp() }
+          ]
+        );
+        return true;
+      }
+    
+      useFocusEffect(
+        React.useCallback(() => {
+          BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+          return() => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+          }
+        })
+      )
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite}}>

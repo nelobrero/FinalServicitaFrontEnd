@@ -37,7 +37,7 @@ export default function MobileLogin({navigation}) {
     const confirmCode = async () => {
         try {
             await confirm.confirm(code.join(''));
-            await axios.post("http://192.168.1.14:5000/user/loginUsingMobile", { mobile: mobile }).then((res) => {
+            await axios.post("http://192.168.1.10:5000/user/loginUsingMobile", { mobile: mobile }).then((res) => {
         console.log(res.data)
         if (res.data.status === 'SUCCESS') {
             Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
@@ -62,7 +62,7 @@ export default function MobileLogin({navigation}) {
 
     const checkIfMobileExists = async (mobile) => {
         try {
-            const response = await axios.post("http://192.168.1.14:5000/user/getActualUserDetailsByMobile", { mobile });
+            const response = await axios.post("http://192.168.1.10:5000/user/getActualUserDetailsByMobile", { mobile });
             
             if(response.data.data) {
                 return true;
@@ -210,9 +210,10 @@ export default function MobileLogin({navigation}) {
                                     console.log(nativeEvent.key);
                                     if (nativeEvent.key === 'Backspace' && code[index] === '') {
                                         if (index !== 0) {
+                                            updateCode(index, '');
                                             inputRefs.current[index - 1].focus();
                                         }
-                                    } else if (!isNaN(nativeEvent.key) && code[index] && index !== 3) {
+                                    } else if (!isNaN(nativeEvent.key) && code[index] && index !== 5) {
                                         inputRefs.current[index + 1].setNativeProps({ text: nativeEvent.key });
                                         updateCode(index + 1, nativeEvent.key);
                                     }

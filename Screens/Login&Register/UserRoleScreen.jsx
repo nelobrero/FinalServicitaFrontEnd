@@ -7,13 +7,16 @@ import { useNotifications, createNotifications } from 'react-native-notificated'
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function UserRoleScreen({navigation, route, props}){
-  const { NotificationsProvider } = createNotifications();
+  const { NotificationsProvider } = createNotifications({
+    multiline : true,
+  })
+
   const { notify } = useNotifications();
   
   const [selectedRole, setSelectedRole] = useState(null);
   
  
-  const { email, name, userId } = route.params;
+  const { email, firstName, lastName, userId } = route.params;
 
   
 
@@ -44,15 +47,15 @@ function UserRoleScreen({navigation, route, props}){
   const handleContinuePress = () => {
     console.log(selectedRole);
     if (selectedRole === "Seeker") {
-      if (email && name && userId) {
-        navigation.navigate("MissingInfo", { email: email, name: name, userId: userId, role: "Seeker" });
+      if (email && firstName && lastName && userId) {
+        navigation.navigate("MissingInfo", { email: email, firstName: firstName, lastName: lastName, userId: userId, role: "Seeker" });
       } else {
         navigation.navigate("Register", { role: "Seeker" });
       }
       
     } else if (selectedRole === "Provider") {
-      if (email && name && userId) {
-        navigation.navigate("MissingInfo", { email: email, name: name, userId: userId, role: "Provider" });
+      if (email && firstName && lastName && userId) {
+        navigation.navigate("MissingInfo", { email: email, firstName: firstName, lastName: lastName, userId: userId, role: "Provider" });
       } else {
         navigation.navigate("Register", { role: "Provider" });
       }
@@ -215,9 +218,9 @@ const styles = StyleSheet.create({
   },
   arrowContainer: {
     position: "absolute",
-    top: hp('3%'), // Adjust the top position as needed
-    left: wp('3%'), // Adjust the left position as needed
-    zIndex: 1, // Ensure the arrow stays above other components
+    top: hp('3%'),
+    left: wp('3%'),
+    zIndex: 1,
   },
 });
 

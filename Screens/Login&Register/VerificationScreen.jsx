@@ -8,6 +8,8 @@ import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
 import Button from "../../components/Button";
 import auth from '@react-native-firebase/auth';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -19,22 +21,38 @@ export default function VerificationScreen({ navigation, route, props }) {
     const [confirm, setConfirm] = useState(null);
 
     const { email } = route?.params;
-    
     const [finalBirthDate, setBirthDate] = useState(new Date());
     const [storeData, setStoreData] = useState({});
     const [finalMobile, setFinalMobile] = useState("");
     const [mobile, setMobile] = useState("+63");
     const [mobileVerify, setMobileVerify] = useState(false);
+    const [equal, setEqual] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    
+    const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DEPOLTIMEJ.jpg?alt=media&token=720651f9-4b46-4b9d-8131-ec4d8951a81b";
+    const DEFAULT_IMAGE_URL_SEEKER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DPULTO.jpg?alt=media&token=7c029ca7-8b0c-4182-8d35-951b55281a15";
+    const DEFAULT_IMAGE_SERVICE_PROFILE = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/COVERPAGE.jpg?alt=media&token=ff9d0b7b-3bc9-4d63-8aeb-2e4149583941";
+                                
     useEffect(() => {
         fetchTempData();
     }, []);
+
+    useEffect(() => {
+        setEqual(checkIfMobileAndFinalMobileAreEqual());
+    }, [mobile]);
+
+    const checkIfMobileAndFinalMobileAreEqual = () => {
+        if (mobile === finalMobile) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     const signInWithPhoneNumber = async () => {
         try {
             const confirmation = await auth().signInWithPhoneNumber(finalMobile);
             setConfirm(confirmation);
+            Alert.alert("Success", "Code sent successfully.", [{ text: "OK"}]);
         } catch (error) {
             console.log(error);
         }
@@ -46,25 +64,42 @@ export default function VerificationScreen({ navigation, route, props }) {
             mobile: finalMobile,
             password: storeData.data.password,
             role: storeData.data.role,
+            profileImage: storeData.data.role === 'Provider' ? DEFAULT_IMAGE_URL_PROVIDER : DEFAULT_IMAGE_URL_SEEKER,
         }
         try {
             await confirm.confirm(code.join(''));
-            await axios.post(`http://192.168.1.14:5000/user/signup`, userData).then(async (res) => {
+            await axios.post(`http://192.168.1.10:5000/user/signup`, userData).then(async (res) => {
                 if (res.status === 200) {
                     console.log("User created successfully");
                     await saveDetails(res.data.data._id);
-                    Alert.alert("Success", "You have successfully verified your account. Please login again.", [{ text: "OK", onPress: () => navigation.navigate("Login")}]);
                 }
             })
+            await axios.post("http://192.168.1.10:5000/user/login", {email: email, password: storeData.data.password}).then((res) => {
+            console.log(res.data)
+            if (res.data.status === 'SUCCESS') {
+                Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+                AsyncStorage.setItem('token', res.data.data);
+                AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                navigation.navigate('App');
+            }
+        })
+
         } catch (error) {
-            Alert.alert("Error", "An error occurred while verifying the code.", [{ text: "OK"}]);
-            console.error('Invalid code:', error.message);
+            if (error.code === 'auth/invalid-verification-code') {
+                Alert.alert("Error", "Invalid code entered.", [{ text: "OK"}]);
+                console.error('Invalid code:', error.message);
+            } else if (error.code === 'auth/code-expired') {
+                Alert.alert("Error", "The verification code has expired. Please request a new one.", [{ text: "OK"}]);
+            } else {
+                Alert.alert("Error", "An error occurred while verifying the code.", [{ text: "OK"}]);
+                console.error('Error:', error.message);
+            }
         }
     };
 
     const fetchTempData = async () => {
         try {
-            await axios.post(`http://192.168.1.14:5000/user/getTempDetails`, {email : email}).then((res) => {
+            await axios.post(`http://192.168.1.10:5000/user/getTempDetails`, {email : email}).then((res) => {
                 setStoreData(res.data);
                 setBirthDate(res.data.data.birthDate);
                 setFinalMobile(res.data.data.mobile);
@@ -88,19 +123,37 @@ export default function VerificationScreen({ navigation, route, props }) {
                     barangay: storeData.data.address.barangay
                 },
                 birthDate: firestore.Timestamp.fromDate(new Date(finalBirthDate)),
+                
+                reportsReceived: 0,
+                violationRecord: 0,
             };
             
+            if (storeData.data.role === 'Seeker') {
+                userData.servicesAvailed = 0;
+            }
+
             if (storeData.data.role === 'Provider') {
-                const serviceIds = storeData.data.service.map(service => service.serviceId);
+                userData.rating = 0;
+                userData.completedBookings = 0;
+                const serviceIds = storeData.data.services.map(services => services.serviceId);
                 userData.services = serviceIds;
-                for (const service of storeData.data.service) {
+                for (const service of storeData.data.services) {
                     await firestore().collection('services').doc(service.serviceId).set({
-                        type: service.type,
+                        providerId: userId,
+                        coverImage: DEFAULT_IMAGE_SERVICE_PROFILE,
+                        serviceType: service.serviceType,
                         name: service.name,
                         description: service.description,
                         price: service.price,
                         availability: service.availability,
-                        verified: false,
+                        rating: 0,
+                        status: 'Pending',
+                        dateSubmitted: firestore.Timestamp.now(),
+                        address: {
+                            cityMunicipality: storeData.data.address.cityMunicipality,
+                            barangay: storeData.data.address.barangay
+                        }
+                        
                     });
                 }
             }
@@ -133,25 +186,27 @@ export default function VerificationScreen({ navigation, route, props }) {
     
     const hideModal = () => {
         setModalVisible(false);
+        setMobile("+63");
     }
 
     const changeNumber = () => {
-        setConfirm(null);
+        
         setModalVisible(true);
     }
 
     const verifyChangedNumber = async () => {
         try {
-            await axios.post(`http://192.168.1.14:5000/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
+            await axios.post(`http://192.168.1.10:5000/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
                 if (res.status === 200) {
                     setModalVisible(false);
                     setFinalMobile(mobile);
                     setMobile("+63");
+                    setConfirm(null);
                 } else {
                         Alert.alert("Error", "The mobile number you entered is already in use.", [{ text: "OK"}]);
                     }
                 })
-            await axios.patch(`http://192.168.1.14:5000/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
+            await axios.patch(`http://192.168.1.10:5000/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
                     if (res.status === 200) {
                         Alert.alert("Success", "Mobile number changed successfully.", [{ text: "OK"}]);
                     }
@@ -194,8 +249,9 @@ export default function VerificationScreen({ navigation, route, props }) {
                     We’re going to send the code to: 
                     {"\n"}
                     {finalMobile}
+                    {"\n"}
                     <Pressable onPress={() => setModalVisible(true)} style={styles.changeMobileButton}>
-                    <Text style={styles.changeMobileButtonText}>  Change?</Text>
+                    <Text style={styles.changeMobileButtonText}>Change?</Text>
                     </Pressable>
                 </Text>
                 
@@ -205,9 +261,10 @@ export default function VerificationScreen({ navigation, route, props }) {
                 <Text style={[styles.passwordRecovery, styles.passwordFlexBox]}>
                     We’ve sent the code to:
                     {"\n"}
-                    {finalMobile} 
+                    {finalMobile}
+                    {"\n"} 
                     <Pressable onPress={changeNumber} style={styles.changeMobileButton}>
-                    <Text style={styles.changeMobileButtonText}>  Change?</Text>
+                    <Text style={styles.changeMobileButtonText}>Change?</Text>
                 </Pressable>
                     </Text>
                 
@@ -225,12 +282,15 @@ export default function VerificationScreen({ navigation, route, props }) {
                                 console.log(nativeEvent.key);
                                 if (nativeEvent.key === 'Backspace' && code[index] === '') {
                                     if (index !== 0) {
+                                        updateCode(index, '');
                                         inputRefs.current[index - 1].focus();
+                                        
                                     }
-                                } else if (!isNaN(nativeEvent.key) && code[index] && index !== 3) {
+                                } else if (!isNaN(nativeEvent.key) && code[index] && index !== 5) {
                                     inputRefs.current[index + 1].setNativeProps({ text: nativeEvent.key });
                                     updateCode(index + 1, nativeEvent.key);
                                 }
+                               
                             }}
                             onChange={(e) => updateCode(index, e.nativeEvent.text)}
                             editable={confirm ? true : false} 
@@ -243,12 +303,7 @@ export default function VerificationScreen({ navigation, route, props }) {
             title="Send Code"
             filled
             Color={Color.colorWhite}
-            style={{
-                marginTop: windowHeight * 0.1,
-                marginBottom: windowHeight * 0.05,
-                width: windowWidth * 0.87,
-                height: windowHeight * 0.08,
-            }}
+            style={styles.buttones}
             onPress={signInWithPhoneNumber}
             />
                 </>
@@ -258,24 +313,14 @@ export default function VerificationScreen({ navigation, route, props }) {
             title="Verify"
             filled
             Color={Color.colorWhite}
-            style={{
-                marginTop: windowHeight * 0.1,
-                marginBottom: windowHeight * 0.05,
-                width: windowWidth * 0.87,
-                height: windowHeight * 0.08,
-            }}
+            style={styles.button}
             onPress={confirmCode}
             disabled={code.includes('')}
             />
             <Button
             title="Send Again"
             filledColor={Color.colorWhite}
-            style={{
-                marginTop: windowHeight * 0.001,
-                marginBottom: windowHeight * 0.05,
-                width: windowWidth * 0.87,
-                height: windowHeight * 0.08,
-            }}
+            style={styles.buttons}
             onPress={signInWithPhoneNumber}
             />
                 </>
@@ -299,11 +344,11 @@ export default function VerificationScreen({ navigation, route, props }) {
                                     marginVertical: windowHeight * 0.01,
                                     color: Color.colorBlue,
                                     marginLeft: windowWidth * 0.05 
-                                }}>Verify OTP</Text>
+                                }}>Verify Code</Text>
                             <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => hideModal()} />
                             </View>
               <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-              <View style={{ marginBottom: windowHeight * 0.04, justifyContent: 'center' }}>
+              <View style={{ marginBottom: windowHeight * 0.04, justifyContent: 'center', marginHorizontal: windowWidth * 0.05 }}>
                     <Text style={{
                         fontSize: 16,
                         fontWeight: '400',
@@ -315,16 +360,16 @@ export default function VerificationScreen({ navigation, route, props }) {
                     <View style={{
                         width: '100%',
                         height: windowHeight * 0.06,
-                        borderColor: mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed,
+                        borderColor: mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify && !equal  ? Color.colorGreen : Color.colorRed,
                         borderWidth: 1,
                         borderRadius: windowHeight * 0.015,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        paddingLeft: windowWidth * 0.05,
-                        paddingHorizontal: windowWidth * 0.13,
+                        paddingHorizontal: windowWidth * 0.05,
                         flexDirection: 'row'
+                        
                     }}>
-                        <FontAwesome name="phone" color={mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed} style={{ marginRight: 5, fontSize: 24}} />
+                        <FontAwesome name="phone" color={mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify && !equal ? Color.colorGreen : Color.colorRed} style={{ marginRight: 7, fontSize: 24}} />
                         <TextInput
                         placeholder='+63'
                         placeholderTextColor={Color.colorBlue1}
@@ -332,10 +377,11 @@ export default function VerificationScreen({ navigation, route, props }) {
                         style={{
                             width: "12%",
                             borderRightWidth: 1,
-                            borderColor: mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed,
+                            borderColor: mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify && !equal ? Color.colorGreen : Color.colorRed,
                             height: "100%",
+                            right: windowWidth * 0.02,
                         }}
-                        color={mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify ? Color.colorGreen : Color.colorRed}
+                        color={mobile === null || mobile.length <= 3 ? Color.colorBlue1 : mobileVerify && !equal ? Color.colorGreen : Color.colorRed}
                         defaultValue='+63'
                         editable={false}
                         />
@@ -346,7 +392,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                             style={{
                                 width: "80%",
                                 marginRight: 10,
-                                left: 10
+                                left: windowWidth * 0.005,
                             }}
                             onChangeText={(text) => {
                                 const formattedMobile = "+63" + text;
@@ -354,7 +400,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                                 setMobileVerify(text.length > 1 && /^(\+63[89])[0-9]{9}$/.test(formattedMobile));
                             }}
                         />
-                        {mobile.length < 4 ? null : mobileVerify ? (
+                        {mobile.length < 4 ? null : mobileVerify && !equal ? (
                             <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
                         ) : (
                             <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
@@ -363,6 +409,10 @@ export default function VerificationScreen({ navigation, route, props }) {
                     {mobile.length < 4 ? null : mobileVerify ? null : (
                         <Text style={errorText}>Please enter a valid Philippine mobile number in the format +63*********.</Text>
                     )}
+
+                {(equal) ? (
+                    <Text style={errorText}>You cannot use the same mobile number.</Text>
+                ) : null} 
                 </View>
                 </View>
                 <Button
@@ -370,8 +420,8 @@ export default function VerificationScreen({ navigation, route, props }) {
                   filled
                   Color={Color.colorWhite}
                   onPress={verifyChangedNumber}
-                  style={styles.button}
-                  disabled={!mobileVerify}
+                  style={styles.buttonis}
+                  disabled={!mobileVerify || equal}
                 />
               </View>
             </View>
@@ -393,7 +443,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         backgroundColor: Color.colorWhite,
-        marginHorizontal: windowWidth * 0.05,
+        marginHorizontal: windowWidth * 0.025,
         flexDirection: 'column',
         position: 'absolute',
         top: windowHeight * 0.3
@@ -410,11 +460,12 @@ const styles = StyleSheet.create({
     },
     codeInputContainer: {
         flexDirection: 'row',
-        marginBottom: 10,
+        marginVertical: windowHeight * 0.04,
+        alignItems: 'center',
     },
     codeInput: {
-        width: 50,
-        height: 50,
+        width: windowWidth * 0.13,
+        height: windowHeight * 0.08,
         borderWidth: 1,
         borderColor: Color.colorGray,
         backgroundColor: Color.colorGainsboro,
@@ -444,7 +495,8 @@ const styles = StyleSheet.create({
         lineHeight: windowHeight * 0.1,
     },
     changeMobileButton: {
-        marginBottom: windowHeight * 0.09,
+        marginTop: windowHeight * 0.09,
+        top: windowHeight * 0.02,
     },
     changeMobileButtonText: {
         color: Color.colorBlue,
@@ -457,23 +509,38 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalView: {
-        margin: 20,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 35,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        backgroundColor: 'white', 
+        width: '85%',
+        maxHeight: '90%',
+        borderRadius: 10,
     },
     button: {
+        marginBottom: windowHeight * 0.02,
+        width: windowWidth * 0.85,
+        height: windowHeight * 0.08,
+        alignSelf: 'center',
+        marginTop: windowHeight * 0.08, 
+    },
+    buttons: {
+        marginVertical: windowHeight * 0.02,
+        width: windowWidth * 0.85,
+        height: windowHeight * 0.08,
+        alignSelf: 'center',    
+    },
+    buttones: {
+        top: windowHeight * 0.23,
+        marginVertical: windowHeight * 0.02,
+        width: windowWidth * 0.85,
+        height: windowHeight * 0.08,
+        alignSelf: 'center',
+    },
+    buttonis:
+    {
         width: windowWidth * 0.7,
         height: windowHeight * 0.08,
-    }
+        alignSelf: 'center',
+        marginVertical: windowHeight * 0.02,
+    },
+
 });
 

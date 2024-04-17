@@ -11,13 +11,12 @@ import Error from '@expo/vector-icons/MaterialIcons';
 import { Fab, Icon, Center, NativeBaseProvider } from "native-base";
 import { AntDesign } from '@expo/vector-icons';
 import Task from '../../components/Task';
-import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-export default function Providerpref ({navigation, route, params}) {
+export default function ProviderPreferencePage ({navigation, route, props}) {
     
     const { firstName, lastName, email, role, streetAddress1, streetAddress2, city, barangay, birthDate, mobile, password } = route.params;
     const [birthday, setBirthday] = useState('');
@@ -37,11 +36,11 @@ export default function Providerpref ({navigation, route, params}) {
     const [priceVerify, setPriceVerify] = useState(false);
     const [dynamicMinMarkerOverlapDistance, setDynamicMinMarkerOverlapDistance] = useState(0);
     const [inputHeight, setInputHeight] = useState(windowHeight * 0.06);
+    const priceGap = 300
     const [showSeeMoreModal, setShowSeeMoreModal] = useState(false);
     const [key, setKey] = useState('');
-    const priceGap = 300;
+   ;
     
-
     const validateName = (name, setName, setNameVerify, limit) => {
         setName(name);
         const trimmedName = name.trim();
@@ -49,47 +48,47 @@ export default function Providerpref ({navigation, route, params}) {
       };
 
     const [defaultServiceAvailability] = useState([
-        { day: 'Monday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Tuesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Wednesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Thursday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Friday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Saturday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Sunday', startTime: '', endTime: '', flagAvailable: false },
+        { day: 'Monday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Tuesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Wednesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Thursday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Friday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Saturday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Sunday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false }
     ]);
 
     const [serviceAvailability, setServiceAvailability] = useState([
-        { day: 'Monday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Tuesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Wednesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Thursday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Friday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Saturday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Sunday', startTime: '', endTime: '', flagAvailable: false },
+        { day: 'Monday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Tuesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Wednesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Thursday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Friday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Saturday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+        { day: 'Sunday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false }
     ]);
 
     
 
     const [timeOptions] = useState([
-        { label: '5:00 AM', value: '5:00 AM', numValue: 1 },
-        { label: '6:00 AM', value: '6:00 AM', numValue: 2 },
-        { label: '7:00 AM', value: '7:00 AM', numValue: 3 },
-        { label: '8:00 AM', value: '8:00 AM', numValue: 4 },
-        { label: '9:00 AM', value: '9:00 AM', numValue: 5 },
-        { label: '10:00 AM', value: '10:00 AM', numValue: 6 },
-        { label: '11:00 AM', value: '11:00 AM', numValue: 7 },
-        { label: '12:00 PM', value: '12:00 PM', numValue: 8 },
-        { label: '1:00 PM', value: '1:00 PM', numValue: 9 },
-        { label: '2:00 PM', value: '2:00 PM', numValue: 10 },
-        { label: '3:00 PM', value: '3:00 PM', numValue: 11 },
-        { label: '4:00 PM', value: '4:00 PM', numValue: 12 },
-        { label: '5:00 PM', value: '5:00 PM', numValue: 13 },
-        { label: '6:00 PM', value: '6:00 PM', numValue: 14 },
-        { label: '7:00 PM', value: '7:00 PM', numValue: 15 },
-        { label: '8:00 PM', value: '8:00 PM', numValue: 16 },
-        { label: '9:00 PM', value: '9:00 PM', numValue: 17 },
-        { label: '10:00 PM', value: '10:00 PM', numValue: 18 },
-        { label: '11:00 PM', value: '11:00 PM', numValue: 19 },
+        { label: '5:00 AM', value: '5:00 AM', numValue: 5 },
+        { label: '6:00 AM', value: '6:00 AM', numValue: 6 },
+        { label: '7:00 AM', value: '7:00 AM', numValue: 7 },
+        { label: '8:00 AM', value: '8:00 AM', numValue: 8 },
+        { label: '9:00 AM', value: '9:00 AM', numValue: 9 },
+        { label: '10:00 AM', value: '10:00 AM', numValue: 10 },
+        { label: '11:00 AM', value: '11:00 AM', numValue: 11 },
+        { label: '12:00 PM', value: '12:00 PM', numValue: 12 },
+        { label: '1:00 PM', value: '1:00 PM', numValue: 13 },
+        { label: '2:00 PM', value: '2:00 PM', numValue: 14 },
+        { label: '3:00 PM', value: '3:00 PM', numValue: 15 },
+        { label: '4:00 PM', value: '4:00 PM', numValue: 16 },
+        { label: '5:00 PM', value: '5:00 PM', numValue: 17 },
+        { label: '6:00 PM', value: '6:00 PM', numValue: 18 },
+        { label: '7:00 PM', value: '7:00 PM', numValue: 19 },
+        { label: '8:00 PM', value: '8:00 PM', numValue: 20 },
+        { label: '9:00 PM', value: '9:00 PM', numValue: 21 },
+        { label: '10:00 PM', value: '10:00 PM', numValue: 22 },
+        { label: '11:00 PM', value: '11:00 PM', numValue: 23 },
     ]);
 
     const [showPickerStart, setShowPickerStart] = useState(false);
@@ -102,7 +101,9 @@ export default function Providerpref ({navigation, route, params}) {
 
     const [data, setData] = useState([]);
 
-    const filteredData = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    //take into account the search query and if the type of service is already in the submitted services
+    const [submittedServiceTypes, setSubmittedServiceTypes] = useState([]);
+    
 
     useEffect(() => {
         fetchServices();
@@ -111,29 +112,35 @@ export default function Providerpref ({navigation, route, params}) {
     const handleAddService = () => {
         closeServiceModal();
         setServiceItems([...serviceItems, { type: selectedValue.name, name: serviceName, description: serviceDescription, minprice: minPrice, maxprice: maxPrice, availability: serviceAvailability, key: generateServiceId() }]);
+        setSubmittedServiceTypes([...submittedServiceTypes, selectedValue.name]);
         setServiceName('');
         setServiceDescription('');
         setMinPrice(0);
         setMaxPrice(1000);
         setSelectedValue(null);
         setServiceAvailability([
-        { day: 'Monday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Tuesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Wednesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Thursday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Friday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Saturday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Sunday', startTime: '', endTime: '', flagAvailable: false }]);
+            { day: 'Monday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Tuesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Wednesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Thursday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Friday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Saturday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Sunday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false }
+    ]);
         setKey('');
       }
     
       const handleRemoveService = (index) => {
         const updatedServiceItems = [...serviceItems];
+        const updatedSubmittedServiceTypes = [...submittedServiceTypes];
+        updatedSubmittedServiceTypes.splice(index, 1);
         updatedServiceItems.splice(index, 1);
+        setSubmittedServiceTypes(updatedSubmittedServiceTypes);
         setServiceItems(updatedServiceItems);
         closeShowSeeMoreModal();
       }
 
+      const filteredData = data.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()) && !submittedServiceTypes.includes(item.name));
 
       const areArraysEqual = (arr1, arr2) => {
         if (arr1.length !== arr2.length) return false;
@@ -185,16 +192,18 @@ export default function Providerpref ({navigation, route, params}) {
         return false;
     }
 
-    const handleChangeStartTime = (value) => {
+    const handleChangeStartTime = (value, numValue) => {
         const updatedAvailability = [...serviceAvailability];
         updatedAvailability[selectedDayIndex].startTime = value;
+        updatedAvailability[selectedDayIndex].startTimeValue = numValue;
         setServiceAvailability(updatedAvailability);
         setShowPickerStart(false);
     }
 
-    const handleChangeEndTime = (value) => {
+    const handleChangeEndTime = (value, numValue) => {
         const updatedAvailability = [...serviceAvailability];
         updatedAvailability[selectedDayIndex].endTime = value;
+        updatedAvailability[selectedDayIndex].endTimeValue = numValue;
         setServiceAvailability(updatedAvailability);
         setShowPickerEnd(false);
     }
@@ -290,7 +299,7 @@ export default function Providerpref ({navigation, route, params}) {
 
     const fetchServices = async () => {
         try {
-            const response = await axios.get('http://192.168.1.8:5000/service/getServices');
+            const response = await axios.get('http://192.168.1.10:5000/service/getServices');
             setData(response.data.data);
             
         } catch (error) {
@@ -318,11 +327,11 @@ export default function Providerpref ({navigation, route, params}) {
 
     const saveTempDetails = async () => {
         try{
-            const userData = { 
-                email,
-                mobile,
-                password,
-                role,
+            let userData = { 
+                email: email,
+                mobile: mobile,
+                password: password,
+                role: role,
                 name: {
                     firstName: firstName,
                     lastName: lastName
@@ -333,15 +342,15 @@ export default function Providerpref ({navigation, route, params}) {
                     cityMunicipality: city,
                     barangay: barangay
                 },
-                birthDate,
-                service: [],
+                birthDate: birthDate,
+                services: [],
                 
             }
 
             serviceItems.forEach((item) => {
                 const service = {
                     serviceId: item.key,
-                    type: item.type,
+                    serviceType: item.type,
                     name: item.name,
                     description: item.description,
                     price: {
@@ -350,10 +359,10 @@ export default function Providerpref ({navigation, route, params}) {
                     },
                     availability: item.availability
                 }
-                userData.service.push(service);
+                userData.services.push(service);
             });
 
-            axios.post("http://192.168.1.8:5000/user/addTempDetails", userData).then(async (res) => {
+            await axios.post("http://192.168.1.10:5000/user/addTempDetails", userData).then(async (res) => {
                 const result = res.data;
                 const { data, message, status } = result
                 if (status === 'SUCCESS') {
@@ -468,16 +477,17 @@ export default function Providerpref ({navigation, route, params}) {
                                     color: Color.colorBlue,
                                     marginLeft: windowWidth * 0.05 
                                 }}>Service Details</Text>
-                            <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => showSeeMoreModal ? closeShowSeeMoreModal() : closeServiceModal()} />
+                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => showSeeMoreModal ? closeShowSeeMoreModal() : closeServiceModal()} />
                             </View>
                             <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
-                                
-                                
-                            <TouchableOpacity onPress={() => setShowSelectList(true)}>
+                    
+                        
+                            <TouchableOpacity onPress={() => setShowSelectList(true)} disabled={showSeeMoreModal}>
+
                                 
                         <View style={{
                             height: windowHeight * 0.06,
-                            borderColor: selectedValue ? Color.colorGreen : Color.colorBlue1,
+                            borderColor: !selectedValue ? Color.colorBlue1 : showSeeMoreModal ? Color.colorDarkGrey : Color.colorGreen,
                             borderWidth: 1,
                             borderRadius: windowHeight * 0.015,
                             alignItems: 'center',
@@ -485,19 +495,20 @@ export default function Providerpref ({navigation, route, params}) {
                             paddingLeft: windowWidth * 0.025,
                             paddingHorizontal: windowWidth * 0.14,
                             flexDirection: 'row',
-                            marginTop: windowHeight * 0.01
+                            marginTop: windowHeight * 0.01,
+                            backgroundColor: showSeeMoreModal ? Color.colorGray : Color.colorWhite
                         }}>
-                            <FontAwesome name="bell" color = {selectedValue === null || selectedValue === '' ? Color.colorBlue1 : selectedValue ? Color.colorGreen : Color.colorBlue1} style={{marginRight: 5, fontSize: 24}}/>
+                            <FontAwesome name="bell" color = {selectedValue === null || selectedValue === '' ? Color.colorBlue1 : selectedValue ? showSeeMoreModal ? Color.colorDarkGrey : Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}}/>
                             <TextInput
                                 placeholder='Select service type...'
                                 placeholderTextColor={Color.colorBlue}
                                 value={selectedValue ? selectedValue.name : ''}
                                 editable={false}
                                 style={{ flex: 1 }}
-                                color={selectedValue ? Color.colorBlack : Color.colorBlue}
+                                color={!selectedValue ? Color.colorBlue: showSeeMoreModal ? Color.colorDarkGrey : Color.colorBlack}  
                             />
                             {selectedValue ? (
-                                <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                                <Feather name="check-circle" color={showSeeMoreModal ? Color.colorDarkGrey : "green"} size={24} style={{ position: "absolute", right: 12 }}/>
                             ) : null}
                         </View>
                                     
@@ -709,7 +720,7 @@ export default function Providerpref ({navigation, route, params}) {
                                     color: Color.colorBlue,
                                     marginLeft: windowWidth * 0.05 
                                 }}>Service Type</Text>
-                            <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowSelectList(false)} />
+                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowSelectList(false)} />
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)'  }}>
                                 
@@ -743,7 +754,7 @@ export default function Providerpref ({navigation, route, params}) {
                                     color: Color.colorBlue,
                                     marginLeft: windowWidth * 0.05 
                                 }}>Price Range</Text>
-                            <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => closePriceModal()} />
+                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => closePriceModal()} />
                             </View>
                             <View style={{ marginHorizontal: windowWidth * 0.05 }}>
                         <View style={{
@@ -847,7 +858,7 @@ export default function Providerpref ({navigation, route, params}) {
                                     color: Color.colorBlue,
                                     marginLeft: windowWidth * 0.05 
                                 }}>Service Availability</Text>
-                            <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowAvailabilityModal(false)} />
+                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowAvailabilityModal(false)} />
                             </View>
                             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
                            
@@ -857,7 +868,7 @@ export default function Providerpref ({navigation, route, params}) {
                             {serviceAvailability.map((day, index) => (
                                 <View key={index} style={{flexDirection: 'row', padding: 10, alignItems: 'center', borderBottomWidth: index === serviceAvailability.length - 1 ? 0 : 0.5, borderBottomColor: Color.colorBlue, paddingBottom: 30}}>
                                     
-                                    <Text style={{marginLeft: windowWidth * 0.05, color: day.flagAvailable ? Color.colorBlue : Color.colorGray}}>{day.day}</Text>
+                                    <Text style={{marginLeft: windowWidth * 0.02, color: day.flagAvailable ? Color.colorBlue : Color.colorGray}}>{day.day}</Text>
                                         
                                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}> 
                                     
@@ -876,11 +887,11 @@ export default function Providerpref ({navigation, route, params}) {
                                                 placeholder='Start Time'
                                                 value={day.startTime}
                                                 style={{
-                                                    width: 'auto',
+                                                    width: windowWidth * 0.22,
                                                     height: windowHeight * 0.055,
                                                     borderWidth: 1,
                                                     borderRadius: windowHeight * 0.015,
-                                                    paddingHorizontal: 10,
+                                                    paddingHorizontal: windowWidth * 0.02,
                                                     borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen,
                                                 }}
                                                 editable={false}
@@ -899,7 +910,7 @@ export default function Providerpref ({navigation, route, params}) {
                                                                     color: Color.colorBlue,
                                                                     marginLeft: windowWidth * 0.05 
                                                                 }}>Start Time</Text>
-                                                            <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerStart(false)} />
+                                                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerStart(false)} />
                                                         </View>
 
                                                         <FlatList
@@ -907,7 +918,7 @@ export default function Providerpref ({navigation, route, params}) {
                                                             keyExtractor={(item) => item.value}
                                                             
                                                             renderItem={({ item }) => (
-                                                                <Pressable onPress={() => handleChangeStartTime(item.value)}>
+                                                                <Pressable onPress={() => handleChangeStartTime(item.value, item.numValue)} >
                                                                     <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
                                                                     <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
                                                                     </View>
@@ -930,11 +941,11 @@ export default function Providerpref ({navigation, route, params}) {
                     placeholder='End Time'
                     value={day.endTime}
                     style={{
-                        width: 'auto',
+                        width: windowWidth * 0.22,
                         height: windowHeight * 0.055,
                         borderWidth: 1,
                         borderRadius: windowHeight * 0.015,
-                        paddingHorizontal: 10,
+                        paddingHorizontal: windowWidth * 0.02,
                         borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen ? Color.colorGreen : Color.colorRed,
                     }}
                     editable={false}
@@ -945,7 +956,7 @@ export default function Providerpref ({navigation, route, params}) {
                     <Modal animationType="slide" transparent={true} visible={showPickerEnd} onRequestClose={() => setShowPickerEnd(false)}>
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                             <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-                                <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>
+                                <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.02 }}>
                                     <Text style={{
                                             fontSize: windowWidth * 0.06,
                                             fontWeight: '400',
@@ -953,7 +964,7 @@ export default function Providerpref ({navigation, route, params}) {
                                             color: Color.colorBlue,
                                             marginLeft: windowWidth * 0.05 
                                         }}>End Time</Text>
-                                    <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerEnd(false)} />
+                                    <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerEnd(false)} />
                                 </View>
 
                                 <FlatList
@@ -961,7 +972,7 @@ export default function Providerpref ({navigation, route, params}) {
                                     keyExtractor={(item) => item.value}
                                     
                                     renderItem={({ item }) => (
-                                        <Pressable onPress={() => handleChangeEndTime(item.value)}>
+                                        <Pressable onPress={() => handleChangeEndTime(item.value, item.numValue)} >
                                             <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
                                             <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
                                             </View>
@@ -987,9 +998,9 @@ export default function Providerpref ({navigation, route, params}) {
                                         setServiceAvailability(updatedAvailability);
                                         
                                     }}>
-                                        <FontAwesome name={day.flagAvailable ? 'check-square' : 'square-o'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.05 }}/>
+                                        <FontAwesome name={day.flagAvailable ? 'check-square' : 'square-o'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.03 }}/>
                                     </Pressable>
-                                    <View style={{ position:'absolute', top: windowHeight * 0.06, left: windowWidth * 0.05 }}>
+                                    <View style={{ position:'absolute', top: windowHeight * 0.06, right: windowWidth * 0.145 }}>
                                         {renderErrorTextPerDay(day)}
                                     </View>
                                     </View>

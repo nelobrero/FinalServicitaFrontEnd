@@ -11,6 +11,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { useNotifications, createNotifications } from 'react-native-notificated';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -45,8 +46,10 @@ export default function RegisterPage ({navigation, route, props}) {
 
 
     useEffect(() => {
+        
         if (modalVisible !== false) {
             setTimer(300);
+            fetchServerTime();
             const interval = setInterval(() => {
                 setTimer(prevTimer => {
                     if (prevTimer <= 0) {
@@ -81,7 +84,6 @@ export default function RegisterPage ({navigation, route, props}) {
       };
 
     const validateFields = () => {
-        
         return firstNameVerify && lastNameVerify && emailVerify && birthdayVerify;
     }
 
@@ -103,7 +105,7 @@ export default function RegisterPage ({navigation, route, props}) {
             const { accessToken } = accessTokenData;
             console.log(accessToken);
   
-            const infoRequest = new GraphRequest('/me?fields=email,name', null, (error, result) => {
+            const infoRequest = new GraphRequest('/me?fields=email,first_name,last_name', null, (error, result) => {
               if (error) {
                 console.error('Error fetching user data from Facebook:', error);
               } else {
@@ -111,7 +113,8 @@ export default function RegisterPage ({navigation, route, props}) {
                 const userData = {
                   email: result.email,
                   userId: result.id,
-                  name: result.name,
+                  firstName: result.first_name,
+                  lastName: result.last_name, 
                 };
                 checkIfEmailExists(userData.email)
                   .then((emailExists) => {
@@ -119,7 +122,7 @@ export default function RegisterPage ({navigation, route, props}) {
                         if (emailExists) {
                             Alert.alert('Error', 'An account with this email already exists. Please login again using Facebook', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
                         } else {
-                            navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
+                            navigation.navigate('MissingInfo', { email: userData.email, firstName: userData.firstName, lastName: userData.lastName, userId: userData.userId, role: role });
                         }
                     }
                   })
@@ -143,11 +146,13 @@ export default function RegisterPage ({navigation, route, props}) {
 
     const GoogleSignIn = async () => {
         try {
+
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
           const userData = {
             userId: userInfo.user.id,
-            name: userInfo.user.name,
+            firstName: userInfo.user.givenName,
+            lastName: userInfo.user.familyName,
             email: userInfo.user.email,
           };
           const emailExists = await checkIfEmailExists(userData.email);
@@ -156,7 +161,7 @@ export default function RegisterPage ({navigation, route, props}) {
             Alert.alert('Error', 'An account with this email already exists. Please login again using Google.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
           } else {
             GoogleLogOut();
-            navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
+            navigation.navigate('MissingInfo', { email: userData.email, firstName: userData.firstName, lastName: userData.lastName, userId: userData.userId, role: role });
           }
         } catch (error) {
             Alert.alert('Error', 'An error occurred while trying to sign in with Google. Please try again.', [{ text: 'OK' }]);
@@ -186,7 +191,7 @@ export default function RegisterPage ({navigation, route, props}) {
             const userData = {
                 email: email,
             }
-            const res = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", userData);
+            const res = await axios.post("http://192.168.1.10:5000/user/getUserDetailsByEmail", userData);
             if (res.data.status === 'SUCCESS') {
                 return true;
             }
@@ -213,7 +218,7 @@ export default function RegisterPage ({navigation, route, props}) {
         const userData = {
             email: email,
           }
-        axios.post("http://192.168.1.14:5000/email_verification_otp/sendEmail", userData).then((res) => {
+        axios.post("http://192.168.1.10:5000/email_verification_otp/sendEmail", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'PENDING') {
             setModalVisible(true);
@@ -224,7 +229,7 @@ export default function RegisterPage ({navigation, route, props}) {
             if (err.response.data.message === "Email already exists in the system.") {
               Alert.alert('Error', 'An account with this email already exists in the system.', [{ text: 'OK' }]);
             } else if (err.response.data.message === "Email has recently been verified but has not finished the registration process yet.") {
-              Alert.alert('Error', 'Email has recently been verified but has not finished the registration process yet.', [{ text: 'OK' }]);
+              Alert.alert('Error', 'Email has recently been verified but has not finished the registration process yet. Please login using the option you used to proceed to the mobile verification screen', [{ text: 'OK' }, { text: ' Go to Login', onPress: () => navigation.navigate('Login') }]);
             }
             console.log(err);
           });
@@ -248,7 +253,7 @@ export default function RegisterPage ({navigation, route, props}) {
             email: email,
             otp: code.join(''),
         }
-          axios.post("http://192.168.1.14:5000/email_verification_otp/verifyOTP", userData).then((res) => {
+          axios.post("http://192.168.1.10:5000/email_verification_otp/verifyOTP", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'SUCCESS') {
             setModalVisible(false);
@@ -270,7 +275,7 @@ export default function RegisterPage ({navigation, route, props}) {
         const userData = {
             email: email,
           }
-        axios.post("http://192.168.1.14:5000/email_verification_otp/sendEmail", userData).then((res) => {
+        axios.post("http://192.168.1.10:5000/email_verification_otp/sendEmail", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'PENDING') {
             fetchServerTime();
@@ -286,7 +291,7 @@ export default function RegisterPage ({navigation, route, props}) {
     const fetchServerTime = async () => {
         try {
             console.log('Fetching server time...');
-            const response = await axios.get(`http://192.168.1.14:5000/email_verification_otp/getRemainingCurrentTime/${email}`);
+            const response = await axios.get(`http://192.168.1.10:5000/email_verification_otp/getRemainingCurrentTime/${email}`);
             const remainingTime = Math.floor(response.data.remainingTime / 1000);
             if (remainingTime <= 0) {
                 setTimer(0);
@@ -544,7 +549,7 @@ export default function RegisterPage ({navigation, route, props}) {
                                     marginVertical: windowHeight * 0.01,
                                     color: Color.colorBlue,
                                     marginLeft: windowWidth * 0.05 
-                                }}>Verify OTP</Text>
+                                }}>Verify Code</Text>
                             <AntDesignIcon style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => hideModal()} />
                             </View>
               <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
@@ -566,6 +571,7 @@ export default function RegisterPage ({navigation, route, props}) {
                       onKeyPress={({ nativeEvent }) => {
                         if (nativeEvent.key === 'Backspace' && code[index] === '') {
                           if (index !== 0) {
+                            updateCode(index, '');
                             inputRefs.current[index - 1].focus();
                           }
                         } else if (!isNaN(nativeEvent.key) && code[index] && index !== 3) {
@@ -589,7 +595,7 @@ export default function RegisterPage ({navigation, route, props}) {
                   title="Send Again"
                   Color={Color.colorWhite}
                   onPress={handleSendAgainPress}
-                  style={styles.button}
+                  style={styles.buttons}
                 />
               </View>
             </View>
@@ -734,19 +740,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalView: {
-        margin: 20,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 35,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        backgroundColor: 'white', 
+        width: '80%', 
+        maxHeight: '90%', 
+        borderRadius: 10,
     },
     codeInputContainer: {
         flexDirection: 'row',
@@ -768,10 +765,18 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: windowHeight * 0.02,
-        width: windowWidth * 0.5,
+        width: windowWidth * 0.65,
         height: windowHeight * 0.08,
+        alignSelf: 'center',    
+    },
+    buttons: {
+        marginVertical: windowHeight * 0.02,
+        width: windowWidth * 0.65,
+        height: windowHeight * 0.08,
+        alignSelf: 'center',    
     },
     passwordFlexBox: {
+        marginTop: windowHeight * 0.02,
         marginVertical: windowHeight * 0.001,
     },
     passwordRecovery: {

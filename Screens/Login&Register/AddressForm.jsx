@@ -10,6 +10,7 @@ import Material from '@expo/vector-icons/MaterialCommunityIcons';
 import { AccessToken, GraphRequest, GraphRequestManager, LoginManager} from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import axios from 'axios';
+import { set } from 'date-fns';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -40,26 +41,31 @@ export default function AddressForm ({navigation, route, props}) {
             setSelectedBarangay(null);
         }
         setShowSelectCity(false);
+        setSearchQueryCity('');
     };
 
     const handleSelectBarangay = (barangay) => {
         setSelectedBarangay(barangay);
         setShowSelectBarangay(false);
+        setSearchQueryBarangay('')
     };
 
     const [cities, setCities] = useState([]);
+
+
+    useEffect(() => {
+        fetchCities();
+    }, [showSelectCity, showSelectBarangay, selectedCity, selectedBarangay, searchQueryCity, searchQueryBarangay]);
 
     const filteredCities = cities.filter(item => item.name.toLowerCase().includes(searchQueryCity.toLowerCase()));
     const filteredBarangays = selectedCity ? selectedCity.barangays.filter(item => item.toLowerCase().includes(searchQueryBarangay.toLowerCase())) : [];
     
 
-    useEffect(() => {
-        fetchCities();
-    }, []);
+   
 
     const fetchCities = async () => {
         try {
-            const response = await axios.get('http://192.168.1.14:5000/location/getCities');
+            const response = await axios.get('http://192.168.1.10:5000/location/getCities');
             setCities(response.data.data);
         } catch (error) {
             console.error('Error fetching services:', error);
@@ -77,7 +83,7 @@ export default function AddressForm ({navigation, route, props}) {
             const { accessToken } = accessTokenData;
             console.log(accessToken);
   
-            const infoRequest = new GraphRequest('/me?fields=email,name', null, (error, result) => {
+            const infoRequest = new GraphRequest('/me?fields=email,first_name,last_name', null, (error, result) => {
               if (error) {
                 console.error('Error fetching user data from Facebook:', error);
               } else {
@@ -85,15 +91,16 @@ export default function AddressForm ({navigation, route, props}) {
                 const userData = {
                   email: result.email,
                   userId: result.id,
-                  name: result.name,
+                  firstName: result.first_name,
+                  lastName: result.last_name, 
                 };
                 checkIfEmailExists(userData.email)
                   .then((emailExists) => {
                     if (emailExists) {
                         if (emailExists) {
-                            Alert.alert('Error', 'An account with this email already exists. Please login again using Facebook.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
+                            Alert.alert('Error', 'An account with this email already exists. Please login again using Facebook', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
                         } else {
-                            navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
+                            navigation.navigate('MissingInfo', { email: userData.email, firstName: userData.firstName, lastName: userData.lastName, userId: userData.userId, role: role });
                         }
                     }
                   })
@@ -117,11 +124,13 @@ export default function AddressForm ({navigation, route, props}) {
 
     const GoogleSignIn = async () => {
         try {
+
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
           const userData = {
             userId: userInfo.user.id,
-            name: userInfo.user.name,
+            firstName: userInfo.user.givenName,
+            lastName: userInfo.user.familyName,
             email: userInfo.user.email,
           };
           const emailExists = await checkIfEmailExists(userData.email);
@@ -130,7 +139,7 @@ export default function AddressForm ({navigation, route, props}) {
             Alert.alert('Error', 'An account with this email already exists. Please login again using Google.', [{ text: 'OK' , onPress: () => navigation.navigate('Login') }]);
           } else {
             GoogleLogOut();
-            navigation.navigate('MissingInfo', { email: userData.email, name: userData.name, userId: userData.userId, role: role });
+            navigation.navigate('MissingInfo', { email: userData.email, firstName: userData.firstName, lastName: userData.lastName, userId: userData.userId, role: role });
           }
         } catch (error) {
             Alert.alert('Error', 'An error occurred while trying to sign in with Google. Please try again.', [{ text: 'OK' }]);
@@ -160,7 +169,7 @@ export default function AddressForm ({navigation, route, props}) {
             const userData = {
                 email: email,
             }
-            const res = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", userData);
+            const res = await axios.post("http://192.168.1.10:5000/user/getUserDetailsByEmail", userData);
             if (res.data.status === 'SUCCESS') {
                 return true;
             }
@@ -169,6 +178,14 @@ export default function AddressForm ({navigation, route, props}) {
                 return false;
             }
           }
+    }
+
+    if (!cities) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>Loading...</Text>
+            </View>
+        );
     }
 
   return (

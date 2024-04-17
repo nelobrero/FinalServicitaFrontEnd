@@ -5,6 +5,9 @@ export const FontFamily = {
   quicksandBold: "Quicksand-Bold",
   didactGothicRegular: "DidactGothic-Regular",
   quicksandLight: "Quicksand-Light",
+  manjariRegular: "Manjari-Regular",
+  questrialRegular: "Questrial-Regular",
+  quicksandMedium: "Quicksand-Medium",
 };
 /* font sizes */
 export const FontSize = {
@@ -18,6 +21,8 @@ export const FontSize = {
   size_6xs: 7,
   size_xl: 20,
   size_5xl: 24,
+  size_lg: 18,
+  
 };
 /* Colors */
 export const Color = {
@@ -26,6 +31,9 @@ export const Color = {
   colorSilver: "#c4c4c4",
   colorDarkslategray_100: "#05364c",
   colorDarkslategray_200: "#002f45",
+  colorDarkslategray_300: "#1f546d",
+  colorDarkslategray_400: "#0e4c69",
+  colorDarkslategray_500: "#07374d",
   colorSkyblue: "#5fa7c9",
   colorGray: "#7c7878",
   colorSteelblue: "#1c729b",
@@ -47,7 +55,9 @@ export const Color = {
   colorCrimson: "#DC143C",
   colorCoral: "#FF7F50",
   colorOrangeRed: "#FF4500",
-  colorCoralShade: "#FF7C7C"
+  colorCoralShade: "#FF7C7C",
+  colorGray_100: "#7c7878",
+  colorGray_200: "rgba(0, 0, 0, 0)",
 
 };
 /* border radiuses */
@@ -58,6 +68,7 @@ export const Border = {
   br_3xs: 10,
   br_mini: 15,
   br_xl: 20,
+  br_11xs: 2,
 };
 
 export const circleContainer = {

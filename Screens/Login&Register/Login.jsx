@@ -19,7 +19,6 @@ export default function LoginPage ({ navigation }) {
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState(false);
     const [isPasswordShown, setIsPasswordShown] = useState(false);
-    const [type, setType] = useState('');
     const { width, height } = Dimensions.get('window');
 
     const validateFields = () => {
@@ -36,7 +35,7 @@ export default function LoginPage ({ navigation }) {
             const { accessToken } = accessTokenData;
             console.log(accessToken);
   
-            const infoRequest = new GraphRequest('/me?fields=email,name', null, (error, result) => {
+            const infoRequest = new GraphRequest('/me?fields=email,first_name,last_name', null, async (error, result) => {
               if (error) {
                 console.error('Error fetching user data from Facebook:', error);
               } else {
@@ -44,32 +43,71 @@ export default function LoginPage ({ navigation }) {
                 const userData = {
                   email: result.email,
                   userId: result.id,
-                  name: result.name,
+                  firstName: result.first_name,
+                  lastName: result.last_name,
                 };
                 checkIfEmailExists(userData.email)
                   .then((emailExists) => {
-                    if (emailExists) {
+                    if (emailExists.exists) {
                         const userEmail = {
                           email: result.email,
                         }
                         FacebookLogOut();
-                        if (type === "permanent") {
-                        axios.post("http://192.168.1.14:5000/user/loginOther", userEmail).then((res) => {
-                            console.log(res.data)
+                        if (emailExists.type === "permanent") {
+                          axios.get(`http://192.168.1.10:5000/admin/checkSuspensionStatus/${userEmail}`).then((res) => {
                             if (res.data.status === 'SUCCESS') {
-                                Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                                AsyncStorage.setItem('token', res.data.data);
-                                AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                                navigation.navigate('Tab');
+
+                              if (res.data.type === 'SUSPENDED') {
+                                const remainingTime = res.data.remainingTime;
+                                if (remainingTime === 0) {
+                                  axios.patch(`http://192.168.1.10:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
+                                    if (res.data.status === 'SUCCESS') {
+                                      axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                                        console.log(res.data)
+                                        if (res.data.status === 'SUCCESS') {
+                                            Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+                                            AsyncStorage.setItem('token', res.data.data);
+                                            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                            navigation.navigate('App');
+                                        }
+                                    }
+                                    ).catch((err) => {
+                                        console.log(err);
+                                        });
+                                    }
+                                  }
+                                  ).catch((err) => {
+                                    console.log(err);
+                                  });
+                                } else {
+                                const formatMessage = remainingTime >= 60 ? `${Math.floor(remainingTime / 60)} hour${Math.floor(remainingTime / 60) > 1 ? 's' : ''} and ${remainingTime % 60} minute${remainingTime % 60 > 1 ? 's' : ''}`: `${remainingTime} minute${remainingTime > 1 ? 's' : ''}`;
+                                Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
+                                }
+                                const formatMessage = remainingTime >= 60 ? `${Math.floor(remainingTime / 60)} hour${Math.floor(remainingTime / 60) > 1 ? 's' : ''} and ${remainingTime % 60} minute${remainingTime % 60 > 1 ? 's' : ''}`: `${remainingTime} minute${remainingTime > 1 ? 's' : ''}`;
+                Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
+                              } else if (res.data.type === 'NOT_SUSPENDED') {
+                                axios.post("http://192.168.1.10:5000/user/loginOther", userEmail).then((res) => {
+                                    console.log(res.data)
+                                    if (res.data.status === 'SUCCESS') {
+                                        Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+                                        AsyncStorage.setItem('token', res.data.data);
+                                        AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                        navigation.navigate('App');
+                                    }
+                                }).catch((err) => {
+                                    console.log(err);
+                                    });
+                              }
                             }
-                        }).catch((err) => {
+                          }
+                          ).catch((err) => {
                             console.log(err);
-                            });
-                        } else if (type === "temporary") {               
+                          });
+                        } else if (emailExists.type === "temp") {               
                           Alert.alert('Pending Mobile Verification', 'You have not completed the mobile verification process yet. Please complete the process to continue.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { email: userData.email }) }]);
                         }
                       } else {
-                      navigation.navigate('UserRole', { email: userData.email, name: userData.name, userId: userData.userId });
+                      navigation.navigate('UserRole', { email: userData.email, firstName: userData.firstName, lastName: userData.lastName, userId: userData.userId });
                     }
                   })
                   .catch((error) => {
@@ -94,33 +132,71 @@ export default function LoginPage ({ navigation }) {
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
           const emailExists = await checkIfEmailExists(userInfo.user.email);
+          console.log(userInfo);
           const userData = {
             email: userInfo.user.email,
             userId: userInfo.user.id,
-            name: userInfo.user.name,
+            firstName: userInfo.user.givenName,
+            lastName: userInfo.user.familyName,
           };
-          if (emailExists) {
-            const userEmail = {
-                email: userInfo.user.email,
-            }
+          if (emailExists.exists) {
             GoogleLogOut();
-            axios.post("http://192.168.1.14:5000/user/loginOther", userEmail).then((res) => {
-                console.log(res.data)
+            if (emailExists.type === "permanent") {
+              axios.get(`http://192.168.1.10:5000/admin/checkSuspensionStatus/${userData.email}`).then((res) => {
                 if (res.data.status === 'SUCCESS') {
-                    Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                    AsyncStorage.setItem('token', res.data.data);
-                    AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                    navigation.navigate('Tab');
+                  if (res.data.type === 'SUSPENDED') {
+                    const remainingTime = res.data.remainingTime;
+                    if (remainingTime === 0) {
+                      axios.patch(`http://192.168.1.10:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
+                        if (res.data.status === 'SUCCESS') {
+                          axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                            console.log(res.data)
+                            if (res.data.status === 'SUCCESS') {
+                                Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+                                AsyncStorage.setItem('token', res.data.data);
+                                AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                navigation.navigate('App');
+                            }
+                        }
+                        ).catch((err) => {
+                            console.log(err);
+                            });
+                        }
+                      }
+                      ).catch((err) => {
+                        console.log(err);
+                      });
+                    } else {
+                    const formatMessage = remainingTime >= 60 ? `${Math.floor(remainingTime / 60)} hour${Math.floor(remainingTime / 60) > 1 ? 's' : ''} and ${remainingTime % 60} minute${remainingTime % 60 > 1 ? 's' : ''}`: `${remainingTime} minute${remainingTime > 1 ? 's' : ''}`;
+                    Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
+                    }
+                  } else if (res.data.type === 'NOT_SUSPENDED') {
+                  axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                  console.log(res.data)
+                  if (res.data.status === 'SUCCESS') {
+                      Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+                      AsyncStorage.setItem('token', res.data.data);
+                      AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                      navigation.navigate('App');
+                  }
+              }).catch((err) => {
+                  console.log(err);
+                  });
+                  }
                 }
-            }).catch((err) => {
+              }
+              ).catch((err) => {
                 console.log(err);
-                });
+              });
+              } else if (emailExists.type === "temp") {               
+                Alert.alert('Pending Mobile Verification', 'You have not completed the mobile verification process yet. Please complete the process to continue.', [{ text: 'OK', onPress: () => navigation.navigate('VerificationScreen', { email: userData.email }) }]);
+              }
           } else {
             GoogleLogOut();
-            navigation.navigate('UserRole', { email: userData.email, name: userData.name, userId: userData.userId });
+            navigation.navigate('UserRole', { email: userData.email, firstName: userData.firstName, lastName: userData.lastName, userId: userData.userId });
           }
         } catch (error) {
-          console.log(error)
+          console.log(error.message);
         }
       }
       
@@ -141,35 +217,71 @@ export default function LoginPage ({ navigation }) {
         }
       }
     
-    const checkIfEmailExists = async (email) => {
+      const checkIfEmailExists = async (email) => {
         try {
             const userData = {
                 email: email,
-            }
-            const res = await axios.post("http://192.168.1.14:5000/user/getUserDetailsByEmail", userData);
+            };
+            const res = await axios.post("http://192.168.1.10:5000/user/getUserDetailsByEmail", userData);
+            
             if (res.data.status === 'SUCCESS') {
-                await setType(res.data.type);
-                return true;
+                return { exists: true, type: res.data.type };
             }
-          } catch (error) {
-            if (error.response.data.message === "No user found with the given email.") {
-                return false;
-            }
-          }
-    }
+        } catch (error) {
+            console.error('Error checking if email exists:', error.response ? error.response.data.message : error.message);
+            return { exists: false, error: error.response ? error.response.data.message : error.message }; // Return an object indicating an error occurred
+        }
+    };
+    
 
     const handleSubmit = () => {
         const userData = {
             email: email,
             password: password,
         }
-        axios.post("http://192.168.1.14:5000/user/login", userData).then((res) => {
-        console.log(res.data)
+        axios.post("http://192.168.1.10:5000/user/login", userData).then((res) => {
+        const storedData = res.data.data;
         if (res.data.status === 'SUCCESS') {
-            Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-            AsyncStorage.setItem('token', res.data.data);
-            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-            navigation.navigate('Tab');
+          axios.get(`http://192.168.1.10:5000/admin/checkSuspensionStatus/${email}`).then((res) => {
+            if (res.data.status === 'SUCCESS') {
+              if (res.data.type === 'SUSPENDED') {
+                const remainingTime = res.data.remainingTime;
+                if (remainingTime === 0) {
+                  axios.patch(`http://192.168.1.10:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
+                    if (res.data.status === 'SUCCESS') {
+                      axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                        console.log(res.data)
+                        if (res.data.status === 'SUCCESS') {
+                            Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+                            AsyncStorage.setItem('token', res.data.data);
+                            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                            navigation.navigate('App');
+                        }
+                    }
+                    ).catch((err) => {
+                        console.log(err);
+                        });
+                    }
+                  }
+                  ).catch((err) => {
+                    console.log(err);
+                  });
+                } else {
+                const formatMessage = remainingTime >= 60 ? `${Math.floor(remainingTime / 60)} hour${Math.floor(remainingTime / 60) > 1 ? 's' : ''} and ${remainingTime % 60} minute${remainingTime % 60 > 1 ? 's' : ''}`: `${remainingTime} minute${remainingTime > 1 ? 's' : ''}`;
+                Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
+                }
+              } else if (res.data.type === 'NOT_SUSPENDED') {
+                Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
+                AsyncStorage.setItem('token', storedData);
+                AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                navigation.navigate('App');
+              }
+            }
+        }
+          ).catch((err) => {
+            console.log(err);
+          }
+          );
         }
     }).catch(async (err) => {
         console.log(err);

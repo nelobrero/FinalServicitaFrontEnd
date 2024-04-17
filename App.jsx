@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Image, Dimensions} from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Color } from "./GlobalStyles";
 import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 import { Settings } from 'react-native-fbsdk-next';
 import axios from 'axios';
-import { CommonActions } from '@react-navigation/native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 import UserRoleScreen from './Screens/Login&Register/UserRoleScreen';
 import LoginPage from './Screens/Login&Register/Login';
@@ -18,49 +16,37 @@ import MobileLogin from './Screens/Login&Register/MobileLogin';
 import RegisterPage from './Screens/Login&Register/Registration';
 import RegisterPage2 from './Screens/Login&Register/Registration2';
 import MissingInfoPage from './Screens/Login&Register/MissingInfo';
-import Providerpref from './Screens/Login&Register/Providerpref';
+import ProviderPreferencePage from './Screens/Login&Register/Providerpref';
 import AddressForm from './Screens/Login&Register/AddressForm';
-import HomeScreen from './Screens/HomeScreen';
-import BookingScreen from './Screens/BookingScreen';
-import MessageScreen from './Screens/MessageScreen';
-import ProfileScreen from './Screens/ProfileScreen';
-import SeekerEditProfileScreen from './Screens/SeekerEditProfileScreen';
-import ProviderProfileScreen from './Screens/ProviderProfileScreen';
-import ProviderEditProfileScreen from './Screens/ProviderEditProfileScreen';
 import VerificationScreen from './Screens/Login&Register/VerificationScreen';
 import Welcome from './Screens/Login&Register/Welcome';
 import ForgotPasswordScreen from './Screens/Login&Register/ForgotPasswordScreen';
-import ResetPasswordScreen from './Screens/ResetPasswordScreen';
+import ResetPasswordScreen from './Screens/Login&Register/ResetPasswordScreen';
+import BottomTabNav from "./navigations/BottomTabNav";
+import EditProfile from './Screens/EditProfile';
+import ServicePage from './Screens/ProviderScreens/ServicePage';
+import ProviderList from './Screens/SeekerScreens/ProviderList';
+import Services from './Screens/SeekerScreens/Services';
+import Filter from './Screens/SeekerScreens/Filter';
+import SearchScreen from './Screens/SeekerScreens/SearchScreen';
+import Result from './components/Result';
+import ServiceViewScreen from './Screens/SeekerScreens/ServiceViewScreen';
+import CategoryScreen from './Screens/SeekerScreens/CategoryScreen';
+import CategoryFilter from './Screens/SeekerScreens/CategoryFilter';
+import BookingScreen from './Screens/SeekerScreens/BookingScreen';
+import PopularServices from './Screens/SeekerScreens/PopularServices';
 
 const LoginNav = () => {
 
-    const [userInfo, setUserInfos] = useState({});
-
-    async function getUserData() {
-        const token = await AsyncStorage.getItem('token');
-        console.log(token);
-        axios.post("http://192.168.1.14:5000/user/userData", {token: token}).then((res) => {
-          setUserInfos(res.data.data);
-        }).catch((err) => {
-          console.log(err);
-        });
-      }
-
-    useEffect(() => {
-        getUserData();
-     }, [userInfo]);
-
-       
-
     const Stack = createNativeStackNavigator();
     return (
-        <Stack.Navigator initialRouteName='ProviderPrefer' screenOptions={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
             <Stack.Screen name='UserRole' component={UserRoleScreen} />
             <Stack.Screen name='Login' component={LoginPage} />
             <Stack.Screen name='Register' component={RegisterPage} />
             <Stack.Screen name='Register2' component={RegisterPage2} />
-            <Stack.Screen name='ProviderPrefer' component={Providerpref} />
-            <Stack.Screen name='Tab' component={TabNavigator} />
+            <Stack.Screen name='ProviderPrefer' component={ProviderPreferencePage} />
+            <Stack.Screen name='App' component={AppNavigator} />
             <Stack.Screen name='VerificationScreen' component={VerificationScreen} />
             <Stack.Screen name='MobileLogin' component={MobileLogin} />
             <Stack.Screen name='MissingInfo' component={MissingInfoPage} />
@@ -68,141 +54,202 @@ const LoginNav = () => {
             <Stack.Screen name='AddressForm' component={AddressForm} />
             <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
             <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
+            <Stack.Screen name='CategoryScreen' component={CategoryScreen} />
         </Stack.Navigator>)
 }
 
-const TabNavigator = ({userData}) => {
+const AppNavigator = () => {
+    
     const Stack = createNativeStackNavigator();
-    const Tab = createBottomTabNavigator();
-
-    const [userInfo, setUserInfo] = useState(userData);
-
-    const tabBarIcon = (imageSource) => ({ focused }) => (
-        <View style={{ alignItems: 'center' }}>
-            {focused && (
-                <View
-                    style={{position: 'absolute', width: 65, height: 73, backgroundColor: '#47ACC8', borderRadius: 7, top: -10, zIndex: -1,}}
-                />
-            )}
-            <Image
-                source={imageSource}
-                style={{height: 40, width: 40, tintColor: focused ? Color.colorWhite : undefined,}}
-            />
-        </View>
-    );
-
-    const getProfileScreen = () => {
-        if (userInfo?.role === 'Provider') {
-            return ProviderProfileScreen;
-        } else {
-            return ProfileScreen;
-        }
-    }
-
-    const getEditProfileScreen = () => {
-        if (userInfo?.role === 'Provider') {
-            return ProviderEditProfileScreen;
-        } else {
-            return SeekerEditProfileScreen;
-        }
-    }
+    const [userRole, setUserRole] = useState('');
+    
+    const [userDataFetched, setUserDataFetched] = useState(false);
+    
+    useEffect(() => {
+        getUserData();
+    }, []);
 
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
-        axios.post("http://192.168.1.14:5000/user/userData", {token: token}).then((res) => {;
-          setUserInfo(res.data.data);
+        await axios.post("http://192.168.1.10:5000/user/userData", {token: token}).then((res) => {
+        setUserRole(res.data.data.data.role);
+        setUserDataFetched(true);
         }).catch((err) => {
           console.log(err);
         });
-      }
+    }
 
-    useEffect(() => {
-        getUserData();
-     }, [userInfo]);
     
 
-    return (
-        <Tab.Navigator
-            initialRouteName='Home' screenOptions={{ headerShown: false, tabBarStyle: { display: 'flex', backgroundColor: 'white', height: 70 }, tabBarItemStyle: { paddingBottom: 10, paddingTop: 18 }}}
-        >
-            <Tab.Screen name='Home' component={HomeScreen} options={{
-                title: '',
-                tabBarIcon: tabBarIcon(require("./assets/home.png")),
-                tabBarActiveTintColor: Color.colorOrange,
-            }} />
-            <Tab.Screen name='Booking' component={BookingScreen} options={{
-                title: '',
-                tabBarIcon: tabBarIcon(require("./assets/booking.png")),
-                tabBarActiveTintColor: Color.colorOrange,
-            }} />
-            <Tab.Screen name='Message' component={MessageScreen} options={{
-                title: '',
-                tabBarIcon: tabBarIcon(require("./assets/message.png")),
-                tabBarActiveTintColor: Color.colorOrange,
-            }} />
-          <Tab.Screen
-                name='Profiles'
-                options={{
-                    title: '',
-                    tabBarIcon: tabBarIcon(require("./assets/profile.png")),
-                    tabBarActiveTintColor: Color.colorOrange,
-                }}
-                listeners={
-                    ({ navigation }) => ({
-                        tabPress: (e) => {
-                            e.preventDefault();
-                            navigation.dispatch(
-                                CommonActions.navigate({
-                                    name: 'Profiles',
-                                })
-                            );
-                        },
-                    })
-                
-                }
-                >
-                {() => (
-                    <Stack.Navigator
-                        initialRouteName='Profile'
-                        screenOptions={{ headerShown: false }}
-                    >
-                        <Stack.Screen
-                            name='Profile'
-                            component={getProfileScreen()}
-                            options={{ unmountOnBlur: true }}
-                        />
-                        <Stack.Screen
-                            name='EditProfile'
-                            component={getEditProfileScreen()}
-                            options={{ unmountOnBlur: true }}
-                        />
-                        <Stack.Screen
-                            name='LoginNav'
-                            component={LoginNav}
-                        />
-                    </Stack.Navigator>
-                )}
-            </Tab.Screen>
-        </Tab.Navigator>
-    );
-};
+    if (!userDataFetched || userRole === '') {
+        return null;
+    }
 
+    if (userRole === 'Provider') {
+        return(
+            <Stack.Navigator
+                initialRouteName="BottomTabNavigation"
+              >
+                <Stack.Screen
+                  name="BottomTabNavigation"
+                  component={BottomTabNav}
+                  options={{
+                    headerShown: false
+                  }}
+                  initialParams={{ userRole: userRole }}
+        
+                /> 
+                <Stack.Screen
+                  name="EditProfile"
+                  component={EditProfile}
+                  options={{
+                    headerShown: false
+                  }}
+                />
+                <Stack.Screen
+                    name="ServicePage"
+                    component={ServicePage}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="LoginNav"
+                    component={LoginNav}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+              </Stack.Navigator>
+            )
+    } else if (userRole === 'Seeker') {
+        return (
+            <Stack.Navigator
+                initialRouteName="BottomTabNavigation"
+              >
+                <Stack.Screen
+                  name="BottomTabNavigation"
+                  component={BottomTabNav}
+                  options={{
+                    headerShown: false,
+                  }}
+                  initialParams={{ userRole: userRole }}
+        
+                />
+                <Stack.Screen
+                  name="EditProfile"
+                  component={EditProfile}
+                  options={{
+                    headerShown: false
+                  }}
+                />
+                <Stack.Screen
+                    name="LoginNav"
+                    component={LoginNav}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="ProviderList"
+                    component={ProviderList}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Services"
+                    component={Services}
+                    options={{
+                      headerShown: false
+                    }} 
+                />
+                <Stack.Screen
+                    name="Filter"
+                    component={Filter}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Search"
+                    component={SearchScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Result"
+                    component={Result}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="ServiceView"
+                    component={ServiceViewScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="CategoryScreen"
+                    component={CategoryScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="CategoryFilter"
+                    component={CategoryFilter}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Booking"
+                    component={BookingScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="PopularServices"
+                    component={PopularServices}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+              </Stack.Navigator>
+        )
+    }
+    
+
+};
 
 function App() {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userInfo, setUserInfo] = useState("");
+
+    const [fontsLoaded] = useFonts({
+        black: require('./assets/fonts/Inter-Black.ttf'),
+        bold: require('./assets/fonts/Inter-Bold.ttf'),
+        medium: require('./assets/fonts/Inter-Medium.ttf'),
+        regular: require('./assets/fonts/Inter-Regular.ttf'),
+        semiBold: require('./assets/fonts/Inter-SemiBold.ttf'),
+      });
 
     async function checkIfLoggedIn() {
         try {
             const data = await AsyncStorage.getItem('isLoggedIn');
             if (data) {
                 setIsLoggedIn(true);
+                // await AsyncStorage.removeItem('isLoggedIn');
             } else {
                 setIsLoggedIn(false);
-                setUserInfo("");
             }
         } catch (error) {
+
             console.error("Error checking login status:", error);
         }
     }
@@ -220,15 +267,12 @@ function App() {
         }
     }
 
-    async function getUserData() {
-        const token = await AsyncStorage.getItem('token');
-        console.log(token);
-        axios.post("http://192.168.1.14:5000/user/userData", {token: token}).then((res) => {
-          setUserInfo(res.data.data);
-        }).catch((err) => {
-          console.log(err);
-        });
-      }
+    useCallback(async () => {
+        if (fontsLoaded) {
+        await SplashScreen.hideAsync();
+        }
+    }, []);
+
 
     useEffect(() => {
         GoogleSignin.configure({
@@ -236,21 +280,17 @@ function App() {
         });
         requestTrackingPermission();
         checkIfLoggedIn();
-    }, [userInfo]);
-
-    useEffect(() => {
-       getUserData();
     }, [isLoggedIn]);
 
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <NavigationContainer>
-            {isLoggedIn && userInfo.role ? (
-                <TabNavigator userData = {userInfo} />
-            ) : (
-                <LoginNav/>
-            )}
+            {isLoggedIn ? (
+                    <AppNavigator/>
+                ) : (
+                    <LoginNav/>
+             )}
             </NavigationContainer>
         </GestureHandlerRootView>
     );
