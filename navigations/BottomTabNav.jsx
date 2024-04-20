@@ -25,7 +25,9 @@ const screenOptions = {
 
 export default BottomTabNav = ({route}) => {
 
-  const { userRole } = route.params;
+  const { userRole, userEmail } = route.params;
+
+  console.log("User Email: ", userEmail);
 
   if (userRole === 'Provider') {
     return (
@@ -50,6 +52,7 @@ export default BottomTabNav = ({route}) => {
             },
             
           }}
+          initialParams={{userEmail: userEmail}}
         />
   
         <Tab.Screen
@@ -144,6 +147,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail}}
         />
         <Tab.Screen
           name="Booking"

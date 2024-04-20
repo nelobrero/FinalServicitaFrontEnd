@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Dimensions, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 
-const ConfirmationScreen = ({ navigation }) => {
+export default ConfirmationScreen = ({ navigation }) => {
   const [button1Color, setButton1Color] = useState('#07374D');
   const [button2Color, setButton2Color] = useState('#07374D');
 
@@ -155,4 +155,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ConfirmationScreen;
+

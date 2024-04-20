@@ -10,14 +10,13 @@ import React, { useState } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import firestore from '@react-native-firebase/firestore';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 export default ServiceViewScreen = ({navigation, route}) => {
 
-  const { data } = route.params;
+  const { data, userData } = route.params;
 
   const [activeTab, setActiveTab] = useState("Post"); // State to track active tab
 
@@ -43,7 +42,7 @@ export default ServiceViewScreen = ({navigation, route}) => {
             <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
             </TouchableOpacity>
         <View>
-          <ServiceTop data={data} navigation={navigation} />
+          <ServiceTop data={data} navigation={navigation} userData={userData} />
         </View>
 
         <View style={[styles.navigator, styles.navigatorContainer]}>

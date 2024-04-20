@@ -6,7 +6,7 @@ import RatingService from "./../components/RatingService";
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
 
-export default Result = ({navigation, searchQuery, filterQuery, serviceData}) => {
+export default Result = ({navigation, searchQuery, filterQuery, serviceData, userData}) => {
 
 
   const { dayOfDate = null, selectedBarangay = null, selectedCity = null, selectedService = null, selectedPriceRange = null, selectedRating = null, hours = null } = filterQuery || {};
@@ -26,6 +26,7 @@ export default Result = ({navigation, searchQuery, filterQuery, serviceData}) =>
      ratingStar: item.data.rating,
      availability: item.data.availability,
      providerId: item.data.providerId,
+     bookings: item.data.bookings,
 
 })).slice(0, 10);
 
@@ -109,7 +110,7 @@ export default Result = ({navigation, searchQuery, filterQuery, serviceData}) =>
   const itemWidth = screenWidth - 2 * horizontalMargin;
 
   const handlePress = (item) => {
-    navigation.navigate('ServiceView', {data: item});
+    navigation.navigate('ServiceView', {data: item, userData: userData});
   };
 
   return (

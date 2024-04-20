@@ -36,7 +36,7 @@ export default function CategoryFilter({navigation, route}) {
         { key: 5, value: '5 Stars'},
     ];
     
-    const { filterQuery } = route.params;
+    const { filterQuery, userData } = route.params;
 
 
     // const [defaultTimeOptions] = useState([
@@ -101,7 +101,7 @@ export default function CategoryFilter({navigation, route}) {
 
     const fetchCities = async () => {
         try {
-            const response = await axios.get('http://192.168.1.10:5000/location/getCities');
+            const response = await axios.get('http://192.168.1.17:5000/location/getCities');
             setCities(response.data.data);
         } catch (error) {
             console.error('Error fetching cities:', error);
@@ -357,7 +357,7 @@ export default function CategoryFilter({navigation, route}) {
             color="#002F45"
             // disabled={selectedCity === '' && selectedPriceRange === null && selectedRating === null}
             // opacity={selectedCity === '' && selectedPriceRange === null && selectedRating === null ? 0.5 : 1}
-            onPress={() => {navigation.navigate('CategoryScreen', { serviceType, selectedCity, selectedBarangay, selectedPriceRange, selectedRating })}}
+            onPress={() => {navigation.navigate('CategoryScreen', { serviceType, selectedCity, selectedBarangay, selectedPriceRange, selectedRating, userData });}}
             />
 
             </View>

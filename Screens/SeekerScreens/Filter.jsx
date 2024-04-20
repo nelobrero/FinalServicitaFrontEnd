@@ -7,8 +7,6 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import { COLORS } from "../../constants/theme";
 import axios from "axios";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { value } from "deprecated-react-native-prop-types/DeprecatedTextInputPropTypes";
-import { set } from "date-fns";
 
 
 const screenWidth = Dimensions.get('screen').width;
@@ -103,7 +101,7 @@ export default function Filter({navigation, route}) {
 
     const fetchServices = async () => {
         try {
-            const response = await axios.get('http://192.168.1.10:5000/service/getServices');
+            const response = await axios.get('http://192.168.1.17:5000/service/getServices');
             setServices(response.data.data);
             
         } catch (error) {
@@ -113,7 +111,7 @@ export default function Filter({navigation, route}) {
 
     const fetchCities = async () => {
         try {
-            const response = await axios.get('http://192.168.1.10:5000/location/getCities');
+            const response = await axios.get('http://192.168.1.17:5000/location/getCities');
             setCities(response.data.data);
         } catch (error) {
             console.error('Error fetching cities:', error);

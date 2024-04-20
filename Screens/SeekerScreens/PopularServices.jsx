@@ -3,7 +3,7 @@ import React from 'react'
 
 const windowHeight = Dimensions.get('window').height;
 
-export default function PopularServices ({navigation, serviceData}) {
+export default function PopularServices ({navigation, serviceData, userData}) {
 
     const data = serviceData.map((item) => ({
         id: item.id,
@@ -18,6 +18,7 @@ export default function PopularServices ({navigation, serviceData}) {
      ratingStar: item.data.rating,
      availability: item.data.availability,
      providerId: item.data.providerId,
+     bookings: item.data.bookings,
     })).slice(0, 5);
     
 
@@ -26,11 +27,11 @@ export default function PopularServices ({navigation, serviceData}) {
     }
 
     const handlePress = (item) => {
-        navigation.navigate('ServiceView', {data: item});
+        navigation.navigate('ServiceView', {data: item, userData: userData});
       };
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"} maxHeight={windowHeight * 0.35 }>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"} maxHeight={windowHeight * 0.30 }>
             {data.map((item) => (
                 <View key={item.id} style={styles.flatListContainer}>
                     <Image 

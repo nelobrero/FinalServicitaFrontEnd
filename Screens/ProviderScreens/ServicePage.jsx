@@ -50,23 +50,23 @@ if (!service || !storeData || !userData) {
     };
 
     const [defaultServiceAvailability] = useState([
-      { day: 'Monday', startTime: '', endTime: '', flagAvailable: false },
-      { day: 'Tuesday', startTime: '', endTime: '', flagAvailable: false },
-      { day: 'Wednesday', startTime: '', endTime: '', flagAvailable: false },
-      { day: 'Thursday', startTime: '', endTime: '', flagAvailable: false },
-      { day: 'Friday', startTime: '', endTime: '', flagAvailable: false },
-      { day: 'Saturday', startTime: '', endTime: '', flagAvailable: false },
-      { day: 'Sunday', startTime: '', endTime: '', flagAvailable: false },
+      { day: 'Monday', startTime: '', endTime: '', flagAvailable: false, startTimeValue: 0, endTimeValue: 0 },
+      { day: 'Tuesday', startTime: '', endTime: '', flagAvailable: false, startTimeValue: 0, endTimeValue: 0 },
+      { day: 'Wednesday', startTime: '', endTime: '', flagAvailable: false, startTimeValue: 0, endTimeValue: 0 },
+      { day: 'Thursday', startTime: '', endTime: '', flagAvailable: false, startTimeValue: 0, endTimeValue: 0 },
+      { day: 'Friday', startTime: '', endTime: '', flagAvailable: false, startTimeValue: 0, endTimeValue: 0 },
+      { day: 'Saturday', startTime: '', endTime: '', flagAvailable: false, startTimeValue: 0, endTimeValue: 0 },
+      { day: 'Sunday', startTime: '', endTime: '', flagAvailable: false, startTimeValue: 0, endTimeValue: 0 },
   ]);
 
   const [serviceAvailability, setServiceAvailability] = useState([
-      { day: service.data.availability[0].day, startTime: service.data.availability[0].startTime, endTime: service.data.availability[0].endTime, flagAvailable: service.data.availability[0].flagAvailable },
-      { day: service.data.availability[1].day, startTime: service.data.availability[1].startTime, endTime: service.data.availability[1].endTime, flagAvailable: service.data.availability[1].flagAvailable },
-      { day: service.data.availability[2].day, startTime: service.data.availability[2].startTime, endTime: service.data.availability[2].endTime, flagAvailable: service.data.availability[2].flagAvailable },
-      { day: service.data.availability[3].day, startTime: service.data.availability[3].startTime, endTime: service.data.availability[3].endTime, flagAvailable: service.data.availability[3].flagAvailable },
-      { day: service.data.availability[4].day, startTime: service.data.availability[4].startTime, endTime: service.data.availability[4].endTime, flagAvailable: service.data.availability[4].flagAvailable },
-      { day: service.data.availability[5].day, startTime: service.data.availability[5].startTime, endTime: service.data.availability[5].endTime, flagAvailable: service.data.availability[5].flagAvailable },
-      { day: service.data.availability[6].day, startTime: service.data.availability[6].startTime, endTime: service.data.availability[6].endTime, flagAvailable: service.data.availability[6].flagAvailable },
+      { day: service.data.availability[0].day, startTime: service.data.availability[0].startTime, endTime: service.data.availability[0].endTime, flagAvailable: service.data.availability[0].flagAvailable, startTimeValue: service.data.availability[0].startTimeValue, endTimeValue: service.data.availability[0].endTimeValue },
+      { day: service.data.availability[1].day, startTime: service.data.availability[1].startTime, endTime: service.data.availability[1].endTime, flagAvailable: service.data.availability[1].flagAvailable, startTimeValue: service.data.availability[1].startTimeValue, endTimeValue: service.data.availability[1].endTimeValue },
+      { day: service.data.availability[2].day, startTime: service.data.availability[2].startTime, endTime: service.data.availability[2].endTime, flagAvailable: service.data.availability[2].flagAvailable, startTimeValue: service.data.availability[2].startTimeValue, endTimeValue: service.data.availability[2].endTimeValue },
+      { day: service.data.availability[3].day, startTime: service.data.availability[3].startTime, endTime: service.data.availability[3].endTime, flagAvailable: service.data.availability[3].flagAvailable, startTimeValue: service.data.availability[3].startTimeValue, endTimeValue: service.data.availability[3].endTimeValue },
+      { day: service.data.availability[4].day, startTime: service.data.availability[4].startTime, endTime: service.data.availability[4].endTime, flagAvailable: service.data.availability[4].flagAvailable, startTimeValue: service.data.availability[4].startTimeValue, endTimeValue: service.data.availability[4].endTimeValue },
+      { day: service.data.availability[5].day, startTime: service.data.availability[5].startTime, endTime: service.data.availability[5].endTime, flagAvailable: service.data.availability[5].flagAvailable, startTimeValue: service.data.availability[5].startTimeValue, endTimeValue: service.data.availability[5].endTimeValue },
+      { day: service.data.availability[6].day, startTime: service.data.availability[6].startTime, endTime: service.data.availability[6].endTime, flagAvailable: service.data.availability[6].flagAvailable, startTimeValue: service.data.availability[6].startTimeValue, endTimeValue: service.data.availability[6].endTimeValue },
   ]);
 
   const [timeOptions] = useState([

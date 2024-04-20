@@ -16,6 +16,7 @@ const windowHeight = Dimensions.get('window').height;
 
 const SearchScreen = ({navigation, route}) => {
 
+  const { userData } = route.params;
   const inputRef = useRef(null);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -106,7 +107,7 @@ const SearchScreen = ({navigation, route}) => {
           <TextInput ref={inputRef} placeholder="Search for services or more" style={styles.searchInput} onChangeText={(text) => setSearchQuery(text)}  />
         </View>
 
-        <Pressable onPress={()=>navigation.navigate("Filter", {filterQuery: route.params})}>
+        <Pressable onPress={()=>navigation.navigate("Filter", {filterQuery: route.params, userData: userData})}>
         <Ionicons name="filter" size={24} color="white" style={styles.filter} />
         </Pressable>
       </View>
@@ -116,7 +117,7 @@ const SearchScreen = ({navigation, route}) => {
               
 
         <Text style={styles.results}>Results</Text>
-        <Result navigation={navigation} searchQuery={searchQuery} filterQuery={route.params} serviceData={serviceData} />
+        <Result navigation={navigation} searchQuery={searchQuery} filterQuery={route.params} serviceData={serviceData} userData={userData} />
           
         </View>
 

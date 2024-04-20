@@ -31,7 +31,7 @@
     "axios": "^1.6.7",
     "date-fns": "^3.6.0",
     "deprecated-react-native-prop-types": "^5.0.0",
-    "expo": "^50.0.15",
+    "expo": "^50.0.17",
     "expo-checkbox": "~2.7.0",
     "expo-dev-client": "~3.3.11",
     "expo-file-system": "~16.0.8",
@@ -40,7 +40,7 @@
     "expo-linear-gradient": "~12.7.2",
     "expo-splash-screen": "~0.26.4",
     "expo-status-bar": "~1.11.1",
-    "expo-system-ui": "~2.9.3",
+    "expo-system-ui": "~2.9.4",
     "expo-tracking-transparency": "~3.3.0",
     "expo-updates": "~0.24.12",
     "firebase": "^10.8.1",
@@ -58,6 +58,8 @@
     "react-native-gesture-handler": "~2.14.0",
     "react-native-image-picker": "^7.1.0",
     "react-native-linear-gradient": "^2.8.3",
+    "react-native-maps": "1.10.0",
+    "react-native-maps-directions": "^1.9.0",
     "react-native-modal-picker": "^0.0.16",
     "react-native-modern-datepicker": "^1.0.0-beta.91",
     "react-native-notificated": "^0.1.4",
@@ -74,11 +76,12 @@
     "react-native-swiper": "^1.6.0",
     "react-native-swiper-flatlist": "^3.2.3",
     "react-native-tab-view": "^3.5.2",
+    "react-native-webview": "13.6.4",
     "react-navigation-stack": "^2.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "metro-config": "^0.80.7"
+    "metro-config": "^0.80.8"
   },
   "resolutions": {
     "expo-linear-gradient": "~12.7.2"

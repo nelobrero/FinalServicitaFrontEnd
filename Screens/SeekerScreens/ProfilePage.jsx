@@ -20,7 +20,7 @@ export default ProfilePage = ({ navigation, route }) => {
   async function getUserData() {
     const token = await AsyncStorage.getItem('token');
     console.log(token);
-    await axios.post("http://192.168.1.10:5000/user/userData", {token: token}).then((res) => {
+    await axios.post("http://192.168.1.17:5000/user/userData", {token: token}).then((res) => {
       setUserData(res.data.data.data);
       const storedId = res.data.data.data._id;
       getStoreData(storedId);

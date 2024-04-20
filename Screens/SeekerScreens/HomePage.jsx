@@ -6,16 +6,35 @@ import PopularServices from './PopularServices';
 import { useFocusEffect } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import axios from 'axios';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
 export default HomePage = ({navigation, route}) => {
 
+  const { userEmail } = route.params;
 
+  const [userData, setUserData] = useState({});
   const [serviceData, setServiceData] = useState({});
   const [userDataFetched, setUserDataFetched] = useState(false);
   
+
+  async function getUserData() {
+    try {
+      await axios.post("http://192.168.1.17:5000/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
+        setUserData(response.data);
+        console.log("User Data: ", response.data);
+      }
+      );
+
+    } catch (error) {
+      console.error('Error getting user data from MongoDB:', error);
+    }
+  }
+
+
+
   async function getServiceData() {
     try {
       const services = [];
@@ -25,7 +44,7 @@ export default HomePage = ({navigation, route}) => {
           services.push({ id: doc.id, data: doc.data() });
         }
       });
-
+      getUserData();
       setServiceData(services);
       setUserDataFetched(true);
     } catch (error) {
@@ -64,7 +83,7 @@ export default HomePage = ({navigation, route}) => {
     })
   )
 
-  if (!userDataFetched) {
+  if (!userDataFetched || !userData || !serviceData) {
     return (
       null
     );
@@ -76,7 +95,7 @@ export default HomePage = ({navigation, route}) => {
     <View style={styles.container}>
       
       <View style={styles.searchContainer}>
-        <TouchableOpacity onPress={()=>navigation.navigate("Search")} style={styles.searchTouchable}>
+        <TouchableOpacity onPress={()=>navigation.navigate("Search", {userData: userData})} style={styles.searchTouchable}>
         <View style={styles.searchBar}>
        
           <AntDesign name="search1" size={24} color="#002D62" />
@@ -113,7 +132,7 @@ export default HomePage = ({navigation, route}) => {
 
 <View>
 <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Home Cleaner Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Home Cleaner Service", userData: userData})}>
   <Image 
     source={require("./../../assets/Cleaning.png")}
     style={{
@@ -130,7 +149,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Second Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Manicure/Pedicure Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Manicure/Pedicure Service", userData: userData})}>
   <Image
     source={require("./../../assets/Manicure.png")}
     style={{
@@ -147,7 +166,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Third Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Electrical Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Electrical Service", userData: userData})}>
   <Image
     source={require("./../../assets/Electric.png")}
     style={{
@@ -164,7 +183,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Fourth Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Hair and Makeup Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Hair and Makeup Service", userData: userData})}>
   <Image
     source={require("./../../assets/Beauty.png")}
     style={{
@@ -181,7 +200,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Fifth Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Catering Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Catering Service", userData: userData})}>
   <Image
     source={require("./../../assets/Catering.png")}
     style={{
@@ -198,7 +217,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Sixth Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Septic Tank Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Septic Tank Service", userData: userData})}>
   <Image
     source={require("./../../assets/Septic.png")}
     style={{
@@ -215,7 +234,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Seventh Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Massage Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Massage Service", userData: userData})}>
   <Image
     source={require("./../../assets/Massage.png")}
     style={{
@@ -232,7 +251,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Eight Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Plumbing Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Plumbing Service", userData: userData})}>
   <Image
     source={require("./../../assets/Plumbing.png")}
     style={{
@@ -249,7 +268,7 @@ export default HomePage = ({navigation, route}) => {
 {/* Ninth Image */}
 <View>
   <TouchableOpacity
-  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Tutoring Service"})}>
+  onPress={()=>navigation.navigate("CategoryScreen", {serviceType: "Tutoring Service", userData: userData})}>
   <Image
     source={require("./../../assets/Tutoring.png")}
     style={{
@@ -278,7 +297,7 @@ export default HomePage = ({navigation, route}) => {
     </View> 
     </View>
     </View>
-    <PopularServices serviceData={serviceData} navigation={navigation} />
+    <PopularServices serviceData={serviceData} navigation={navigation} userData={userData} />
     </ScrollView>
     </SafeAreaView>
 

@@ -35,12 +35,16 @@ import CategoryScreen from './Screens/SeekerScreens/CategoryScreen';
 import CategoryFilter from './Screens/SeekerScreens/CategoryFilter';
 import BookingScreen from './Screens/SeekerScreens/BookingScreen';
 import PopularServices from './Screens/SeekerScreens/PopularServices';
+import ConfirmationScreen from './Screens/SeekerScreens/ConfirmationScreen';
+import PaymentScreen from './Screens/SeekerScreens/PaymentScreen';
+import SplashScreen1 from './Screens/SeekerScreens/SplashScreen';
 
 const LoginNav = () => {
 
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
+
             <Stack.Screen name='UserRole' component={UserRoleScreen} />
             <Stack.Screen name='Login' component={LoginPage} />
             <Stack.Screen name='Register' component={RegisterPage} />
@@ -54,15 +58,17 @@ const LoginNav = () => {
             <Stack.Screen name='AddressForm' component={AddressForm} />
             <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
             <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
-            <Stack.Screen name='CategoryScreen' component={CategoryScreen} />
-        </Stack.Navigator>)
+
+        </Stack.Navigator>
+        )
+
 }
 
 const AppNavigator = () => {
     
     const Stack = createNativeStackNavigator();
     const [userRole, setUserRole] = useState('');
-    
+    const [userEmail, setUserEmail] = useState('');
     const [userDataFetched, setUserDataFetched] = useState(false);
     
     useEffect(() => {
@@ -71,8 +77,9 @@ const AppNavigator = () => {
 
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
-        await axios.post("http://192.168.1.10:5000/user/userData", {token: token}).then((res) => {
+        await axios.post("http://192.168.1.17:5000/user/userData", {token: token}).then((res) => {
         setUserRole(res.data.data.data.role);
+        setUserEmail(res.data.data.data.email);
         setUserDataFetched(true);
         }).catch((err) => {
           console.log(err);
@@ -81,9 +88,11 @@ const AppNavigator = () => {
 
     
 
-    if (!userDataFetched || userRole === '') {
+    if (!userDataFetched || userRole === '' || userEmail === '') {
         return null;
     }
+
+
 
     if (userRole === 'Provider') {
         return(
@@ -96,7 +105,7 @@ const AppNavigator = () => {
                   options={{
                     headerShown: false
                   }}
-                  initialParams={{ userRole: userRole }}
+                  initialParams={{ userRole: userRole, userEmail: userEmail }}
         
                 /> 
                 <Stack.Screen
@@ -133,7 +142,7 @@ const AppNavigator = () => {
                   options={{
                     headerShown: false,
                   }}
-                  initialParams={{ userRole: userRole }}
+                  initialParams={{ userRole: userRole, userEmail: userEmail }}
         
                 />
                 <Stack.Screen
@@ -216,6 +225,27 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="PopularServices"
                     component={PopularServices}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Confirmation"
+                    component={ConfirmationScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Payment"
+                    component={PaymentScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="SplashScreen"
+                    component={SplashScreen1}
                     options={{
                       headerShown: false
                     }}

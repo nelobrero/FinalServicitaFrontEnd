@@ -1,48 +1,128 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity, Pressable, Modal } from "react-native";
+import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native'
+import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity} from "react-native";
 import { Color, FontFamily, FontSize, Border } from "./../../GlobalStyles";
 import Button from './../../components/Button';
 import { ScrollView } from "react-native-gesture-handler";
 import CalendarPicker from "react-native-calendar-picker";
 import { FontAwesome5 } from '@expo/vector-icons';
-import DateTimePicker from "@react-native-community/datetimepicker";
 import {Dropdown} from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { MaterialIcons } from '@expo/vector-icons';
+import { COLORS } from '../../constants';
+import firestore from '@react-native-firebase/firestore';
 
 
 
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-const data = [
-  {label: '8:00 AM ', value: '1'},
-  {label: '9:00 AM', value: '2'},
-  {label: '10:00 AM ', value: '3'},
-  {label: '11:00 AM ', value: '4'},
-  {label: '12:00 AM ', value: '5'},
-
-  {label: '1:00 PM ', value: '5'},
-  {label: '2:00 PM ', value: '5'},
-  {label: '3:00 PM ', value: '5'},
-  {label: '4:00 PM ', value: '5'},
-  {label: '5:00 PM ', value: '5'},
-]
 
 
-const BookingScreen = () => {
-  const [location, setLocation] = useState('');
-  const [date, setDate] = useState('');
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
-  const [isFocus, setIsFocus] = useState(false);
+export default function BookingScreen ({navigation, route}) {
 
+  const { data, userData } = route.params;
 
-  
-  const handleContinue = () => {
-    // Handle continue button press
+  const formatDefaultDate = (date) => {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"];
+
+    const month = monthNames[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    return `${month} ${day}, ${year}`;
   };
+
+  const [location, setLocation] = useState('');
+  const [bookingData, setBookingData] = useState([]);
+  const [date, setDate] = useState(formatDefaultDate(new Date(Date.now())));
+  const [selectedDate, setSelectedDate] = useState(new Date(Date.now()));
+  const [dayOfDate, setDayOfDate] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
+  const [startTime, setStartTime] = useState('');
+  const [startTimeValue, setStartTimeValue] = useState(0);
+  const [endTime, setEndTime] = useState('');
+  const [endTimeValue, setEndTimeValue] = useState(0);
+  const [isFocus, setIsFocus] = useState(false);
+  const [bookingDataFetched, setBookingDataFetched] = useState(false);
+
+const [timeOptions, setTimeOptions] = useState([
+        { label: '5:00 AM', value: '5:00 AM', numValue: 5 },
+        { label: '6:00 AM', value: '6:00 AM', numValue: 6 },
+        { label: '7:00 AM', value: '7:00 AM', numValue: 7 },
+        { label: '8:00 AM', value: '8:00 AM', numValue: 8 },
+        { label: '9:00 AM', value: '9:00 AM', numValue: 9 },
+        { label: '10:00 AM', value: '10:00 AM', numValue: 10 },
+        { label: '11:00 AM', value: '11:00 AM', numValue: 11 },
+        { label: '12:00 PM', value: '12:00 PM', numValue: 12 },
+        { label: '1:00 PM', value: '1:00 PM', numValue: 13 },
+        { label: '2:00 PM', value: '2:00 PM', numValue: 14 },
+        { label: '3:00 PM', value: '3:00 PM', numValue: 15 },
+        { label: '4:00 PM', value: '4:00 PM', numValue: 16 },
+        { label: '5:00 PM', value: '5:00 PM', numValue: 17 },
+        { label: '6:00 PM', value: '6:00 PM', numValue: 18 },
+        { label: '7:00 PM', value: '7:00 PM', numValue: 19 },
+        { label: '8:00 PM', value: '8:00 PM', numValue: 20 },
+        { label: '9:00 PM', value: '9:00 PM', numValue: 21 },
+        { label: '10:00 PM', value: '10:00 PM', numValue: 22 },
+        { label: '11:00 PM', value: '11:00 PM', numValue: 23 },
+    ]);
+  
+async function getBookingData() {
+    try{
+      const bookings = [];
+      for (let i = 0; i < data.bookings.length; i++) {
+        const bookingRef = firestore().collection('bookings').doc(data.bookings[i]);
+        const doc = await bookingRef.get();
+        if (doc.exists) {
+          bookings.push(doc.data());
+        } else {
+          console.log('No such document!');
+        }
+      }
+      setBookingData(bookings);
+      setBookingDataFetched(true);
+    } catch (error) {
+      console.log(error);
+    }
+  } 
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getBookingData();
+    }, [route])
+  );
+
+  const renderUnavailableDates = () => {
+
+    const unavailableDates = data.availability
+      .filter(availability => availability.startTimeValue === 0)
+      .map(availability => new Date(selectedDate.getFullYear(), selectedDate.getMonth(), availability.day));
+    return unavailableDates;
+
+  }
+
+  const handleContinue = () => {
+
+  const bookingData = {
+    startTime: startTime,
+    startTimeValue: startTimeValue,
+    endTime: endTime,
+    endTimeValue: endTimeValue,
+    price: calculatePrice(),
+    location: location,
+    serviceId: data.id,
+    seekerId: userData.id,
+    providerId: data.providerId,
+    bookedDate: date,
+    expiresAt: selectedDate.setHours(startTimeValue).toString()
+  };
+
+    navigation.navigate('Payment', { bookingData });
+  };
+
   const onDateChange = (selectedDate) => {
+
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"];
   
@@ -51,17 +131,75 @@ const BookingScreen = () => {
     const year = selectedDate.getFullYear();
   
     const formattedDate = `${month} ${day}, ${year}`;
+    setSelectedDate(selectedDate);
     setDate(formattedDate);
+    setDayOfDate(selectedDate.toLocaleDateString('en-US', { weekday: 'long' }));
   };
+
+  const calculatePrice = () => {
+    if (startTime === '' || endTime === '') {
+      return 0;
+    }
+    const duration = endTimeValue - startTimeValue;
+    return duration * (data.maxprice + data.minprice)/2;
+  } 
+
+  const selectedAvailability = data.availability.find(availability => availability.day === dayOfDate);
+
+  let filteredTimeOptions = [];
+
+if (selectedAvailability) {
+  filteredTimeOptions = timeOptions.filter(option => {
+    if (selectedAvailability.startTime === '') {
+      return false;
+    } else {
+      const currentDate = new Date(Date.now());
+      let partialOptions;
+      if (selectedDate.getDate() === currentDate.getDate()) {
+        partialOptions = option.numValue > new Date(Date.now()).getHours() + 1 && option.numValue <= 23;
+      } else {
+        partialOptions = option.numValue >= 5 && option.numValue <= 23;
+      }
+      if (bookingData.length === 0) {
+        return partialOptions;
+      } 
+      const isBooked = bookingData.some(booking => date === booking.bookedDate && booking.startTimeValue <= option.numValue && booking.endTimeValue > option.numValue);
+      return partialOptions && !isBooked;
+    }
+  });
+}
+
+
+
+const startTimeOptions = filteredTimeOptions.filter(option => option.numValue >= selectedAvailability.startTimeValue && option.numValue < selectedAvailability.endTimeValue);
+
+const endTimeOptions = filteredTimeOptions.filter(option => option.numValue > startTimeValue && option.numValue <= selectedAvailability.endTimeValue);
+
+if ( !bookingDataFetched || !bookingData ) {
+  return null;
+}
 
   return (
     <SafeAreaView>
       <ScrollView>
+      <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 20,
+                marginLeft: 20,
+                position: 'absolute',
+                zIndex: 1
+            }}
+        >
+            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
+            </TouchableOpacity>
     <View style={[styles.bookingscreen2, { marginBottom: 0 }]}>
         <View style={[styles.bookingscreen2Child, styles.childPosition]} />
 
         
-        <Text style={[styles.bookingtext]}>{`Start Booking`}</Text>
+        <Text style={[styles.bookingtext]}>{`Start\nBooking...`}</Text>
 
         <View style={[styles.rectangleParent, styles.groupChildLayout]}>
           
@@ -72,13 +210,14 @@ const BookingScreen = () => {
           <View style={styles.calenderContainer}>
           <CalendarPicker
                 onDateChange={onDateChange}
-               
                 minDate={Date.now()}
-                todayBackgroundColor="white"
-                todayTextStyle={{ color: "black" }}
-                selectedDayColor="#07374d"
-                selectedDayTextColor="white"
+                todayBackgroundColor="lightgray"
+                todayTextStyle={{ color: 'white' }}
+                selectedDayColor="#88D0F1"
+                selectedDayTextStyle={{ color: 'black' }}
                 width={windowWidth * 0.865}
+                disabledDates={renderUnavailableDates()}
+                disabledDatesTextStyle={{ color: 'gray' }}
               />
           </View>
 
@@ -91,7 +230,7 @@ const BookingScreen = () => {
                 style={[styles.dropdown1, isFocus && {borderColor: 'blue'}]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
-                data={data}
+                data={startTimeOptions}
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
@@ -101,6 +240,7 @@ const BookingScreen = () => {
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {
                   setStartTime(item.value);
+                  setStartTimeValue(item.numValue);
                   setIsFocus(false);
                 }}
               />
@@ -112,16 +252,18 @@ const BookingScreen = () => {
                 style={[styles.dropdown2, isFocus ]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
-                data={data}
+                data={endTimeOptions}
                 maxHeight={300}
-                labelField="label"
-                valueField="value"
+                labelField={endTimeOptions.length === 0 ? 'No time options' : "label"}
+                valueField={endTimeOptions.length === 0 ? 'No time options' : "value"}
                 placeholder={!isFocus ? '' : '...'}
                 value={endTime}
+                disable={startTime === ''}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {
                   setEndTime(item.value);
+                  setEndTimeValue(item.numValue);
                   setIsFocus(false);
                 }}
               />
@@ -131,7 +273,7 @@ const BookingScreen = () => {
           <Text style={styles.inputLabel}>Date</Text>
             <TextInput
               style={styles.input}
-              value={date}  
+              value={date}
               editable={false} 
             />
           
@@ -145,15 +287,27 @@ const BookingScreen = () => {
             />
             <FontAwesome5 name="map-marker-alt" size={15} color="gray" style={styles.locationIcon} />
           </View>
+
+          <Text style={styles.inputLabel}>Calculated Price</Text>
+            <TextInput
+              style={styles.input}
+              value={`₱${calculatePrice()}`}
+              editable={false} 
+            />
         </View>
         
+        
+
         <Button title="Continue" filled Color={Color.colorWhite} 
         style={{ height: 53,
             width: windowWidth * 0.9,
             top: 850,
             position: "absolute", 
+            opacity: date === '' || startTime === '' || endTime === '' || location === '' ? 0.5 : 1
              }} 
             onPress={handleContinue} 
+            disabled={date === '' || startTime === '' || endTime === '' || location === ''}
+          
         />
 
       </View>
@@ -217,19 +371,17 @@ const styles = StyleSheet.create({
     //alignItems: 'center',
   },
   bookingtext: {
-    top: 47,
+    top: windowHeight * 0.06,
     fontSize: 55,
-    width: 210,
+    width: windowWidth * 0.9,
     textAlign: "left",
     left: 36,
     color: Color.colorWhite,
     fontFamily: FontFamily.quicksandBold,
     fontWeight: "700",
-    lineHeight: 53,
+    lineHeight: windowHeight * 0.073,
     position: "absolute", 
-   
-    
-    
+
   },
   bookingscreen2: {
     flex: 1,
@@ -299,7 +451,6 @@ const styles = StyleSheet.create({
 
   
   calenderContainer: {
-    backgroundColor: "white",
     padding: windowWidth * 0.05,
     borderRadius: 15,
     bottom: 10,
@@ -358,5 +509,3 @@ const styles = StyleSheet.create({
   }
   
 });
-
-export default BookingScreen;

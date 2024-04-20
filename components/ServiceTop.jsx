@@ -13,7 +13,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 
-const ServiceTop= ({data, navigation}) => {
+const ServiceTop= ({data, navigation, userData}) => {
 
   const [price, setPrice] = useState(`${data.minprice} - ₱${data.maxprice}`);
   const [serviceName, setServiceName] = useState(data.service);
@@ -51,8 +51,9 @@ const ServiceTop= ({data, navigation}) => {
 
       </View>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Booking', {data: data})}>
+      
       <View style={[styles.book, styles.bookPosition]}>
+      <TouchableOpacity onPress={() => navigation.navigate('Booking', {data: data, userData: userData})}>
         <View style={[styles.bookChild, styles.childShadowBox]} />
         
         
@@ -74,8 +75,9 @@ const ServiceTop= ({data, navigation}) => {
         </View>
 
         <Text style={[styles.bookNow]}>Book</Text>
+        </TouchableOpacity>
       </View>
-      </TouchableOpacity>
+      
 
       <TouchableOpacity onPress={() => console.log('Message')}>
       <View style={[styles.message, styles.bookPosition2]}>
@@ -118,14 +120,14 @@ const styles = StyleSheet.create({
   },
   bookPosition: {
     top: windowHeight * 0.52,
-    left: windowWidth * 0.5,
+    left: windowWidth * 0.45,
     height: 30,
     position: "absolute",
     
   },
   bookPosition2: {
     top: windowHeight * 0.52,
-    left: windowWidth * 0.49,
+    left: windowWidth * 0.42,
     height: 30,
     position: "absolute",
     

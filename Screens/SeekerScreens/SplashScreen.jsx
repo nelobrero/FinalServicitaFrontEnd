@@ -3,12 +3,22 @@ import React from 'react';
 
 const { width, height } = Dimensions.get('window');
 
-const SplashScreen = () => {
+export default SplashScreen1 = ({navigation, route}) => {
+
+  const {bookingData, paymentMethod} = route.params;
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      navigation.navigate('ConfirmationScreen');
+    }, 6000);
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/splash1.png')} style={styles.image} />
+      <Image source={require('./../../assets/splash1.png')} style={styles.image} />
       <Text style={styles.text}>Service {"\n"}
       Confirming...</Text>
+    
     </View>
   );
 };
@@ -33,4 +43,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SplashScreen;
+

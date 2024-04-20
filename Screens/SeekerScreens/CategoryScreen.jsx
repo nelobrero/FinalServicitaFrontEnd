@@ -14,7 +14,7 @@ const windowHeight = Dimensions.get('window').height;
 
 const CategoryScreen = ({ navigation, route }) => {
 
-  const { serviceType } = route.params;
+  const { serviceType, userData } = route.params;
 
   const [serviceData, setServiceData] = useState([]);
   const [userDataFetched, setUserDataFetched] = useState(false);
@@ -62,7 +62,7 @@ const CategoryScreen = ({ navigation, route }) => {
           placeholderTextColor="gray"
           onChangeText={(text) => setSearchQuery(text)}
         />
-        <TouchableOpacity onPress = {() => navigation.navigate('CategoryFilter' , {serviceType: serviceType, filterQuery: route.params})}>
+        <TouchableOpacity onPress = {() => navigation.navigate('CategoryFilter' , {serviceType: serviceType, filterQuery: route.params, userData: userData})}>
         <Ionicons name="filter" size={24} color='black' style={styles.filter} />
         </TouchableOpacity>
       </View>
@@ -70,7 +70,7 @@ const CategoryScreen = ({ navigation, route }) => {
       {/* If serviceData.length == 0 display no results */}
       <Text style={styles.results}>Results</Text>
       {serviceData.length == 0 ? <Text style={{ textAlign: 'center', marginTop: 20 }}>No results found.</Text> :  <View style={{ marginTop: 1, marginBottom:200 }}>    
-        <Result navigation={navigation} searchQuery={searchQuery} filterQuery={route.params} serviceData={serviceData} />
+        <Result navigation={navigation} searchQuery={searchQuery} filterQuery={route.params} serviceData={serviceData} userData={userData} />
       </View>}
 
      

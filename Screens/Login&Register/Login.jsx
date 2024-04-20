@@ -54,21 +54,21 @@ export default function LoginPage ({ navigation }) {
                         }
                         FacebookLogOut();
                         if (emailExists.type === "permanent") {
-                          axios.get(`http://192.168.1.10:5000/admin/checkSuspensionStatus/${userEmail}`).then((res) => {
+                          axios.get(`http://192.168.1.17:5000/admin/checkSuspensionStatus/${userEmail}`).then((res) => {
                             if (res.data.status === 'SUCCESS') {
 
                               if (res.data.type === 'SUSPENDED') {
                                 const remainingTime = res.data.remainingTime;
                                 if (remainingTime === 0) {
-                                  axios.patch(`http://192.168.1.10:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
+                                  axios.patch(`http://192.168.1.17:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
                                     if (res.data.status === 'SUCCESS') {
-                                      axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                                      axios.post("http://192.168.1.17:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
                                         console.log(res.data)
                                         if (res.data.status === 'SUCCESS') {
                                             Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                                             AsyncStorage.setItem('token', res.data.data);
                                             AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                                            navigation.navigate('App');
+                                            navigation.navigate('App', { email: userData.email });
                                         }
                                     }
                                     ).catch((err) => {
@@ -86,13 +86,13 @@ export default function LoginPage ({ navigation }) {
                                 const formatMessage = remainingTime >= 60 ? `${Math.floor(remainingTime / 60)} hour${Math.floor(remainingTime / 60) > 1 ? 's' : ''} and ${remainingTime % 60} minute${remainingTime % 60 > 1 ? 's' : ''}`: `${remainingTime} minute${remainingTime > 1 ? 's' : ''}`;
                 Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
                               } else if (res.data.type === 'NOT_SUSPENDED') {
-                                axios.post("http://192.168.1.10:5000/user/loginOther", userEmail).then((res) => {
+                                axios.post("http://192.168.1.17:5000/user/loginOther", userEmail).then((res) => {
                                     console.log(res.data)
                                     if (res.data.status === 'SUCCESS') {
                                         Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                                         AsyncStorage.setItem('token', res.data.data);
                                         AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                                        navigation.navigate('App');
+                                        navigation.navigate('App', { email: userData.email });
                                     }
                                 }).catch((err) => {
                                     console.log(err);
@@ -142,20 +142,20 @@ export default function LoginPage ({ navigation }) {
           if (emailExists.exists) {
             GoogleLogOut();
             if (emailExists.type === "permanent") {
-              axios.get(`http://192.168.1.10:5000/admin/checkSuspensionStatus/${userData.email}`).then((res) => {
+              axios.get(`http://192.168.1.17:5000/admin/checkSuspensionStatus/${userData.email}`).then((res) => {
                 if (res.data.status === 'SUCCESS') {
                   if (res.data.type === 'SUSPENDED') {
                     const remainingTime = res.data.remainingTime;
                     if (remainingTime === 0) {
-                      axios.patch(`http://192.168.1.10:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
+                      axios.patch(`http://192.168.1.17:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
                         if (res.data.status === 'SUCCESS') {
-                          axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                          axios.post("http://192.168.1.17:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
                             console.log(res.data)
                             if (res.data.status === 'SUCCESS') {
                                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                                 AsyncStorage.setItem('token', res.data.data);
                                 AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                                navigation.navigate('App');
+                                navigation.navigate('App', { email: userData.email });
                             }
                         }
                         ).catch((err) => {
@@ -171,13 +171,13 @@ export default function LoginPage ({ navigation }) {
                     Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
                     }
                   } else if (res.data.type === 'NOT_SUSPENDED') {
-                  axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                  axios.post("http://192.168.1.17:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
                   console.log(res.data)
                   if (res.data.status === 'SUCCESS') {
                       Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                       AsyncStorage.setItem('token', res.data.data);
                       AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                      navigation.navigate('App');
+                      navigation.navigate('App', { email: userData.email });
                   }
               }).catch((err) => {
                   console.log(err);
@@ -222,7 +222,7 @@ export default function LoginPage ({ navigation }) {
             const userData = {
                 email: email,
             };
-            const res = await axios.post("http://192.168.1.10:5000/user/getUserDetailsByEmail", userData);
+            const res = await axios.post("http://192.168.1.17:5000/user/getUserDetailsByEmail", userData);
             
             if (res.data.status === 'SUCCESS') {
                 return { exists: true, type: res.data.type };
@@ -239,23 +239,23 @@ export default function LoginPage ({ navigation }) {
             email: email,
             password: password,
         }
-        axios.post("http://192.168.1.10:5000/user/login", userData).then((res) => {
+        axios.post("http://192.168.1.17:5000/user/login", userData).then((res) => {
         const storedData = res.data.data;
         if (res.data.status === 'SUCCESS') {
-          axios.get(`http://192.168.1.10:5000/admin/checkSuspensionStatus/${email}`).then((res) => {
+          axios.get(`http://192.168.1.17:5000/admin/checkSuspensionStatus/${email}`).then((res) => {
             if (res.data.status === 'SUCCESS') {
               if (res.data.type === 'SUSPENDED') {
                 const remainingTime = res.data.remainingTime;
                 if (remainingTime === 0) {
-                  axios.patch(`http://192.168.1.10:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
+                  axios.patch(`http://192.168.1.17:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
                     if (res.data.status === 'SUCCESS') {
-                      axios.post("http://192.168.1.10:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                      axios.post("http://192.168.1.17:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
                         console.log(res.data)
                         if (res.data.status === 'SUCCESS') {
                             Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                             AsyncStorage.setItem('token', res.data.data);
                             AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                            navigation.navigate('App');
+                            navigation.navigate('App', { email: userData.email });
                         }
                     }
                     ).catch((err) => {
@@ -274,7 +274,7 @@ export default function LoginPage ({ navigation }) {
                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                 AsyncStorage.setItem('token', storedData);
                 AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                navigation.navigate('App');
+                navigation.navigate('App', { email: userData.email });
               }
             }
         }

@@ -32,7 +32,7 @@ useEffect(() => {
 
 const fetchCities = async () => {
   try {
-    const response = await axios.get('http://192.168.1.10:5000/location/getCities');
+    const response = await axios.get('http://192.168.1.17:5000/location/getCities');
     if (response && response.data && response.data.data) {
       setCities(response.data.data);
       setSelectedCity(response.data.data.find(city => city.name === storeData.address.cityMunicipality));
@@ -218,7 +218,7 @@ const handleSelectBarangay = (barangay) => {
         const storageRef = storage().ref().child(`profileImages/${userData._id}`);
         await storageRef.put(blob);
         const url = await storageRef.getDownloadURL();
-        await axios.patch('http://192.168.1.10:5000/user/updateImage', { userId: userData._id, url: url });
+        await axios.patch('http://192.168.1.17:5000/user/updateImage', { userId: userData._id, url: url });
       }
       console.log(`User details saved for user with ID: ${userData._id}`);
       Alert.alert('User details saved successfully');

@@ -8,6 +8,7 @@ export const FontFamily = {
   manjariRegular: "Manjari-Regular",
   questrialRegular: "Questrial-Regular",
   quicksandMedium: "Quicksand-Medium",
+  
 };
 /* font sizes */
 export const FontSize = {
