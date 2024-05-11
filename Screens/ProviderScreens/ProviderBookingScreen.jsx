@@ -1,35 +1,115 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, Pressable, Modal, TouchableOpacity } from 'react-native';
-import { Border, FontSize, FontFamily, Color } from "./../../GlobalStyles";
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Dimensions, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Color } from "./../../GlobalStyles";
 import BookingProvider from './../../components/BookingProvider';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import firestore from '@react-native-firebase/firestore';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
+import { set } from 'date-fns';
 
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function SeekerBookingScreen(props) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState(null);
+export default function ProviderBookingScreen({ navigation, route }) {
 
-  const filters = ["For Approval", "Accepted", "In Progress", "Completed", "Canceled", "Rejected", "Failed",  "All"];
+  const { userEmail } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [actionDone, setActionDone] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [userData, setUserData] = useState({});
+  const [bookingData, setBookingData] = useState({});
+  const [userDataFetched, setUserDataFetched] = useState(false);
+  const filters = ["Pending", "Accepted", "In Progress", "Completed", "Canceled", "Rejected", "Failed", "Expired", "En Route", "All"];
+
+  const getUserIdAndImage = async () => {
+    try {
+      const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail })
+      setUserData(result.data.data);
+      return { id: result.data.data._id, image: result.data.data.profileImage };
+    } catch (error) {
+      console.error('Error getting user data from MongoDB:', error);
+    }
+  }
+
+  async function getBookingData() {
+    try {
+        const userId = await getUserIdAndImage();
+
+        const bookings = [];
+        const currentTime = new Date();
+        const snapshot = await firestore().collection('bookings').where('providerId', '==', userId.id).get();
+        for (const doc of snapshot.docs) {
+            
+            const seekerSnapshot = await firestore().collection('seekers').doc(doc.data().seekerId).get();
+            const seekerData = { image: userId.image, data: seekerSnapshot.data()}
+            const serviceSnapshot = await firestore().collection('services').doc(doc.data().serviceId).get();
+            const serviceData = { id: serviceSnapshot.id, data: serviceSnapshot.data()}
+            const providerSnapshot = await firestore().collection('providers').doc(doc.data().providerId).get();
+            const providerData = providerSnapshot.data();
+            const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsById", { id: seekerSnapshot.id })
+            const expiresAt = doc.data().expiresAt.toDate();
+            console.log(doc.data().status)
+
+            if ((doc.data().status === 'Pending' || doc.data().status === 'Accepted') && expiresAt < currentTime) {
+              await firestore().collection('bookings').doc(doc.id).update({ status: 'Expired' });
+              doc.data().status = 'Expired';
+            }
+            
+            bookings.push({ id: doc.id, data: doc.data(), serviceData: serviceData, providerData: providerData, seekerMobile: result.data.data.mobile, seekerData: seekerData, seekerImage: result.data.data.profileImage, providerImage: userId.image });
+        }
+        
+        setBookingData(bookings);
+        setUserDataFetched(true);
+        setLoading(false);
+    } catch (error) {
+        console.error('Error getting user data from Firestore:', error);
+    }
+}
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setLoading(true);
+      getBookingData();
+    }, [route])
+  );
+
+  useEffect(() => {
+    setLoading(true);
+    getBookingData();
+  }, [selectedFilter, actionDone]);
 
   const handleFilterPress = (filter) => {
     setSelectedFilter(filter);
     setModalVisible(false);
-    // Apply filter logic here
   };
 
+ if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={Color.colorPrimary} />
+      </View>
+    );
+  }
+
+  const handleActionDoneChange = (value) => {
+    setActionDone(value);
+  };
+  
+  
   return (
     <SafeAreaView>
       <View style={styles.header}>
-        <Text style={styles.title}>Bookings</Text>
+        <Text style={styles.title}>Bookings ({selectedFilter})</Text>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Ionicons name="filter" size={24} color={Color.colorWhite} style={styles.filterIcon} />
         </TouchableOpacity>
       </View>
       <View>
-        <BookingProvider />
+        <BookingProvider navigation={navigation} filters={selectedFilter} bookingData={bookingData} userData={userData} onActionDoneChange={handleActionDoneChange} />
       </View>
 
       {/* Modal */}
@@ -54,9 +134,9 @@ export default function SeekerBookingScreen(props) {
         </View>
       </Modal>
 
-      <TouchableOpacity style={styles.floatingButton}>
+      {/* <TouchableOpacity style={styles.floatingButton}>
         <AntDesign  name="calendar" size={24} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       
 
@@ -71,7 +151,6 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height * 0.1, // Adjust height according to screen size
     flexDirection: 'row',
     alignItems: 'center',  
-    
   },
   title: {
     fontSize:  23,

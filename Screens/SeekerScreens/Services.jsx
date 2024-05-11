@@ -72,7 +72,6 @@ const Services = ({navigation, route}) => {
         // Add more data objects as needed
     ];
 
-console.log(data);
     
     return (
         <SafeAreaView>

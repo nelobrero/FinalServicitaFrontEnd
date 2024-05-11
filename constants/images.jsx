@@ -7,8 +7,6 @@ const photo4 = require("../assets/images/HMupService.png");
 const photo5 = require("../assets/images/MassageService.png");
 const photo6 = require("../assets/images/MPService.png");
 
-
-
 export default {
     profile,
     cover,
@@ -17,5 +15,5 @@ export default {
     photo3,
     photo4,
     photo5,
-    photo6
+    photo6,
 }

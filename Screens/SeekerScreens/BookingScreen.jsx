@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native'
 import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity} from "react-native";
-import { Color, FontFamily, FontSize, Border } from "./../../GlobalStyles";
+import { Color, FontFamily, FontSize } from "./../../GlobalStyles";
 import Button from './../../components/Button';
 import { ScrollView } from "react-native-gesture-handler";
 import CalendarPicker from "react-native-calendar-picker";
@@ -12,12 +12,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
 import firestore from '@react-native-firebase/firestore';
 
-
-
-
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-
 
 export default function BookingScreen ({navigation, route}) {
 
@@ -45,6 +41,9 @@ export default function BookingScreen ({navigation, route}) {
   const [endTimeValue, setEndTimeValue] = useState(0);
   const [isFocus, setIsFocus] = useState(false);
   const [bookingDataFetched, setBookingDataFetched] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState(null);
+  const [unavailableDatesFetched, setUnavailableDatesFetched] = useState(false);
+  const [locationDetails, setLocationDetails] = useState(null);
 
 const [timeOptions, setTimeOptions] = useState([
         { label: '5:00 AM', value: '5:00 AM', numValue: 5 },
@@ -68,16 +67,16 @@ const [timeOptions, setTimeOptions] = useState([
         { label: '11:00 PM', value: '11:00 PM', numValue: 23 },
     ]);
   
+
+
 async function getBookingData() {
     try{
       const bookings = [];
       for (let i = 0; i < data.bookings.length; i++) {
         const bookingRef = firestore().collection('bookings').doc(data.bookings[i]);
         const doc = await bookingRef.get();
-        if (doc.exists) {
+        if (doc.exists && doc.data().status !== 'Canceled') {
           bookings.push(doc.data());
-        } else {
-          console.log('No such document!');
         }
       }
       setBookingData(bookings);
@@ -86,23 +85,113 @@ async function getBookingData() {
       console.log(error);
     }
   } 
-
+  useEffect(() => {
+    getBookingData();
+  }, []);
+  
   useFocusEffect(
     React.useCallback(() => {
-      getBookingData();
-    }, [route])
+      if (bookingData !== null) {
+        renderUnavailableDates(selectedDate.getMonth());
+      }
+    }, [bookingData, selectedDate])
   );
 
-  const renderUnavailableDates = () => {
 
-    const unavailableDates = data.availability
-      .filter(availability => availability.startTimeValue === 0)
-      .map(availability => new Date(selectedDate.getFullYear(), selectedDate.getMonth(), availability.day));
-    return unavailableDates;
+const renderUnavailableDates = (month) => {
+
+  const year = selectedDate.getFullYear();
+ 
+
+  const numDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const unavailableDates = [];
+
+  for (let day = 1; day <= numDaysInMonth; day++) {
+    const currentDate = new Date(year, month, day);
+    const dayOfWeek = currentDate.getDay();
+    const availabilityForDay = data.availability.find(availability => {
+      return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek] === availability.day;
+    });
+
+    if (!availabilityForDay || availabilityForDay.startTimeValue === 0) {
+      unavailableDates.push(currentDate);
+      continue;
+    }
+
+    if (currentDate.toDateString() === new Date(Date.now()).toDateString()) {
+      const currentTime = new Date(Date.now()).getHours();
+      if (availabilityForDay.endTimeValue <= currentTime + 2) {
+      unavailableDates.push(currentDate);
+      continue;
+      }
+    }
+
+    
+
+    let totalSumOfAvailTimes = 0;
+
+
+for (let i = availabilityForDay.startTimeValue; i <= availabilityForDay.endTimeValue; i++) {
+    totalSumOfAvailTimes += i;
+}
+
+
+const bookingsForDate = bookingData.filter(booking => booking.bookedDate === formatDefaultDate(currentDate));
+
+let sumOfBookedTimes = 0;
+let bookedHours = [];
+
+for (let i = 0; i < bookingsForDate.length; i++) {
+    const booking = bookingsForDate[i];
+    for (let j = booking.startTimeValue; j <= booking.endTimeValue; j++) {
+
+        if (!bookedHours.includes(j)) {
+            sumOfBookedTimes += j;
+            bookedHours.push(j);
+        }
+    }
+    if (sumOfBookedTimes === totalSumOfAvailTimes) {
+        unavailableDates.push(currentDate);
+        break;
+    }
+}
+
 
   }
 
+  setUnavailableDates(unavailableDates);
+  setUnavailableDatesFetched(true);
+};
+  
+
+  const chooseFinalStartingSelectedDate = () => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const day = selectedDate.getDate();
+    const currentDate = new Date(year, month, day);
+    const currentDateString = currentDate.toDateString();
+     if (unavailableDates.some(date => date.toDateString() === currentDateString)) {
+        let nextAvailableDate = new Date(selectedDate);
+        nextAvailableDate.setDate(nextAvailableDate.getDate() + 1);
+        setSelectedDate(nextAvailableDate);
+        setDate(formatDefaultDate(nextAvailableDate));
+        setDayOfDate(nextAvailableDate.toLocaleDateString('en-US', { weekday: 'long' }));
+        return nextAvailableDate;
+    } else {
+      return selectedDate;
+    }
+  }
+      
+      
+
+
+
   const handleContinue = () => {
+    const formattedExpiresAt = selectedDate.setHours(startTimeValue, 0, 0, 0);
+    const expiresAts = new Date(formattedExpiresAt);
+    const expiresAt = firestore.Timestamp.fromDate(expiresAts);
+    
 
   const bookingData = {
     startTime: startTime,
@@ -110,30 +199,41 @@ async function getBookingData() {
     endTime: endTime,
     endTimeValue: endTimeValue,
     price: calculatePrice(),
-    location: location,
+    location: {
+      address: location,
+      latitude: locationDetails.latitude,
+      longitude: locationDetails.longitude,
+    },
     serviceId: data.id,
-    seekerId: userData.id,
+    seekerId: userData._id,
     providerId: data.providerId,
     bookedDate: date,
-    expiresAt: selectedDate.setHours(startTimeValue).toString()
+    expiresAt: expiresAt,
+    seekerEmail: userData.email,
+    seekerMobile: userData.mobile,
   };
 
     navigation.navigate('Payment', { bookingData });
   };
 
-  const onDateChange = (selectedDate) => {
+  const onDateChange = (selected) => {
 
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"];
   
-    const month = monthNames[selectedDate.getMonth()];
-    const day = selectedDate.getDate();
-    const year = selectedDate.getFullYear();
-  
+    const month = monthNames[selected.getMonth()];
+    const day = selected.getDate();
+    const year = selected.getFullYear();
+
     const formattedDate = `${month} ${day}, ${year}`;
-    setSelectedDate(selectedDate);
+  
+    if (selected.toDateString() !== selectedDate.toDateString()) {
+      setStartTime('');
+      setEndTime('');
+    }
+    setSelectedDate(selected);
     setDate(formattedDate);
-    setDayOfDate(selectedDate.toLocaleDateString('en-US', { weekday: 'long' }));
+    setDayOfDate(selected.toLocaleDateString('en-US', { weekday: 'long' }));
   };
 
   const calculatePrice = () => {
@@ -163,19 +263,54 @@ if (selectedAvailability) {
       if (bookingData.length === 0) {
         return partialOptions;
       } 
-      const isBooked = bookingData.some(booking => date === booking.bookedDate && booking.startTimeValue <= option.numValue && booking.endTimeValue > option.numValue);
+      const isBooked = bookingData.some(booking => date === booking.bookedDate && booking.startTimeValue < option.numValue && booking.endTimeValue > option.numValue);
       return partialOptions && !isBooked;
     }
   });
 }
 
+const bookedStartTimeValuesforCurrentDate = bookingData.filter(booking => booking.bookedDate === date).map(booking => booking.startTimeValue);
+
+const minStartTimeValue = Math.min(...bookedStartTimeValuesforCurrentDate);
+
+const startTimeOptions = filteredTimeOptions.filter(option => {
+  if (option.numValue >= selectedAvailability.startTimeValue && option.numValue < selectedAvailability.endTimeValue) {
+    const isBooked = bookingData.some(booking => date === booking.bookedDate && booking.startTimeValue === option.numValue);
+    return !isBooked;
+  }
+  return false;
+});
 
 
-const startTimeOptions = filteredTimeOptions.filter(option => option.numValue >= selectedAvailability.startTimeValue && option.numValue < selectedAvailability.endTimeValue);
+const endTimeOptions = filteredTimeOptions.filter(option => {
+  const bookingDataForThisDate = bookingData.filter(booking => booking.bookedDate === date);
+  if (bookingDataForThisDate.length === 0) {
+    return option.numValue > startTimeValue && option.numValue <= selectedAvailability.endTimeValue;
+  } else if (option.numValue > startTimeValue && option.numValue <= selectedAvailability.endTimeValue) {
+    const isBooked = bookingData.some(booking => date === booking.bookedDate && booking.startTimeValue < option.numValue && booking.endTimeValue > option.numValue);
+  
+    if (startTimeValue < minStartTimeValue) {
+      return !isBooked && option.numValue <= minStartTimeValue;
+    }
+    return !isBooked;
+  }
+  return false;
+  
+});
 
-const endTimeOptions = filteredTimeOptions.filter(option => option.numValue > startTimeValue && option.numValue <= selectedAvailability.endTimeValue);
+const initializeSelectedLocation = (locationDetails) => {
+  setLocation(locationDetails.startCords.address);
+  setLocationDetails({
+    latitude: locationDetails.startCords.latitude,
+    longitude: locationDetails.startCords.longitude,
+  })
+  console.log(locationDetails.startCords.address);
+  console.log(locationDetails.startCords.latitude);
+  console.log(locationDetails.startCords.longitude);
+};
 
-if ( !bookingDataFetched || !bookingData ) {
+
+if ( !bookingDataFetched || !bookingData || !unavailableDatesFetched || !unavailableDates) {
   return null;
 }
 
@@ -210,14 +345,17 @@ if ( !bookingDataFetched || !bookingData ) {
           <View style={styles.calenderContainer}>
           <CalendarPicker
                 onDateChange={onDateChange}
+                onMonthChange={value => renderUnavailableDates(value.getMonth())}
                 minDate={Date.now()}
-                todayBackgroundColor="lightgray"
                 todayTextStyle={{ color: 'white' }}
+                selectedStartDate={chooseFinalStartingSelectedDate()}
                 selectedDayColor="#88D0F1"
                 selectedDayTextStyle={{ color: 'black' }}
                 width={windowWidth * 0.865}
-                disabledDates={renderUnavailableDates()}
+                disabledDates={unavailableDates}
                 disabledDatesTextStyle={{ color: 'gray' }}
+                nextComponent={<FontAwesome5 name="chevron-right" size={15} color="black"/>}
+                previousComponent={<FontAwesome5 name="chevron-left" size={15} color="black" />} 
               />
           </View>
 
@@ -277,6 +415,12 @@ if ( !bookingDataFetched || !bookingData ) {
               editable={false} 
             />
           
+          <TouchableOpacity onPress={() => navigation.navigate('BookingPage', {
+            getStartingLocation: initializeSelectedLocation,
+          })}>
+          
+
+
           <Text style={styles.inputLabel}>Location</Text>
           <View style={styles.locationInput}>
             <TextInput
@@ -284,9 +428,11 @@ if ( !bookingDataFetched || !bookingData ) {
               placeholder="Choose Location"
               value={location}
               onChangeText={setLocation}
+              editable={false}
             />
-            <FontAwesome5 name="map-marker-alt" size={15} color="gray" style={styles.locationIcon} />
+            {/* <FontAwesome5 name="map-marker-alt" size={15} color="gray" style={styles.locationIcon} /> */}
           </View>
+          </TouchableOpacity>
 
           <Text style={styles.inputLabel}>Calculated Price</Text>
             <TextInput

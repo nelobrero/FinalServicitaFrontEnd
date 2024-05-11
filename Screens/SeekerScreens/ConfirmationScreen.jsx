@@ -1,19 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import firestore from '@react-native-firebase/firestore';
 
-export default ConfirmationScreen = ({ navigation }) => {
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+export default ConfirmationScreen = ({ navigation, route }) => {
+
+  const { bookingData, bookingId } = route.params;
+  const [providerData, setProviderData] = useState({});
+  const [userRole, setUserRole] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userDataFetched, setUserDataFetched] = useState(false);
   const [button1Color, setButton1Color] = useState('#07374D');
   const [button2Color, setButton2Color] = useState('#07374D');
+  
+  useEffect(() => {
+    getUserData();
+    
+}, []);
 
-  const handleButton1Click = () => {
-    setButton1Color(button1Color === '#07374D' ? '#33B3EE' : '#07374D');
-  };
+async function getUserData() {
+    try{
+    const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsById", { id: bookingData.seekerId })
+    setUserRole(result.data.data.role);
+    setUserEmail(result.data.data.email);
+    getProviderData();
+    } catch (error) {
+      console.error('Error getting user data from MongoDB:', error);
+    }
+   
+}
 
-  const handleButton2Click = () => {
-    setButton2Color(button2Color === '#07374D' ? '#33B3EE' : '#07374D');
-  };
+async function getProviderData() {
+  const providerData = await firestore().collection('providers').doc(bookingData.providerId).get();
+  setProviderData(providerData.data());
+  setUserDataFetched(true);
+}
+
+  if (!userDataFetched || userRole === '' || userEmail === '') {
+    return null;
+}
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -21,78 +52,82 @@ export default ConfirmationScreen = ({ navigation }) => {
         <View style={styles.iconContainer}>
           <Feather name="check-circle" size={120} color="white" />
         </View>
-        <Text style={{ fontSize: 30, color: 'white', alignSelf: 'center', marginTop: 160 }}>Booked Confirmed</Text>
+        <Text style={{ fontSize: 30, color: 'white', alignSelf: 'center', marginTop: 160 }}>Booking Confirmed</Text>
         <Text style={{alignSelf:'center', marginTop: 1, color:'white'}}>Hold tight, service excellence is just around the corner!</Text>
       </View>
       <View style={styles.container2}>
 
         <View style={{flexDirection:"row"}}>
         <Text style={{margin: 8, fontWeight:'bold'}}>Booking ID</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Booking ID</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>{bookingId}</Text>
         </View>
 
         <View style={{flexDirection:"row"}}>
-        <Text style={{margin: 8, fontWeight:'bold'}}>Seeker</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Seeker</Text>
+        <Text style={{margin: 8, fontWeight:'bold'}}>Provider</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>{providerData.name.firstName} {providerData.name.lastName}</Text>
         </View>
 
         <View style={{flexDirection:"row"}}>
-        <Text style={{margin: 8, fontWeight:'bold'}}>Address</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Address</Text>
+        <Text style={{margin: 8, fontWeight:'bold'}}>Location</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>{bookingData.location.address}</Text>
         </View>
 
         <View style={{flexDirection:"row"}}>
         <Text style={{margin: 8, fontWeight:'bold'}}>Date</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Date</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>{bookingData.bookedDate}</Text>
         </View>
 
         <View style={{flexDirection:"row"}}>
         <Text style={{margin: 8, fontWeight:'bold'}}>Time</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Time</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>{bookingData.startTime} - {bookingData.endTime}</Text>
         </View>
 
       </View>
       <View style={styles.container3}>
       <View style={{flexDirection:"row"}}>
         <Text style={{margin: 8, fontWeight:'bold'}}>Transaction ID</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Transaction ID</Text>
+        <Text style={{marginTop: 8, textAlign:'right', position: 'absolute', left: windowWidth * 0.265, fontSize: 13}}>{bookingData.paymentId}</Text>
         </View>
 
         <View style={{flexDirection:"row"}}>
-        <Text style={{margin: 8, fontWeight:'bold'}}>Booking Time</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Booking Time</Text>
+        <Text style={{margin: 8, fontWeight:'bold'}}>Created At</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>
+        {bookingData.createdAt.toDate().toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+        </Text>
         </View>
 
         <View style={{flexDirection:"row"}}>
-        <Text style={{margin: 8, fontWeight:'bold'}}>Payment Time</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Payment Time</Text>
+        <Text style={{margin: 8, fontWeight:'bold'}}>Expires At</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>
+        {bookingData.expiresAt.toDate().toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+</Text>
+
         </View>
 
         <View style={{flexDirection:"row"}}>
         <Text style={{margin: 8, fontWeight:'bold'}}>Payment Method</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Payment Method</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>{bookingData.paymentMethod === 'gcash' ? 'GCash' : bookingData.paymentMethod === 'grab_pay' ? 'GrabPay' : 'Paymaya'}</Text>
         </View>
 
         <View style={{flexDirection:"row"}}>
         <Text style={{margin: 8, fontWeight:'bold'}}>Amount</Text>
-        <Text style={{marginTop: 8, textAlign:'right'}}>Amount</Text>
+        <Text style={{marginTop: 8, textAlign:'right'}}>{bookingData.price}</Text>
         </View>  
       </View>
 
-      <View style={styles.buttonContainer1}>
+      {/* <View style={styles.buttonContainer1}>
         <Button  
-        title="View Booking" color={button1Color} onPress={()=>navigation.navigate("BookingScreen")} />
-      </View>
+        title="View Bookings" color={button1Color} onPress={()=>navigation.navigate("SeekerBooking", {userEmail: userEmail})} />
+      </View> */}
       <View style={styles.buttonContainer2}>
-        <Button  title="Go Back to Home" color={button2Color} onPress={()=>navigation.navigate("HomeScreen")}/>
+        <Button  title="Go Back to Home" color={button2Color} onPress={()=>navigation.navigate("BottomTabNavigation", {userRole: userRole, userEmail: userEmail})} />
       </View>
     </SafeAreaView>
 
   );
 };
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+
 
 const styles = StyleSheet.create({
   safeArea: {

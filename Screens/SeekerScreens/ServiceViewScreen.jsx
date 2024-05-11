@@ -5,7 +5,7 @@ import ServiceTop from './../../components/ServiceTop';
 import Description from './../../components/Description';
 import Post from './../../components/Post';
 import Review from './../../components/Review';
-import Photos from './../../components/Photos';
+import Photos1 from './../../components/Photos1';
 import React, { useState } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
@@ -62,14 +62,14 @@ export default ServiceViewScreen = ({navigation, route}) => {
       </View>
 
       <View>
-        {activeTab === "Photos" && <Photos />}
+      {activeTab === "Photos" && <Photos1 serviceId = {data.id} />}
       </View>
 
       <View>
-        {activeTab === "Reviews" && <Review />}
+        {activeTab === "Reviews" && <Review serviceId = {data.id} />}
       </View>  
       <View>
-        {activeTab === "Post" && <Post serviceName = {data.service} coverImage = {data.providerImage}/>}
+        {activeTab === "Post" && <Post serviceName = {data.service} coverImage = {data.providerImage} serviceId = {data.id} />}
       </View>
      
       <View>

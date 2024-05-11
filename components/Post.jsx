@@ -1,15 +1,11 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, Pressable, FlatList, Modal, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { View, Text, Image, StyleSheet, Pressable, FlatList, Modal, Dimensions, ActivityIndicator } from 'react-native';
 import Swiper from 'react-native-swiper';
-import  { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-
-
-
-
 
 const PostItem = ({ item }) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -24,18 +20,13 @@ const PostItem = ({ item }) => {
       setModalVisible(false);
     };
   
-    const formatDate = (dateString) => {
-      const options = { month: 'long', day: 'numeric', year: 'numeric' };
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', options);
-    };
   
     return (
       <View style={styles.postItemContainer}>
         <Image source={{ uri: item.userImage }} style={styles.userImage} />
         <View style={styles.postContent}>
           <Text style={styles.userName}>{item.userName}</Text>
-          <Text style={styles.dateTime}>{formatDate(item.date)}, {item.time}</Text>
+          <Text style={styles.dateTime}>{item.date}, {item.time}</Text>
           <Text style={styles.postText}>{item.postText}</Text>
           {item.postImages && item.postImages.length > 0 && (
             <FlatList
@@ -43,7 +34,7 @@ const PostItem = ({ item }) => {
               data={item.postImages}
               renderItem={({ item, index }) => (
                 <Pressable onPress={() => openModal(index)}>
-                  <Image source={item} style={styles.postImage} />
+                  <Image source={{ uri: item }} style={styles.postImage} />
                 </Pressable>
               )}
               keyExtractor={(item, index) => index.toString()}
@@ -62,7 +53,7 @@ const PostItem = ({ item }) => {
             >
               {item.postImages && item.postImages.map((image, index) => (
                 <View key={index} style={styles.swiperImageContainer}>
-                  <Image source={image} style={styles.swiperImage} resizeMode="contain" />
+                  <Image source={{ uri: image }} style={styles.swiperImage} />
                 </View>
               ))}
             </Swiper>
@@ -75,44 +66,68 @@ const PostItem = ({ item }) => {
     );
   };
   
-  const Posts = ({ serviceName, coverImage }) => {
+  const Posts = ({ serviceName, coverImage, serviceId }) => {
     
-    const postsData = [
-      {
-        id: 1,
-        //URI
-        userImage: coverImage,
-        userName: serviceName,
-        postImages: [
-            require('../assets/post2.jpg'),
-          ],
-        postText: 'Wasn’t able to upload this gem but this is one of my favorite makeup looks. We did this glam early in the morning so I’m making sure this look will last the whole day. I’m glad this look turned exactly how the client wants it despite asking me to do whatever I want with her glam. It is indeed a hidden spark between me and my clients. I wish I can meet someone like her in the future.',
-        date: '2024-03-13',
-        time: '10:30 AM',
-      },
-      {
-        id: 2,
-        userImage: coverImage,
-        userName: serviceName,
-        postImages:  [
-            require('../assets/post3.jpg'),
-            require('../assets/post4.jpg'),
-            require('../assets/post5.jpg'),
-          ],
-        postText: 'Had fun glamming youu',
-        date: '2024-03-15',
-        time: '12:45 PM',
-      },
-    ];
+    const [postsData, setPostsData] = useState(null);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      const getPosts = async () => {
+        try {
+          const response = await axios.post('http://192.168.1.7:5000/post/getPostsById', { serviceId });
+          setPostsData(response.data.data);
+          setLoading(false);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+  
+      getPosts();
+    }, [serviceId]);
+  
+    const convertCreatedAtToDateMonthYear = (createdAt) => {
+      const date = new Date(createdAt);
+      return `${date.getDate()} ${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+    };
+  
+    const convertCreatedAtToTime12HourFormat = (createdAt) => {
+      const date = new Date(createdAt);
+      return date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    };
     
+    if (!postsData && loading) {
+      return (
+        <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 20 }}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
+    }
+  
     
     return (
       <FlatList
-        data={postsData}
-        renderItem={({ item }) => <PostItem item={item} />}
-        keyExtractor={(item) => item.id.toString()}
-        scrollEnabled={false} 
-      />
+      data={postsData}
+      renderItem={({ item }) => (
+        <PostItem
+          item={{
+            id: item._id,
+            userImage: coverImage,
+            userName: serviceName,
+            postImages: item.images,
+            postText: item.postText,
+            date: convertCreatedAtToDateMonthYear(item.createdAt),
+            time: convertCreatedAtToTime12HourFormat(item.createdAt)
+          }}
+        />
+      )}
+      keyExtractor={(item) => item._id.toString()}
+      ListEmptyComponent={() => (
+        <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 20 }}>
+          <Text>No posts available</Text>
+        </View>
+      )}
+      scrollEnabled={false}
+    />
     );
   };
   

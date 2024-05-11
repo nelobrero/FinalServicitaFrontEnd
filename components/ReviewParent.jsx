@@ -20,10 +20,9 @@ const ReviewItem = ({ item }) => {
 
   return (
     <View style={styles.reviewItemContainer}>
-      <Image source={item.userImage} style={styles.userImage} />
+      <Image source={{ uri: item.userImage }} style={styles.userImage} />
       <View style={styles.reviewContent}>
         <Text style={styles.userName}>{item.userName}</Text>
-        {/* Render RatingStars component with item.ratingStar */}
         <RatingStars rating={item.ratingStar} />
         <Text style={styles.reviewText}>{item.reviewText}</Text>
         {item.reviewImages && item.reviewImages.length > 0 && (
@@ -32,7 +31,7 @@ const ReviewItem = ({ item }) => {
             data={item.reviewImages}
             renderItem={({ item, index }) => (
               <Pressable onPress={() => openModal(index)}>
-                <Image source={item} style={styles.reviewImage} />
+                <Image source={{ uri: item }} style={styles.reviewImage} />
               </Pressable>
             )}
             keyExtractor={(item, index) => index.toString()}
@@ -52,12 +51,12 @@ const ReviewItem = ({ item }) => {
           >
             {item.reviewImages && item.reviewImages.map((image, index) => (
               <View key={index} style={styles.swiperImageContainer}>
-                <Image source={image} style={styles.swiperImage} resizeMode="contain" />
+                <Image source={{ uri: image }} style={styles.swiperImage} />
               </View>
             ))}
           </Swiper>
           <Pressable style={styles.closeButton} onPress={closeModal}>
-            <Ionicons name="close-circle"size={36} color="white" />
+            <Ionicons name="close-circle"size={36} color="red" />
           </Pressable>
         </View>
       </Modal>
@@ -67,7 +66,7 @@ const ReviewItem = ({ item }) => {
 
 export default ReviewItem;
 const styles = StyleSheet.create({
-  reviewItemContainer: {
+  reviewItemContainer: {  
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: '#FFFFFF',

@@ -1,8 +1,8 @@
-import { View,  SafeAreaView } from "react-native";
+import { View } from "react-native";
 import React from "react";
 import { SimpleLineIcons, Feather, MaterialCommunityIcons, FontAwesome6, Entypo } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { COLORS } from "../constants/theme";
+import { COLORS } from "../constants/theme.jsx";
 import { Home, Message, Profile, Booking, Create } from "./../Screens/ProviderScreens"
 import { HomePage, ProfilePage, MessagePage, BookingPage} from "./../Screens/SeekerScreens"
 
@@ -27,7 +27,7 @@ export default BottomTabNav = ({route}) => {
 
   const { userRole, userEmail } = route.params;
 
-  console.log("User Email: ", userEmail);
+  // console.log("User Email: ", userEmail);
 
   if (userRole === 'Provider') {
     return (
@@ -69,6 +69,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail}}
         />
   
         <Tab.Screen
@@ -93,6 +94,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail}}
         />
   
         <Tab.Screen
@@ -108,6 +110,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail, userRole: userRole}}
         />
   
         <Tab.Screen
@@ -124,6 +127,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail}}
         />
       </Tab.Navigator>
      
@@ -163,6 +167,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail}}
         />
   
         <Tab.Screen
@@ -178,6 +183,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail}}
         />
   
         <Tab.Screen
@@ -194,6 +200,7 @@ export default BottomTabNav = ({route}) => {
               );
             },
           }}
+          initialParams={{userEmail: userEmail}}
         />
       </Tab.Navigator>
     )

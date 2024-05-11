@@ -1,38 +1,114 @@
 
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, Pressable, Modal, TouchableOpacity } from 'react-native';
-import { Border, FontSize, FontFamily, Color } from "./../../GlobalStyles";
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Dimensions, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Color } from "./../../GlobalStyles";
 import BookingSeeker from "./../../components/BookingSeeker";
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import firestore from '@react-native-firebase/firestore';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
+import { set } from 'date-fns';
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-export default function SeekerBookingScreen(props) {
-  
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState(null);
+export default function SeekerBookingScreen({ navigation, route }) {
 
-  const filters = ["Pending", "Accepted", "In Progress", "Completed", "Canceled", "Rejected", "Failed",  "All"];
+  const { userEmail } = route.params;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [userData, setUserData] = useState({});
+  const [bookingData, setBookingData] = useState({});
+  const [serviceData, setServiceData] = useState({});
+  const [userDataFetched, setUserDataFetched] = useState(false);
+  const filters = ["Pending", "Accepted", "In Progress", "Completed", "Canceled", "Rejected", "Failed", "Expired", "En Route", "All"]
+
+  const getUserIdAndImage = async () => {
+    try {
+      const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail })
+      setUserData(result.data.data);
+      return { id: result.data.data._id, image: result.data.data.profileImage };
+    } catch (error) {
+      console.error('Error getting user data from MongoDB:', error);
+    }
+  }
+
+  async function getBookingData() {
+    try {
+        const userId = await getUserIdAndImage();
+
+        const bookings = [];
+        const currentTime = new Date();
+        const snapshot = await firestore().collection('bookings').where('seekerId', '==', userId.id).get();
+        for (const doc of snapshot.docs) {
+            
+            const seekerSnapshot = await firestore().collection('seekers').doc(doc.data().seekerId).get();
+            const seekerData = { image: userId.image, data: seekerSnapshot.data()}
+            const serviceSnapshot = await firestore().collection('services').doc(doc.data().serviceId).get();
+            const serviceData = { id: serviceSnapshot.id, data: serviceSnapshot.data()}
+            const providerSnapshot = await firestore().collection('providers').doc(doc.data().providerId).get();
+            const providerData = providerSnapshot.data();
+            const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsById", { id: providerSnapshot.id })
+            const expiresAt = doc.data().expiresAt.toDate();
+            
+
+            if ((doc.data().status === 'Pending' || doc.data().status === 'Accepted') && expiresAt < currentTime) {
+              await firestore().collection('bookings').doc(doc.id).update({ status: 'Expired' });
+              doc.data().status = 'Expired';
+            }
+            
+            bookings.push({ id: doc.id, data: doc.data(), serviceData: serviceData, providerData: providerData, providerMobile: result.data.data.mobile, seekerData: seekerData, providerImage: result.data.data.profileImage });
+        }
+        
+        setBookingData(bookings);
+        setUserDataFetched(true);
+        setLoading(false);
+    } catch (error) {
+        console.error('Error getting user data from Firestore:', error);
+    }
+}
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setLoading(true);
+      getBookingData();
+    }, [route])
+  );
+
+  useEffect(() => {
+    setLoading(true);
+    getBookingData();
+  }, [selectedFilter]);
+
 
   const handleFilterPress = (filter) => {
     setSelectedFilter(filter);
     setModalVisible(false);
-    // Apply filter logic here
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={Color.colorPrimary} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView>
       <View style={styles.header}>
-        <Text style={styles.title}>Bookings</Text>
+        <Text style={styles.title}>Bookings ({selectedFilter})</Text>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Ionicons name="filter" size={24} color={Color.colorWhite} style={styles.filterIcon} />
         </TouchableOpacity>
       </View>
       <View >
-        <BookingSeeker />
+        <BookingSeeker navigation={navigation} filters={selectedFilter} bookingData={bookingData} userData={userData}/>
       </View>
       {/* Modal */}
       <Modal

@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+
+import { ActivityIndicator } from 'react-native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
@@ -9,6 +11,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Linking from 'expo-linking';
 
 import UserRoleScreen from './Screens/Login&Register/UserRoleScreen';
 import LoginPage from './Screens/Login&Register/Login';
@@ -38,10 +41,36 @@ import PopularServices from './Screens/SeekerScreens/PopularServices';
 import ConfirmationScreen from './Screens/SeekerScreens/ConfirmationScreen';
 import PaymentScreen from './Screens/SeekerScreens/PaymentScreen';
 import SplashScreen1 from './Screens/SeekerScreens/SplashScreen';
+import BookingSeeker from './components/BookingSeeker';
+import SeekerBookingStatusScreen from './Screens/SeekerScreens/SeekerBookingStatusScreen';
+import SeekerBookingScreen from './Screens/SeekerScreens/SeekerBookingScreen';
+import BookingProvider from './components/BookingProvider';
+import ProviderBookingStatusScreen from './Screens/ProviderScreens/ProviderBookingStatusScreen';
+import ProviderBookingScreen from './Screens/ProviderScreens/ProviderBookingScreen';
+import BookingPage from './Screens/SeekerScreens/BookingPage';
+import ChooseLocation from './Screens/SeekerScreens/ChooseLocation';
+import ProviderBookingPage from './Screens/ProviderScreens/ProviderBookingPage';
+import Chat from './Screens/Chat';
 
 const LoginNav = () => {
 
     const Stack = createNativeStackNavigator();
+    const navigation = useNavigation();
+
+    useEffect(() => {
+      const unsubscribeToLinks = Linking.addEventListener('url', (event) => {
+          handleDeepLink(event, navigation);
+      });
+      return () => {
+          unsubscribeToLinks.remove();
+      };
+  }, []);
+
+  const handleDeepLink = (event, navigation) => {
+    const { path } = Linking.parse(event.url);
+    console.log("LoginNav path: ", path);
+  };
+
     return (
         <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
 
@@ -70,14 +99,14 @@ const AppNavigator = () => {
     const [userRole, setUserRole] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [userDataFetched, setUserDataFetched] = useState(false);
-    
+    const navigation = useNavigation();
     useEffect(() => {
         getUserData();
     }, []);
 
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
-        await axios.post("http://192.168.1.17:5000/user/userData", {token: token}).then((res) => {
+        await axios.post("http://192.168.1.7:5000/user/userData", {token: token}).then((res) => {
         setUserRole(res.data.data.data.role);
         setUserEmail(res.data.data.data.email);
         setUserDataFetched(true);
@@ -86,7 +115,19 @@ const AppNavigator = () => {
         });
     }
 
-    
+    useEffect(() => {
+      const unsubscribeToLinks = Linking.addEventListener('url', (event) => {
+          handleDeepLink(event, navigation);
+      });
+      return () => {
+          unsubscribeToLinks.remove();
+      };
+  }, []);
+
+  const handleDeepLink = (event, navigation) => {
+    const { path } = Linking.parse(event.url);
+    console.log("App path: ", path);
+  };
 
     if (!userDataFetched || userRole === '' || userEmail === '') {
         return null;
@@ -125,6 +166,41 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="LoginNav"
                     component={LoginNav}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="ProviderBookingStatus"
+                    component={ProviderBookingStatusScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="ProviderBooking"
+                    component={ProviderBookingScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="BookingProvider"
+                    component={BookingProvider}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                 <Stack.Screen
+                    name="ProviderBookingPage"
+                    component={ProviderBookingPage}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Chat"
+                    component={Chat}
                     options={{
                       headerShown: false
                     }}
@@ -250,6 +326,48 @@ const AppNavigator = () => {
                       headerShown: false
                     }}
                 />
+                <Stack.Screen
+                    name="BookingSeeker"
+                    component={BookingSeeker}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="SeekerBookingStatus"
+                    component={SeekerBookingStatusScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="SeekerBooking"
+                    component={SeekerBookingScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="BookingPage"
+                    component={BookingPage}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="ChooseLocation"
+                    component={ChooseLocation}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Chat"
+                    component={Chat}
+                    options={{
+                      headerShown: false
+                    }}
+                />
               </Stack.Navigator>
         )
     }
@@ -257,9 +375,80 @@ const AppNavigator = () => {
 
 };
 
-function App() {
+const prefix = Linking.createURL('servicita://');
+
+const config = {
+  screens:{
+      LoginNav: {
+        screens: {
+          Login: 'login',
+          Register: 'register',
+          Register2: 'register2',
+          ProviderPrefer: 'providerprefer',
+          App: 'app',
+          VerificationScreen: 'verification',
+          MobileLogin: 'mobilelogin',
+          MissingInfo: 'missinginfo',
+          Welcome: 'welcome',
+          AddressForm: 'addressform',
+          ForgotPassword: 'forgotpassword',
+          ResetPassword: 'resetpassword',
+        },
+      },
+      App: {
+        screens: {
+          BottomTabNavigation: {
+            screens: {
+              Home: {
+                screens: {
+                  Home: 'home',
+                  EditProfile: 'editprofile',
+                  ServicePage: 'servicepage',
+                  LoginNav: 'loginnav',
+                },
+              },
+              Services: {
+                screens: {
+                  Services: 'services',
+                  ProviderList: 'providerlist',
+                  Filter: 'filter',
+                  Search: 'search',
+                  Result: 'result',
+                  ServiceView: 'serviceview',
+                  CategoryScreen: 'categoryscreen',
+                  CategoryFilter: 'categoryfilter',
+                  Booking: 'booking',
+                  PopularServices: 'popularservices',
+                  Confirmation: 'confirmation',
+                  Payment: 'payment',
+                  SplashScreen: 'splashscreen',
+                },
+              },
+              Profile: {
+                screens: {
+                  Profile: 'profile',
+                  EditProfile: 'editprofile',
+                  LoginNav: 'loginnav',
+                },
+              },
+            },
+          },
+        },
+      },
+
+  
+    },
+};
+
+export default function App() {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    
+    
+    const linking = {
+      prefixes: [prefix],
+      config,
+    };
 
     const [fontsLoaded] = useFonts({
         black: require('./assets/fonts/Inter-Black.ttf'),
@@ -268,6 +457,8 @@ function App() {
         regular: require('./assets/fonts/Inter-Regular.ttf'),
         semiBold: require('./assets/fonts/Inter-SemiBold.ttf'),
       });
+
+      
 
     async function checkIfLoggedIn() {
         try {
@@ -312,18 +503,17 @@ function App() {
         checkIfLoggedIn();
     }, [isLoggedIn]);
 
-
     return (
+      <NavigationContainer linking={linking} fallback={<ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />}>
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <NavigationContainer>
+           
             {isLoggedIn ? (
                     <AppNavigator/>
                 ) : (
                     <LoginNav/>
              )}
-            </NavigationContainer>
+
         </GestureHandlerRootView>
+        </NavigationContainer>
     );
 }
-
-export default App;

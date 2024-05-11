@@ -1,120 +1,145 @@
 
 
 import React from "react";
-import { StyleSheet, View, Text, Image, Dimensions, FlatList } from "react-native";
+import { StyleSheet, View, Text, Image, Dimensions, FlatList, Pressable } from "react-native";
 import { Color, FontFamily, FontSize, Border } from "./../GlobalStyles";
+import { parse } from 'date-fns';
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const data = [
-  {
-    id: '1',
-    bookingId: '#236',
-    status: 'Pending',
-    serviceName: 'Eunice Enrera Makeup Artistry - Cebu Makeup Artist',
-    providerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
-  {
-    id: '2',
-    bookingId: '#236',
-    status: 'Completed',
-    serviceName: "Barbie's Hair and Make up Service",
-    providerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
-  {
-    id: '3',
-    bookingId: '#236',
-    status: 'Completed',
-    serviceName: "Pagwapa Service",
-    providerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
-  {
-    id: '4',
-    bookingId: '#236',
-    status: 'Completed',
-    serviceName: "Pagwapa Service ni Carl",
-    providerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
-  {
-    id: '5',
-    bookingId: '#236',
-    status: 'Completed',
-    serviceName: "Pagwapofsafas Service ni Carl",
-    providerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
-  // Add more data objects as needed
-];
+const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
 
-const renderItem = ({ item }) => (
-  <View style={styles.container}>
-    <View style={styles.bookingseeker}>
-      <View style={[styles.frame, styles.framePosition]}>
-        <View style={[styles.frameChild, styles.frameShadowBox]} />
-        <View style={[styles.frameItem, styles.frameShadowBox]} />
-      </View>
-      <Image
-        style={styles.serviceimageIcon}
-        contentFit="cover"
-        source={item.imageSource}
-      />
+  const data = bookingData.map((item) => ({
+    id: item.id,
+    bookingId: item.id,
+    status: item.data.status,
+    serviceName: item.serviceData.data.name,
+    providerName: `${item.providerData.name.firstName} ${item.providerData.name.lastName}`,
+    time: `${item.data.startTime} - ${item.data.endTime}`,
+    date: item.data.bookedDate,
+    convertedDate: new Date(parse(item.data.bookedDate, "MMMM d, yyyy", new Date()).setHours(item.data.startTimeValue, 0)),
+    startTimeValue: item.data.startTimeValue,
+    endTimeValue: item.data.endTimeValue,
+    location: item.data.location,
+    imageSource: item.serviceData.data.coverImage,
+    mobile: item.providerMobile,
+    createdAt: item.data.createdAt,
+    expiresAt: item.data.expiresAt,
+    paymentMethod: item.data.paymentMethod,
+    price: item.data.price,
+    paymentId: item.data.paymentId,
+    serviceId: item.serviceData.id,
+    seekerId: item.data.seekerId,
+    providerId: item.data.providerId,
+    seekerName: `${item.seekerData.data.name.firstName} ${item.seekerData.data.name.lastName}`,
+    seekerImage: item.seekerData.image,
+    providerImage: item.providerImage
+}));
+  
+  const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);
 
-      <View style={styles.serviceWrapper}>
-        <Text style={styles.service}>{item.serviceName}</Text>
-        <View style={styles.provider}>
-          <Image
-            style={styles.userIcon}
-            contentFit="cover"
-            source={require("./../assets/user.png")}
-          />
-          <Text style={styles.provider1}>{item.providerName}</Text>
-        </View>
-      </View>
-      
-      <View style={[styles.status, styles.statusLayout]}>
-        <Text style={[styles.bookingid, styles.status1Typo]}>{item.bookingId}</Text>
-        <Text style={[styles.status1, styles.status1Typo]}>{item.status}</Text>
-      </View>
-      <View style={styles.bookingdetails}>
-        
+  filteredData.sort((a, b) => {
+    const now = new Date();
+    const isDateAPast = a.convertedDate < now;
+    const isDateBPast = b.convertedDate < now;
 
-        <Text style={[styles.address, styles.dateTypo]}>{item.address}</Text>
-        <Text style={[styles.date, styles.dateTypo]}>{item.date}</Text>
-        <Text style={styles.time}>{item.time}</Text>
-      </View>
-      
-    </View>
-  </View>
-);
+    // If one date is in the past and the other isn't, prioritize the one in the future
+    if (isDateAPast && !isDateBPast) {
+        return 1;
+    } else if (!isDateAPast && isDateBPast) {
+        return -1;
+    }
 
-const BookingSeeker = () => {
+    // If both dates are in the future, sort based on the dates
+    if (a.convertedDate < b.convertedDate) {
+        return -1;
+    } else if (a.convertedDate > b.convertedDate) {
+        return 1;
+    } else {
+        // If dates are equal, prioritize based on start time
+        return a.startTimeValue - b.startTimeValue;
+    }
+});
+
+
   return (
     <FlatList
-      data={data}
-      renderItem={renderItem}
+      data={filteredData}
+      renderItem={ ({ item }) => (
+        <Pressable onPress={() => navigation.navigate('SeekerBookingStatus', { data: {
+          bookingId: item.bookingId,
+          status: item.status,
+          serviceName: item.serviceName,
+          providerName: item.providerName,
+          time: item.time,
+          date: item.date,
+          location: item.location,
+          imageSource: item.imageSource,
+          mobile: item.mobile,
+          createdAt: item.createdAt,
+          expiresAt: item.expiresAt,
+          paymentMethod: item.paymentMethod,
+          price: item.price,
+          paymentId: item.paymentId,
+          serviceId: item.serviceId,
+          seekerId: item.seekerId,
+          providerId: item.providerId,
+          seekerName: item.seekerName,
+          seekerImage: item.seekerImage,
+          providerImage: item.providerImage,
+        },
+        userData: userData,
+        serviceData: bookingData.find(booking => booking.id === item.id).serviceData,
+        })}>
+        <View style={styles.container}>
+          <View style={styles.bookingseeker}>
+            <View style={[styles.frame, styles.framePosition]}>
+              <View style={[styles.frameChild, styles.frameShadowBox]} />
+              <View style={[styles.frameItem, styles.frameShadowBox]} />
+            </View>
+            <Image
+              style={styles.serviceimageIcon}
+              contentFit="cover"
+              source={{uri: item.imageSource}}
+            />
+      
+            <View style={styles.serviceWrapper}>
+              <Text style={styles.service}>{item.serviceName}</Text>
+              <View style={styles.provider}>
+                <Image
+                  style={styles.userIcon}
+                  contentFit="cover"
+                  source={require("./../assets/user.png")}
+                />
+                <Text style={styles.provider1}>{item.providerName}</Text>
+              </View>
+            </View>
+            
+            <View style={[styles.status, styles.statusLayout]}>
+              <Text style={[styles.bookingid, styles.status1Typo]}>{item.bookingId}</Text>
+              <Text style={[styles.status1, styles.status1Typo]}>{item.status}</Text>
+            </View>
+            <View style={styles.bookingdetails}>
+              
+      
+              <Text style={[styles.address, styles.dateTypo]}>{item.location.address}</Text>
+              <Text style={[styles.date, styles.dateTypo]}>{item.date}</Text>
+              <Text style={styles.time}>{item.time}</Text>
+            </View>
+            
+          </View>
+        </View>
+        </Pressable>
+      )}
       keyExtractor={item => item.id}
       contentContainerStyle={{ paddingBottom: windowHeight * 0.285, paddingTop: windowHeight * 0.02 }}
-      
+      ListEmptyComponent={() => (
+        <View style={styles.container}>
+          <Text>No bookings found</Text>
+        </View>
+      )}
     />
   );
 };
@@ -295,10 +320,10 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   bookingid: {
-    left: windowWidth * 0.775,
+    left: windowWidth * 0.470,
     textAlign: "right",
-    width: 42,
-    height: 12,
+    width: windowWidth * 0.4,
+    height: windowHeight * 0.02,
   },
   status1: {
     width: 135,

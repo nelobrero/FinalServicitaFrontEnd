@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, Modal, TextInput, Pressable, FlatList } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, Modal, TextInput, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { Color, errorText } from '../../GlobalStyles'
 import React, { useState, useEffect } from "react";
 import { COLORS, FONTS } from "./../../constants/theme";
@@ -9,6 +9,9 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import * as ImagePicker from "expo-image-picker";
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import axios from "axios";
+import Button from './../../components/Button';
+import { set } from "date-fns";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -27,9 +30,10 @@ if (!service || !storeData || !userData) {
     const [compareImage, setCompareImage] = useState(service.data.coverImage);
     const [updatedImage, setUpdatedImage] = useState(null);
       const [selectedUri, setSelectedUri] = useState(null);
-
+      const [reviewText, setReviewText] = useState('');
     const [showServiceModal, setShowServiceModal] = useState(false);
     const [showPriceModal, setShowPriceModal] = useState(false);
+    const [showPostModal, setShowPostModal] = useState(false);
     const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
     const [serviceName, setServiceName] = useState(service.data.name);
     const [serviceNameVerify, setServiceNameVerify] = useState(true);
@@ -42,6 +46,8 @@ if (!service || !storeData || !userData) {
     const [inputHeight, setInputHeight] = useState(windowHeight * 0.06);
     const priceGap = 300
     const [isChanged, setIsChanged] = useState(false);
+    const [images, setImages] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const validateName = (name, setName, setNameVerify, limit) => {
       setName(name);
@@ -193,6 +199,23 @@ const closePriceModal = () => {
   setShowPriceModal(false);
 }
 
+const openPostModal = () => {
+  setShowPostModal(true);
+}
+
+const appeal = async () => {
+  try {
+    // Reset service status to pending
+    await firestore().collection('services').doc(service.id).set({
+      status: 'Pending',
+    }, { merge: true });
+    Alert.alert("Service appeal submitted successfully");
+    navigation.goBack();
+  } catch (error) {
+    console.error('Error submitting appeal:', error);
+  }
+}
+
 const handleImageSelection = async () => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -210,7 +233,65 @@ const handleImageSelection = async () => {
   }
 };
 
+const closePostModal = () => {
+  setImages(null);
+  setReviewText('');
+  setShowPostModal(false);
+};
+
+const handleImagePicker = async () => {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [4, 4],
+    quality: 1,
+
+  });
+  console.log(result.assets[0].uri);
+  if (!result.canceled) {
+      setImages(images ? [...images, result.assets[0].uri] : [result.assets[0].uri]);
+  }
+};
+const removeImage = (index) => {
+  const newImages = images.filter((image, i) => i !== index);
+  if (newImages.length === 0) {
+      setImages(null);
+  } else {
+    setImages(newImages);
+  }
+};
+
+const handleSubmitPost = async () => {
+  setIsLoading(true);
+  try {
+    const submitImages = [];
+
+    const imageUploadPromises = images && images.length > 0 ? images.map(async (image) => {
+      const response = await fetch(image);
+      const blob = await response.blob();
+      const storageRef = storage().ref();
+      const imageRef = storageRef.child(`postImages/${service.id}/${image.split('/').pop()}`);
+      await imageRef.put(blob);
+      const url = await imageRef.getDownloadURL();
+      submitImages.push(url);
+  }) : [];
+
+  await Promise.all(imageUploadPromises);
+
+  await axios.post('http://192.168.1.7:5000/post/createPost', { serviceId: service.id, images: submitImages, postText: reviewText });
+  setIsLoading(false);
+  alert('Post submitted successfully!');
+  setImages(null);
+  setReviewText('');
+  setShowPostModal(false);
+  navigation.goBack();
+} catch (error) {
+  console.error('Error submitting post:', error);
+}
+};
+
 const saveChanges = async () => {
+  setIsLoading(true);
   try {
   const serviceRef = firestore().collection('services').doc(service.id);
   await serviceRef.set({
@@ -234,6 +315,7 @@ const saveChanges = async () => {
     }, { merge: true });
   }
   setShowServiceModal(false);
+  setIsLoading(false);
   Alert.alert("Service updated successfully");
   navigation.goBack();
   } catch (error) {
@@ -250,17 +332,37 @@ useEffect(() => {
   }
 }, [serviceName, serviceDescription, minPrice, maxPrice, serviceAvailability, compareImage]);
 
-console.log(service.data.coverImage)
-console.log(compareImage)
-console.log(isChanged);
-console.log(service.data.coverImage !== compareImage)
+  let accountItems = [];
 
-  const accountItems = [
-    {
+  if (service.data.status === "Active") {
+    accountItems = [
+      {
+        text: "Edit Service",
+        action: openServiceModal,
+      },
+      {
+        text: "Add Post",
+        action: openPostModal,
+      }
+    ];
+  } else if (service.data.status === "Rejected") {
+    accountItems = [
+      {
+        text: "Edit Service",
+        action: openServiceModal,
+      },
+      {
+        text: "Appeal",
+        action: appeal,
+      }
+    ];
+  } else {
+    accountItems = [{
       text: "Edit Service",
       action: openServiceModal,
-    },
-  ];
+    }]
+  }
+
 
   const renderSettingsItem = ({ text, action }) => (
     <TouchableOpacity
@@ -273,6 +375,8 @@ console.log(service.data.coverImage !== compareImage)
         paddingLeft: 12,
         backgroundColor: COLORS.primary,
         borderRadius: 8,
+        marginVertical: windowHeight * 0.007,
+        marginRight: windowWidth * 0.25
       }}
     >
       <Feather
@@ -293,8 +397,13 @@ console.log(service.data.coverImage !== compareImage)
     </TouchableOpacity>
   );
 
-
-
+if (isLoading) {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={Color.colorBlue} />
+    </View>
+);
+  }
 
   return (
     <ScrollView>
@@ -320,6 +429,7 @@ console.log(service.data.coverImage !== compareImage)
                 zIndex: 1
             }}
         >
+          {/* arrow with circle */}
             <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.primary} />
         </TouchableOpacity>
         
@@ -383,7 +493,7 @@ console.log(service.data.coverImage !== compareImage)
             paddingHorizontal: 20,
           }}
         >
-          
+          <View style={{ flexDirection: "column"}}>
           <Text
             style={{
               fontWeight: "bold",
@@ -394,11 +504,12 @@ console.log(service.data.coverImage !== compareImage)
           >
             Service Fee: ₱{service.data.price.min} - ₱{service.data.price.max}
           </Text>
+          
 
-          <View
+          <View  
             style={{
+              flexDirection: "row",
               borderRadius: 12,
-              backgroundColor: COLORS.gray,
             }}
           >
             {accountItems.map((item, index) => (
@@ -408,6 +519,7 @@ console.log(service.data.coverImage !== compareImage)
             ))}
           </View>
         </View>
+      </View>
       </View>
 
       <View
@@ -1088,6 +1200,65 @@ console.log(service.data.coverImage !== compareImage)
      
 
                 </Modal>
+
+                <Modal
+    visible={showPostModal}
+    animationType="slide"
+    transparent={true}
+>
+<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+    <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
+            
+    <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.02 }}>
+                                    <Text style={{
+                                            fontSize: windowWidth * 0.06,
+                                            fontWeight: '400',
+                                            marginVertical: windowHeight * 0.01,
+                                            color: Color.colorBlue,
+                                            marginLeft: windowWidth * 0.05 
+                                        }}>Create a Post</Text>
+                                    <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={closePostModal} />
+                                </View>
+            <View>
+           
+                <TextInput
+                    style={styles.input}
+                    multiline
+                    placeholder="Write your post..."
+                    textAlignVertical="top"
+                    onChangeText={(text) => setReviewText(text)}
+                    value={reviewText}
+                />
+                <TouchableOpacity style={{opacity : images && images.length === 3 ? 0.2 : 1, left: windowWidth * 0.77, bottom: windowHeight * 0.04}} onPress={handleImagePicker} disabled={images && images.length === 3}>
+                    <AntDesign name="camerao" size={24} color="gray" />
+                </TouchableOpacity>    
+            </View>
+            
+
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            {images && images.map((image, index) => (
+                <View key={index} style={{ position: 'relative' }}>
+                    <Image source={{ uri: image }} style={styles.image} />
+                    <TouchableOpacity style={styles.closeIcon} onPress={() => removeImage(index)}>
+                        <AntDesign name="closecircle" size={12} color="red" />
+                    </TouchableOpacity>
+                </View>
+            ))}
+        </View>
+            <Button
+                title="Submit"
+                onPress={handleSubmitPost}
+                filled
+                Color={Color.colorWhite}
+                style={styles.submitButton}
+                disabled={reviewText === ''}
+            />
+        </ScrollView>
+        </View>
+    </View>
+</Modal>
+
     </SafeAreaView>
     </ScrollView>
   );
@@ -1124,5 +1295,39 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.8,
     height: windowHeight * 0.07,
 },
-
+input: {
+  borderWidth: 1,
+  borderColor: 'gray',
+  borderRadius: 5,
+  padding: 10,
+  height:200,
+  maxHeight: 200,
+  width: windowWidth * 0.8,
+  alignSelf: 'center',
+  // minHeight: 200,
+},
+cameraIconContainer: {
+  position: 'absolute',
+},
+image: {
+  width: 97,
+  height: 97,
+  resizeMode: 'cover',
+  margin: 10,
+  borderRadius: 10, // Add border radius for rounded corners
+  borderWidth: 1, // Add border width for a border around the image
+  borderColor: '#ddd', // Set border color
+},
+submitButton: {
+  margin: 10,
+},
+closeIcon: {
+  position: 'absolute',
+  top: 5,
+  right: 5,
+},cameraIconContainer: {
+  position: 'absolute',
+  bottom: 30,
+  right: 15,
+},
 });

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal, TouchableWithoutFeedback, Dimensions, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal, TouchableWithoutFeedback, Dimensions, Alert, ActivityIndicator } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -15,6 +15,7 @@ const  { width, height } = Dimensions.get('window');
 export default EditProfile = ({ navigation, route }) => {
 
   const { userData, storeData } = route.params;
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!userData || !storeData ) {
     return null;
@@ -32,7 +33,7 @@ useEffect(() => {
 
 const fetchCities = async () => {
   try {
-    const response = await axios.get('http://192.168.1.17:5000/location/getCities');
+    const response = await axios.get('http://192.168.1.7:5000/location/getCities');
     if (response && response.data && response.data.data) {
       setCities(response.data.data);
       setSelectedCity(response.data.data.find(city => city.name === storeData.address.cityMunicipality));
@@ -195,6 +196,7 @@ const handleSelectBarangay = (barangay) => {
   }, [firstName, lastName, birthday, streetAddress1, streetAddress2, selectedCityName, selectedBarangay, selectedImage, selectedUri, compareImage]);
 
   const handleSaveChanges = async () => {
+    setIsLoading(true);
     try {
       const roleText = userData.role === 'Provider' ? 'providers' : 'seekers';
       const userRef = firestore().collection(roleText).doc(userData._id);
@@ -218,9 +220,10 @@ const handleSelectBarangay = (barangay) => {
         const storageRef = storage().ref().child(`profileImages/${userData._id}`);
         await storageRef.put(blob);
         const url = await storageRef.getDownloadURL();
-        await axios.patch('http://192.168.1.17:5000/user/updateImage', { userId: userData._id, url: url });
+        await axios.patch('http://192.168.1.7:5000/user/updateImage', { userId: userData._id, url: url });
       }
       console.log(`User details saved for user with ID: ${userData._id}`);
+      setIsLoading(false);
       Alert.alert('User details saved successfully');
       navigation.goBack();
     } catch (error) {
@@ -232,6 +235,14 @@ const handleSelectBarangay = (barangay) => {
   const validateFields = () => {
     return firstNameVerify && lastNameVerify && birthdayVerify && streetAddress1Verify;
   };
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
     
   return (
     <ScrollView>

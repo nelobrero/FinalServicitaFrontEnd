@@ -1,100 +1,115 @@
 
 
-import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, Dimensions, FlatList, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, Image, Dimensions, FlatList, TouchableOpacity, Alert, Pressable } from "react-native";
 import { Color, FontFamily, FontSize, Border } from "./../GlobalStyles";
+import { parse, set } from 'date-fns';
+import firestore from '@react-native-firebase/firestore';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const data = [
-  {
-    id: '1',
-    bookingId: '#236',
-    status: 'For Approval',
-    serviceName: 'Eunice Enrera Makeup Artistry - Cebu Makeup Artist',
-    seekerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
-  {
-    id: '2',
-    bookingId: '#236',
-    status: 'For Approval',
-    serviceName: "Barbie's Hair and Make up Service",
-    seekerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
-  {
-    id: '3',
-    bookingId: '#236',
-    status: 'For Approval',
-    serviceName: "Barbie's Hair and Make up Service",
-    seekerName: 'Eunice Enrera',
-    time: '1:00 AM - 2:00 AM',
-    date: 'December 25, 2023',
-    address: 'Lahug, Cebu City',
-    imageSource: require("./../assets/serviceimage1.png"),
-  },
+const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDoneChange }) => {
+
+  const [actionDone, setActionDone] = useState(false);
+
+  const data = bookingData.map((item) => ({
+    id: item.id,
+    bookingId: item.id,
+    status: item.data.status,
+    serviceName: item.serviceData.data.name,
+    providerName: `${item.providerData.name.firstName} ${item.providerData.name.lastName}`,
+    time: `${item.data.startTime} - ${item.data.endTime}`,
+    date: item.data.bookedDate,
+    convertedDate: new Date(parse(item.data.bookedDate, "MMMM d, yyyy", new Date()).setHours(item.data.startTimeValue, 0)),
+    startTimeValue: item.data.startTimeValue,
+    endTimeValue: item.data.endTimeValue,
+    location: item.data.location,
+    imageSource: item.serviceData.data.coverImage,
+    mobile: item.seekerMobile,
+    createdAt: item.data.createdAt,
+    expiresAt: item.data.expiresAt,
+    paymentMethod: item.data.paymentMethod,
+    price: item.data.price,
+    paymentId: item.data.paymentId,
+    serviceId: item.serviceData.id,
+    seekerId: item.data.seekerId,
+    providerId: item.data.providerId,
+    seekerName: `${item.seekerData.data.name.firstName} ${item.seekerData.data.name.lastName}`,
+    seekerImage: item.seekerImage,
+    providerImage: item.providerImage
+}));
   
-  // Add more data objects as needed
-];
+  const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);
 
-const BookingProvider= () => {
-  const [bookings, setBookings] = useState(data);
-  const [buttonPressed, setButtonPressed] = useState(Array(data.length).fill(false));
-  const [bookingseekerMargin, setBookingSeekerMargin] = useState(45); // Initial marginBottom
 
-  const handleAccept = (id, index) => {
-    setBookings(prevBookings => {
-      return prevBookings.map(booking => {
-        if (booking.id === id) {
-          booking.status = 'Accepted';
-        }
-        return booking;
-      });
-    });
-    setButtonPressed(prevState => {
-      const newState = [...prevState];
-      newState[index] = true;
-      return newState;
-    });
-    setBookingSeekerMargin(10); // Change marginBottom to 10
+  filteredData.sort((a, b) => {
+    const now = new Date();
+    const isDateAPast = a.convertedDate < now;
+    const isDateBPast = b.convertedDate < now;
+
+    // If one date is in the past and the other isn't, prioritize the one in the future
+    if (isDateAPast && !isDateBPast) {
+        return 1;
+    } else if (!isDateAPast && isDateBPast) {
+        return -1;
+    }
+
+    // If both dates are in the future, sort based on the dates
+    if (a.convertedDate < b.convertedDate) {
+        return -1;
+    } else if (a.convertedDate > b.convertedDate) {
+        return 1;
+    } else {
+        // If dates are equal, prioritize based on start time
+        return a.startTimeValue - b.startTimeValue;
+    }
+});
+
+  // Set Margin depending on status of each item
+
+
+  const handleAccept = async (item, userData) => {
+    // Update status of booking to 'Accepted' in firestore
+    await firestore().collection('bookings').doc(item.id).update({ status: 'Accepted' });
+    Alert.alert('Booking Accepted, Seeker will be notified.');
+    setActionDone(true);
   };
 
-  const handleDecline = (id, index) => {
-    setBookings(prevBookings => {
-      return prevBookings.map(booking => {
-        if (booking.id === id) {
-          booking.status = 'Rejected';
-        }
-        return booking;
-      });
-    });
-    setButtonPressed(prevState => {
-      const newState = [...prevState];
-      newState[index] = true;
-      return newState;
-    });
-    setBookingSeekerMargin(10); // Change marginBottom to 10
+  const handleDecline = async (item, userData) => {
+    await firestore().collection('bookings').doc(item.id).update({ status: 'Declined' });
+    Alert.alert('Booking Declined, Seeker will be notified.');
+    setActionDone(true);
   };
 
-  const renderItem = ({ item, index }) => (
+  useEffect(() => {
+    onActionDoneChange(actionDone);
+    setActionDone(false);
+  }, [actionDone]);
+
+
+  const renderItem = ({ item, index }) => {
+    
+    let bookingSeekerMargin = 45;
+    let bookingSeekerHeight = 231;
+    
+    if (item.status !== 'Pending') {
+      bookingSeekerMargin = 10;
+      bookingSeekerHeight = 196;
+    }
+
+    return (
     <View style={styles.container}>
-      <View style={[styles.bookingseeker, { marginBottom: buttonPressed[index] ? 10 : 45 }]}>
+      <View style={[styles.bookingseeker, { marginBottom: bookingSeekerMargin }]}>
         <View style={[styles.frame, styles.framePosition]}>
-          <View style={[styles.frameChild, styles.frameShadowBox, { height: buttonPressed[index] ? 196 : 231 }]} />
+          
+          <View style={[styles.frameChild, styles.frameShadowBox, { height: bookingSeekerHeight }]} />
           <View style={[styles.frameItem, styles.frameShadowBox]} />
         </View>
         <Image
           style={styles.serviceimageIcon}
           contentFit="cover"
-          source={item.imageSource}
+          source={{ uri: item.imageSource }}
         />
 
         <View style={styles.serviceWrapper}>
@@ -115,20 +130,20 @@ const BookingProvider= () => {
         </View>
         <View style={styles.bookingdetails}>
           
-
-          <Text style={[styles.address, styles.dateTypo]}>{item.address}</Text>
+        
+          <Text style={[styles.address, styles.dateTypo]}>{item.location.address}</Text>
           <Text style={[styles.date, styles.dateTypo]}>{item.date}</Text>
           <Text style={styles.time}>{item.time}</Text>
 
           
         </View>
 
-        {item.status === 'For Approval' && !buttonPressed[index] && (
+        {item.status === 'Pending' && (
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.button1} onPress={() => handleAccept(item.id, index)}>
+            <TouchableOpacity style={styles.button1} onPress={() => handleAccept(item, userData)}>
               <Text style={styles.buttonText}>Accept</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button2} onPress={() => handleDecline(item.id, index)}>
+            <TouchableOpacity style={styles.button2} onPress={() => handleDecline(item, userData)}>
               <Text style={styles.buttonText}>Decline</Text>
             </TouchableOpacity>
           </View>
@@ -137,14 +152,51 @@ const BookingProvider= () => {
       </View>
     </View>
   );
+  }
+  
+  
 
   return (
     <FlatList
-      data={bookings}
-      renderItem={renderItem}
+      data={filteredData}
+      renderItem={ ({ item }) => (
+        <Pressable onPress={() => navigation.navigate('ProviderBookingStatus', { data: {
+          bookingId: item.bookingId,
+          status: item.status,
+          serviceName: item.serviceName,
+          providerName: item.providerName,
+          time: item.time,
+          date: item.date,
+          location: item.location,
+          imageSource: item.imageSource,
+          mobile: item.mobile,
+          createdAt: item.createdAt,
+          expiresAt: item.expiresAt,
+          paymentMethod: item.paymentMethod,
+          price: item.price,
+          paymentId: item.paymentId,
+          serviceId: item.serviceId,
+          seekerId: item.seekerId,
+          providerId: item.providerId,
+          seekerName: item.seekerName,
+          seekerImage: item.seekerImage,
+          providerImage: item.providerImage,
+        },
+        userData: userData,
+        })}>
+
+        {renderItem({ item })}
+
+      </Pressable>
+      )}
       keyExtractor={item => item.id}
       contentContainerStyle={{ paddingBottom: windowHeight * 0.285, paddingTop: windowHeight * 0.02 }}
-    
+      // Take into account if there are no bookings
+      ListEmptyComponent={() => (
+        <View style={styles.container}>
+          <Text>No bookings found</Text>
+        </View>
+      )}
     />
   );
 };
@@ -308,10 +360,10 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   bookingid: {
-    left: windowWidth * 0.775,
+    left: windowWidth * 0.470,
     textAlign: "right",
-    width: 42,
-    height: 12,
+    width: windowWidth * 0.4,
+    height: windowHeight * 0.02,
   },
   status1: {
     width: 135,
@@ -339,17 +391,22 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 57,
     borderRadius: 5,
+    width: windowWidth * 0.4,
   },
   button2: {
     backgroundColor: "#7C7878",
     paddingVertical: 5,
     paddingHorizontal: 57,
     borderRadius: 5,
+    width: windowWidth * 0.4,
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: 'bold',
+    width: windowWidth * 0.4,
+    alignContent: 'center',
+    right: windowWidth * 0.015,
   },
 });
 

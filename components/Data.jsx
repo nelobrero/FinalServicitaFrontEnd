@@ -82,5 +82,27 @@ const reviewsData = [
     
   ];
 
-  export default reviewsData;
-  
+  const postsData = [
+    {
+      id: 1,
+      postImages: [
+          require('../assets/post2.jpg'),
+        ],
+      postText: 'Wasn’t able to upload this gem but this is one of my favorite makeup looks. We did this glam early in the morning so I’m making sure this look will last the whole day. I’m glad this look turned exactly how the client wants it despite asking me to do whatever I want with her glam. It is indeed a hidden spark between me and my clients. I wish I can meet someone like her in the future.',
+      date: '2024-03-13',
+      time: '10:30 AM',
+    },
+    {
+      id: 2,
+      postImages:  [
+          require('../assets/post3.jpg'),
+          require('../assets/post4.jpg'),
+          require('../assets/post5.jpg'),
+        ],
+      postText: 'Had fun glamming youu',
+      date: '2024-03-15',
+      time: '12:45 PM',
+    },
+  ];
+
+  export { reviewsData, postsData };

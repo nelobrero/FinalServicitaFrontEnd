@@ -1,5 +1,6 @@
 export default {
   "expo": {
+    "scheme": "servicita",
     "name": "FrontEnd",
     "slug": "FrontEnd",
     "version": "1.0.0",
@@ -24,6 +25,11 @@ export default {
       },
       "package": "com.xdhunter6.FrontEnd",
       "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCG2UV8weM9nFuWYQNkEbG9f8wwITMiCRk"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -45,7 +51,19 @@ export default {
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ], [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ], [
+        "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+      }
+    ]
     ],
     "extra": {
       "eas": {

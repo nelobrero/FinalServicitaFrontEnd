@@ -1,12 +1,14 @@
 
 import { Button, NativeBaseProvider } from "native-base";
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, Text, Image} from "react-native";
-import axios from "axios";
-import { MaterialIcons } from "@expo/vector-icons";
-import { COLORS } from "../../constants";
-import { TouchableOpacity } from "react-native-gesture-handler";  
+import { View, StyleSheet, Dimensions, Text, Image, ScrollView, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { MaterialIcons } from '@expo/vector-icons';
+import { COLORS } from "./../../constants/theme";
+import axios from 'axios';
+import * as WebBrowser from 'expo-web-browser';
+
 const { width, height } = Dimensions.get("window");
 
 export default PaymentScreen = ({navigation, route}) => {
@@ -16,8 +18,6 @@ export default PaymentScreen = ({navigation, route}) => {
   const [paymayaClicked, setPaymayaClicked] = useState(false);
   const [grabpayClicked, setGrabPayClicked] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [paymentUrl, setPaymentUrl] = useState(null);
-
 
   const handleGcashClick = () => {
     setGcashClicked(!gcashClicked);
@@ -42,62 +42,83 @@ export default PaymentScreen = ({navigation, route}) => {
     if (gcashClicked) {
       setPaymentMethod("gcash");
     } else if (paymayaClicked) {
-      setPaymentMethod("paymaya_wallet");
+      setPaymentMethod("paymaya");
     } else if (grabpayClicked) {
-      setPaymentMethod("grabpay_ph");
+      setPaymentMethod("grab_pay");
     } else {
       setPaymentMethod("");
     }
     
   }, [gcashClicked, paymayaClicked, grabpayClicked]);
 
-  const handleContinue = async () => {
-    const finalBookingData = {
-      ...bookingData,
-      paymentMethod: paymentMethod
-    }
-    try {
-      const response = await axios.post("http://192.168.1.17:5000/payment/initiatePayment", { value: bookingData.price, type: paymentMethod });
-      if (response.status === 200) {
-        setPaymentUrl(response.data.action.url);
-        console.log("Payment URL:", response.data.action.url);
-      } else {
-        // Handle other cases (e.g., payment initiation failed)
+ 
+
+
+  // const _openWebBrowserAsync = async () => {
+  //   let result = await WebBrowser.openBrowserAsync('https://www.google.com');
+  //   console.log(result);
+  // };
+
+
+
+    const handleContinue = async () => {
+    
+      const paymentData = {
+        type: paymentMethod,
+        amount: bookingData.price,
+        redirect: {
+          success: "http://192.168.1.7:5000/payment/success",
+          failed: "http://192.168.1.7:5000/payment/failed",
+        }
+      }
+      try {
+        const response = await axios.post('http://192.168.1.7:5000/payment/initiatePayment', paymentData);
+        const paymentId = response.data.data.id;
+        const result = await WebBrowser.openAuthSessionAsync(response.data.data.redirect.checkout_url);
+        if (result.type === 'dismiss') {
+          setTimeout(() => {
+            navigation.navigate('SplashScreen', {bookingData: bookingData, paymentMethod: paymentMethod, paymentId: paymentId});
+          }, 1000);
+        }
+
+  
+      } catch (error) {
+        console.error("Payment initiation failed:", error);
+
         alert("Payment initiation failed. Please try again later.");
       }
-    } catch (error) {
-      console.error("Payment initiation failed:", error);
-      alert("Payment initiation failed. Please try again later.");
-    }
   }
+
   return (
+    <ScrollView>
     <NativeBaseProvider>
         <SafeAreaView>
-  
-      <View style={[styles.container, { height: height / 2 }]}>
+        
+      <View style={[styles.container, { height: height / 1.85 }]}>
       <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 marginTop: 20,
+                right: width * 0.4,
                 position: 'absolute',
-                zIndex: 1,
-                right: width * 0.4
+                zIndex: 1
             }}
         >
             <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
-            </TouchableOpacity>
+        </TouchableOpacity>
         <View style={styles.textContainer}>
           <Text style={styles.text}>
-            Start {"\n"}
-            Booking...
+          Payment {"\n"}
+          Methods...
           </Text>
         </View>
         <View style={styles.container2}>
-          <Text style={styles.text2}>Choose Payment Method</Text>
+        <View style={styles.container3}>
+      </View>
+          
           <View style={styles.buttonContainer2}>
-            
             <Button
               style={[
                 styles.button2,
@@ -141,20 +162,25 @@ export default PaymentScreen = ({navigation, route}) => {
           </View>
         </View>
       </View>
+      <View style={{alignItems: 'center', top: height * 0.15}}>
+        <Text style={styles.text2}>E-wallet: {paymentMethod === "" ? "None" : paymentMethod === "gcash" ? "GCash" : paymentMethod === "paymaya" ? "Paymaya" : "GrabPay"}</Text>
+      </View>
+      <View style={styles.buttonContainer}>
 
-          <View style={styles.buttonContainer}>
-            <Button 
-              onPress={handleContinue}
-              style={[styles.button, {opacity: !(gcashClicked ^ paymayaClicked ^ grabpayClicked) ? 0.5 : 1}]}
-              disabled={!(gcashClicked ^ paymayaClicked ^ grabpayClicked)}
-            >
-              <Text style={styles.buttonText}>Confirm Booking</Text>
-            </Button>
-          </View>
-
-  
+        <Button 
+        onPress={()=>handleContinue()}
+        style={styles.button}
+        opacity={!(gcashClicked ^ paymayaClicked ^ grabpayClicked) ? 0.5 : 1}
+        disabled={!(gcashClicked ^ paymayaClicked ^ grabpayClicked)}
+        >
+          <Text style={styles.buttonText}>Confirm Booking</Text>
+        </Button>
+      </View>
+      
     </SafeAreaView>
     </NativeBaseProvider>
+    </ScrollView>
+
   );
 };
 
@@ -175,22 +201,23 @@ const styles = StyleSheet.create({
     color: "white",
   },
 
-  text2: {
-    fontSize: 20,
-    marginTop: 10,
+  text1: {
+    fontSize: 14,
     color: "black",
-    justifyContent: "center"
+  },
+  text2: {
+    fontSize: 18,
+    marginTop: 20,
+    color: "black",
   },
 
   container2: {
+    alignItems:'center',
     backgroundColor: "white",
     width: 330,
-    height: 450,
+    height: height * 0.43,
     position: "absolute",
     top: 190,
-    justifyContent: "center",
-    alignContent: "center",
-    alignItems: "center",
     borderRadius: 5,
     shadowColor: "#000",
     shadowOffset: {
@@ -205,11 +232,12 @@ const styles = StyleSheet.create({
 
   buttonContainer: {
     alignItems: "center",
-    marginTop: height * 0.4,
+    
   },
   buttonContainer2: {
     alignItems: "center",
-    marginTop: 5,
+    position: "absolute",
+    marginTop: 20,
   },
   
   button: {
@@ -217,6 +245,7 @@ const styles = StyleSheet.create({
     width: 330,
     height: 50,
     borderRadius: 5,
+    marginTop: height * 0.25,
   },
   buttonClicked: {
     backgroundColor: "white",
@@ -225,8 +254,8 @@ const styles = StyleSheet.create({
 
   button2: {
     backgroundColor: "white",
-    width: 250,
-    height: 88,
+    width: 210,
+    height: 75,
     margin: 10,
     borderRadius: 5,
     justifyContent: "center", // Center align content vertically
@@ -240,31 +269,30 @@ const styles = StyleSheet.create({
   },
 
   buttonImage: {
-    width: 245,
-    height: 255,
+    width: 200,
+    height: 70,
     resizeMode: "contain", // or 'contain'
     
   },
 
   buttonImageMaya: {
-    width: 245,
-    height: 80,
+    width: 200,
+    height: 65,
     resizeMode: "cover", // or 'contain'
   },
 
   buttonImage2: {
-    width: 245,
-    height: 85,
+    width: 200,
+    height: 70,
     resizeMode: "cover", // or 'contain'
   },
 
   button3: {
     backgroundColor: "white",
-    width: 250,
-    height: 88,
+    width: 210,
+    height: 75,
     margin: 10,
     borderRadius: 5,
-    fontWeight:"bold",
     justifyContent: "center", // Center align content vertically
     alignItems: "center", // Center align content horizontally
     overflow: "hidden", // Ensure the image stays within button boundaries
@@ -277,11 +305,10 @@ const styles = StyleSheet.create({
 
   button4: {
     backgroundColor: "white",
-    width: 250,
-    height: 90,
+    width: 210,
+    height: 75,
     margin: 10,
-    borderRadius: 10,
-    fontWeight:"bold",
+    borderRadius: 5,
     justifyContent: "center", // Center align content vertically
     alignItems: "center", // Center align content horizontally
     overflow: "hidden", // Ensure the image stays within button boundaries
@@ -300,5 +327,22 @@ const styles = StyleSheet.create({
   },
   buttonTextClicked: {
     color: "#07374D",
+  },
+
+  container3: {
+    paddingHorizontal: 20,
+    alignItems:'center',
+  },
+  input3: {
+    justifyContent:'center',
+    alignItems:'center',
+    margin: 10,
+    width: 300,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    position: 'absolute',
   },
 });

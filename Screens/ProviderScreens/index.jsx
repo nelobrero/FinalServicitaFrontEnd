@@ -1,7 +1,7 @@
 import Create from'./Create'
 import Booking from './ProviderBookingScreen'
 import Home from './Home'
-import Message from './Message'
+import Message from './../MessagePage'
 import Profile from './Profile'
 import EditProfile from './../EditProfile'
 

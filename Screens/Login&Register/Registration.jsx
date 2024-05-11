@@ -191,7 +191,7 @@ export default function RegisterPage ({navigation, route, props}) {
             const userData = {
                 email: email,
             }
-            const res = await axios.post("http://192.168.1.17:5000/user/getUserDetailsByEmail", userData);
+            const res = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", userData);
             if (res.data.status === 'SUCCESS') {
                 return true;
             }
@@ -217,8 +217,9 @@ export default function RegisterPage ({navigation, route, props}) {
         
         const userData = {
             email: email,
+            name: `${firstName} ${lastName}`,
           }
-        axios.post("http://192.168.1.17:5000/email_verification_otp/sendEmail", userData).then((res) => {
+        axios.post("http://192.168.1.7:5000/email_verification_otp/sendEmail", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'PENDING') {
             setModalVisible(true);
@@ -253,7 +254,7 @@ export default function RegisterPage ({navigation, route, props}) {
             email: email,
             otp: code.join(''),
         }
-          axios.post("http://192.168.1.17:5000/email_verification_otp/verifyOTP", userData).then((res) => {
+          axios.post("http://192.168.1.7:5000/email_verification_otp/verifyOTP", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'SUCCESS') {
             setModalVisible(false);
@@ -274,8 +275,9 @@ export default function RegisterPage ({navigation, route, props}) {
         setTimer(300);
         const userData = {
             email: email,
+            name: `${firstName} ${lastName}`,
           }
-        axios.post("http://192.168.1.17:5000/email_verification_otp/sendEmail", userData).then((res) => {
+        axios.post("http://192.168.1.7:5000/email_verification_otp/sendEmail", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'PENDING') {
             fetchServerTime();
@@ -291,7 +293,7 @@ export default function RegisterPage ({navigation, route, props}) {
     const fetchServerTime = async () => {
         try {
             console.log('Fetching server time...');
-            const response = await axios.get(`http://192.168.1.17:5000/email_verification_otp/getRemainingCurrentTime/${email}`);
+            const response = await axios.get(`http://192.168.1.7:5000/email_verification_otp/getRemainingCurrentTime/${email}`);
             const remainingTime = Math.floor(response.data.remainingTime / 1000);
             if (remainingTime <= 0) {
                 setTimer(0);

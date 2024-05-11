@@ -22,13 +22,13 @@ export default HomePage = ({navigation, route}) => {
 
   async function getUserData() {
     try {
-      await axios.post("http://192.168.1.17:5000/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
-        setUserData(response.data);
-        console.log("User Data: ", response.data);
+      await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
+        setUserData(response.data.data);
       }
       );
 
     } catch (error) {
+      AsyncStorage.removeItem('isLoggedIn');
       console.error('Error getting user data from MongoDB:', error);
     }
   }
