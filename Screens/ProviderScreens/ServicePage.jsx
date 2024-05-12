@@ -4,14 +4,15 @@ import React, { useState, useEffect } from "react";
 import { COLORS, FONTS } from "./../../constants/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { MaterialIcons, AntDesign, Feather, FontAwesome, Entypo } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign, Feather, FontAwesome, Entypo, Ionicons } from "@expo/vector-icons";
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import * as ImagePicker from "expo-image-picker";
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import axios from "axios";
 import Button from './../../components/Button';
-import { set } from "date-fns";
+import { Video } from "expo-av";
+import { askForCameraPermission, askForLibraryPermission } from "./../../helper/helperFunction";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -47,6 +48,8 @@ if (!service || !storeData || !userData) {
     const priceGap = 300
     const [isChanged, setIsChanged] = useState(false);
     const [images, setImages] = useState(null);
+    const [modalOptionsVisible, setModalOptionsVisible] = useState(false);
+    const [modalOptionssVisible, setModalOptionssVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const validateName = (name, setName, setNameVerify, limit) => {
@@ -217,6 +220,8 @@ const appeal = async () => {
 }
 
 const handleImageSelection = async () => {
+  const Permission = await askForLibraryPermission();
+  if (Permission) {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
@@ -231,7 +236,30 @@ const handleImageSelection = async () => {
     setUpdatedImage(result)
     
   }
+}
 };
+
+const handleCamera = async () => {
+  const Permission = await askForCameraPermission();
+  if (Permission) {
+    let result = await ImagePicker.launchCameraAsync(
+      {
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+      }
+
+    );
+
+    if (!result.canceled) {
+      setSelectedUri(result.assets[0].uri);
+      setCompareImage(`result.assets[0].uri`);
+      setUpdatedImage(result)
+    }
+
+  }
+}
 
 const closePostModal = () => {
   setImages(null);
@@ -240,18 +268,41 @@ const closePostModal = () => {
 };
 
 const handleImagePicker = async () => {
+  const Permission = await askForLibraryPermission();
+  if (Permission) {
   let result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: ImagePicker.MediaTypeOptions.All,
     allowsEditing: true,
     aspect: [4, 4],
     quality: 1,
 
   });
-  console.log(result.assets[0].uri);
+  if (!result.canceled) {
+      setImages(images ? [...images, result.assets[0].uri] : [result.assets[0].uri]);
+
+    }
+  }
+};
+
+const handleCameraPicker = async () => {
+  const Permission = await askForCameraPermission();
+  if (Permission) {
+  let result = await ImagePicker.launchCameraAsync(
+    {
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    }
+
+  );
+
   if (!result.canceled) {
       setImages(images ? [...images, result.assets[0].uri] : [result.assets[0].uri]);
   }
+}
 };
+
 const removeImage = (index) => {
   const newImages = images.filter((image, i) => i !== index);
   if (newImages.length === 0) {
@@ -696,7 +747,7 @@ if (isLoading) {
                             </View>
 
                             <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
-                                <TouchableOpacity onPress={handleImageSelection}>
+                                <TouchableOpacity onPress={() => setModalOptionsVisible(true)}>
                                 <View style={{
                                     height: windowHeight * 0.2,
                                     width: windowHeight * 0.2,
@@ -1230,7 +1281,7 @@ if (isLoading) {
                     onChangeText={(text) => setReviewText(text)}
                     value={reviewText}
                 />
-                <TouchableOpacity style={{opacity : images && images.length === 3 ? 0.2 : 1, left: windowWidth * 0.77, bottom: windowHeight * 0.04}} onPress={handleImagePicker} disabled={images && images.length === 3}>
+                <TouchableOpacity style={{opacity : images && images.length === 3 ? 0.2 : 1, left: windowWidth * 0.77, bottom: windowHeight * 0.04}} onPress={ () => setModalOptionssVisible(true)} disabled={images && images.length === 3}>
                     <AntDesign name="camerao" size={24} color="gray" />
                 </TouchableOpacity>    
             </View>
@@ -1239,7 +1290,16 @@ if (isLoading) {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {images && images.map((image, index) => (
                 <View key={index} style={{ position: 'relative' }}>
-                    <Image source={{ uri: image }} style={styles.image} />
+                     {image.includes('.mp4') ? <Video
+                    source={{ uri: image }}
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={true}
+                    shouldPlay
+                    isLooping
+                    style={styles.image}
+                />
+                : <Image source={{ uri: image }} style={styles.image} />}
                     <TouchableOpacity style={styles.closeIcon} onPress={() => removeImage(index)}>
                         <AntDesign name="closecircle" size={12} color="red" />
                     </TouchableOpacity>
@@ -1258,7 +1318,86 @@ if (isLoading) {
         </View>
     </View>
 </Modal>
-
+<Modal animationType="slide" transparent={true} visible={modalOptionsVisible}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <Pressable style={styles.closeButtons} onPress={() => setModalOptionsVisible(false)}>
+            <Ionicons name="close-circle" size={36} color="white" />
+          </Pressable>
+          <View
+            style={{
+              backgroundColor: "white",
+              width: "80%",
+              padding: 16,
+              borderRadius: 16,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleCamera}
+            >
+              <Text>Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleImageSelection}
+            >
+              <Text>Photo Library</Text>
+            </TouchableOpacity>
+            
+          </View>
+        </View>
+      </Modal>
+      <Modal animationType="slide" transparent={true} visible={modalOptionssVisible}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <Pressable style={styles.closeButtons} onPress={() => setModalOptionssVisible(false)}>
+            <Ionicons name="close-circle" size={36} color="white" />
+          </Pressable>
+          <View
+            style={{
+              backgroundColor: "white",
+              width: "80%",
+              padding: 16,
+              borderRadius: 16,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleCameraPicker}
+            >
+              <Text>Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleImagePicker}
+            >
+              <Text>Photo Library</Text>
+            </TouchableOpacity>
+            
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
     </ScrollView>
   );
@@ -1329,5 +1468,10 @@ closeIcon: {
   position: 'absolute',
   bottom: 30,
   right: 15,
+},
+closeButtons: {
+  position: 'absolute',
+  top: windowHeight * 0.02,
+  right: 20,
 },
 });

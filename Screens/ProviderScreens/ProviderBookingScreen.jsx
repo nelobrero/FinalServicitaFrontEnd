@@ -28,7 +28,7 @@ export default function ProviderBookingScreen({ navigation, route }) {
     try {
       const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail })
       setUserData(result.data.data);
-      return { id: result.data.data._id, image: result.data.data.profileImage };
+      return { id: result.data.data._id, image: result.data.data.profileImage, mobile: result.data.data.mobile };
     } catch (error) {
       console.error('Error getting user data from MongoDB:', error);
     }
@@ -58,7 +58,7 @@ export default function ProviderBookingScreen({ navigation, route }) {
               doc.data().status = 'Expired';
             }
             
-            bookings.push({ id: doc.id, data: doc.data(), serviceData: serviceData, providerData: providerData, seekerMobile: result.data.data.mobile, seekerData: seekerData, seekerImage: result.data.data.profileImage, providerImage: userId.image });
+            bookings.push({ id: doc.id, data: doc.data(), serviceData: serviceData, providerData: providerData, seekerMobile: result.data.data.mobile, seekerData: seekerData, seekerImage: result.data.data.profileImage, providerImage: userId.image, providerMobile: userId.mobile });
         }
         
         setBookingData(bookings);

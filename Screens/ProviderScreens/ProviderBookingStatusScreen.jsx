@@ -9,6 +9,7 @@ import MapPage from './../MapPage';
 import RealTimeInfoSeeker from "../../components/RealTimeInfoSeeker";
 import firestore from '@react-native-firebase/firestore';
 import axios from 'axios';
+import { createdAt } from 'expo-updates';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -118,8 +119,10 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       usersOnline: { seeker: true, provider: true },
       usersFullName: { seeker: data.seekerName, provider: data.providerName},
       usersImage: { seeker: data.seekerImage, provider: data.providerImage},
+      usersNumbers: { seeker: data.seekerMobile, provider: data.providerMobile },
       lastMessage: '',
       lastSeen: { seeker: false, provider: true },
+      createdAt: new Date(),
       lastMessageTime: new Date(),
       messages: [],
     }
@@ -127,10 +130,10 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messageData);
-          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}` });
+          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile });  
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id });
+            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile });
           });
         }
       }
@@ -317,7 +320,7 @@ Date`}</Text>
         <Text style={[styles.booking, styles.bookingPosition]}>
     {`${data.bookingId}
 ${data.seekerName}
-${data.mobile}`}
+${data.seekerMobile}`}
   </Text>
 
     <TouchableOpacity style={[styles.bookings, styles.bookingPositions]} onPress={() => navigation.navigate('ProviderBookingPage', { locationData: { latitude: data.location.latitude, longitude: data.location.longitude } })}>
@@ -433,7 +436,7 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
   
     <View style={styles.container01}>
       <View style={styles.seekerInfo}>
-        <RealTimeInfoSeeker seekerName={data.seekerName} location={data.location.address} seekerImage={data.seekerImage} />
+        <RealTimeInfoSeeker seekerName={data.seekerName} location={data.location.address} seekerImage={data.seekerImage} data={data} />
       </View>
     </View>
           

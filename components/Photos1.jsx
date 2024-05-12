@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Image, Pressable, Modal, Dimensions, Text, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import axios, { all } from 'axios';
+import axios from 'axios';
 import Swiper from 'react-native-swiper';
+import { Video } from 'expo-av';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -13,6 +14,7 @@ const ReviewsWithNonEmptyImages = ({ serviceId }) => {
   const [reviewsData, setReviewsData] = useState(null);
   const [postsData, setPostsData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const videoRef = React.useRef(null);
 
   const openModal = (index) => {
     setSelectedIndex(index);
@@ -67,8 +69,23 @@ const ReviewsWithNonEmptyImages = ({ serviceId }) => {
         <FlatList
           data={allImages}
           renderItem={({ item, index }) => (
-            <Pressable onPress={() => openModal(index)}>
-              <Image source={{ uri: item }} style={styles.reviewImage} />
+            <Pressable onPress={() => {openModal(index)}}>
+
+              {
+                item.includes('.mp4') ?
+                <> 
+                <Video
+                  source={{ uri: item }}
+                  style={styles.reviewImage}
+                  resizeMode='cover'
+                />
+  
+
+                <Ionicons name="play-circle" size={36} color="white" style={{position: 'absolute', top: '50%', left: '50%', marginLeft: -18, marginTop: -18}} />
+                </> : <Image source={{ uri: item }} style={styles.reviewImage} />
+              }
+
+              
             </Pressable>
           )}
           keyExtractor={(item, index) => index.toString()}
@@ -85,11 +102,25 @@ const ReviewsWithNonEmptyImages = ({ serviceId }) => {
             index={selectedIndex}
             loop={false}
             showsPagination={false}
-            onIndexChanged={(index) => setSelectedIndex(index)}
+            onIndexChanged={(index) => {
+              setSelectedIndex(index)
+              videoRef.current.pauseAsync();
+            }}
           >
             {allImages.map((image, index) => (
               <View key={index} style={styles.swiperImageContainer}>
-                <Image source={{ uri: image }} style={styles.swiperImage} />
+
+                {image.includes('.mp4') ?
+                <Video
+                  source={{ uri: image }}
+                  style={styles.swiperImage}
+                  resizeMode='cover'
+                  ref={videoRef}
+                  useNativeControls
+                /> : <Image source={{ uri: image }} style={styles.swiperImage} />
+              }
+
+     
               </View>
             ))}
           </Swiper>

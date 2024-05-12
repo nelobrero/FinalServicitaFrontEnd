@@ -49,7 +49,9 @@ export default {
       ], "expo-tracking-transparency", [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
+          "cameraPermission": "The app needs access to your camera to take photos.",
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "microphonePermission": "The app needs access to your microphone to take videos."
         }
       ], [
         "expo-camera",
@@ -62,6 +64,11 @@ export default {
         "expo-location",
       {
         "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+      }
+    ], [
+      "expo-av",
+      {
+        "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
       }
     ]
     ],

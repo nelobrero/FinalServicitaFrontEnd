@@ -3,6 +3,7 @@ import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import ReviewItem from '../components/ReviewParent';
 
+
 const Reviews = ({ serviceId }) => {
   const [reviewsData, setReviewsData] = useState(null);
   const [loading, setLoading] = useState(true);

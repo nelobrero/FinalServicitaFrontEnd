@@ -1,14 +1,15 @@
-import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal, TouchableWithoutFeedback, Dimensions, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal, TouchableWithoutFeedback, Dimensions, Alert, ActivityIndicator, Pressable } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { COLORS, FONTS } from "../constants/theme"
-import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
 import DatePicker from "react-native-modern-datepicker";
 import { errorText } from "../GlobalStyles";
 import axios from "axios";
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
+import { askForCameraPermission, askForLibraryPermission } from "../helper/helperFunction";
 
 
 const  { width, height } = Dimensions.get('window');
@@ -55,7 +56,7 @@ const [updatedImage, setUpdatedImage] = useState(null);
   const [streetAddress1, setStreetAddress1] = useState(storeData.address.streetAddress1);
   const [streetAddress1Verify, setStreetAddress1Verify] = useState(true) ;
   const [streetAddress2, setStreetAddress2] = useState(storeData.address.streetAddress2);
-  
+  const [modalOptionsVisible, setModalOptionsVisible] = useState(false);
   const [selectedCityName, setSelectedCityName] = useState(storeData.address.cityMunicipality);
   const [showSelectCity, setShowSelectCity] = useState(false);
   const [searchQueryCity, setSearchQueryCity] = useState('');
@@ -112,6 +113,8 @@ const handleSelectBarangay = (barangay) => {
   };
 
   const handleImageSelection = async () => {
+    const permission = await askForLibraryPermission();
+    if (permission) {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -125,7 +128,30 @@ const handleSelectBarangay = (barangay) => {
       setCompareImage(`result.assets[0].uri`);
       setUpdatedImage(result)
     }
+  }
   };
+
+  const handleCamera = async () => {
+    const Permission = await askForCameraPermission();
+    if (Permission) {
+      let result = await ImagePicker.launchCameraAsync(
+        {
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 4],
+          quality: 1,
+        }
+
+      );
+
+      if (!result.canceled) {
+        setSelectedUri(result.assets[0].uri);
+        setCompareImage(`result.assets[0].uri`);
+        setUpdatedImage(result)
+      }
+
+    }
+  }
 
   function renderDatePicker() {
     return (
@@ -284,7 +310,7 @@ const handleSelectBarangay = (barangay) => {
               marginVertical: 22,
             }}
           >
-            <TouchableOpacity onPress={handleImageSelection}>
+            <TouchableOpacity onPress={() => setModalOptionsVisible(true)}>
               <Image
                 source={{ uri: selectedUri ? selectedUri : selectedImage}}
                 style={{
@@ -566,7 +592,48 @@ const handleSelectBarangay = (barangay) => {
                         </View>
                     </TouchableWithoutFeedback>
                 </Modal>
-
+                <Modal animationType="slide" transparent={true} visible={modalOptionsVisible}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <Pressable style={{position: 'absolute',
+  top: windowHeight * 0.02,
+  right: 20,}} onPress={() => setModalOptionsVisible(false)}>
+            <Ionicons name="close-circle" size={36} color="white" />
+          </Pressable>
+          <View
+            style={{
+              backgroundColor: "white",
+              width: "80%",
+              padding: 16,
+              borderRadius: 16,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleCamera}
+            >
+              <Text>Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleImageSelection}
+            >
+              <Text>Photo Library</Text>
+            </TouchableOpacity>
+            
+          </View>
+        </View>
+      </Modal>
 
           <TouchableOpacity
             style={{

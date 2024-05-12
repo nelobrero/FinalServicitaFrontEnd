@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Pressable, Image, TouchableOpacity,  TextInput, Modal, ScrollView, ActivityIndicator } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import firestore from '@react-native-firebase/firestore';
 import Button from './../../components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +11,8 @@ import * as ImagePicker from 'expo-image-picker';
 import RealTimeInfoProvider from "../../components/RealTimeInfoProvider";
 import axios from 'axios';
 import MapPage from './../MapPage';
-
+import { askForCameraPermission, askForLibraryPermission } from "./../../helper/helperFunction";
+import { Video } from 'expo-av';
 
 
 
@@ -36,6 +37,7 @@ function SeekerBookingStatusScreen({ navigation, route }) {
     const [hasReported, setHasReported] = useState(null);
     const [hasReviewed, setHasReviewed] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [modalOptionssVisible, setModalOptionssVisible] = useState(false);
 
     const finalServiceData = {
       id: serviceData.id,
@@ -131,18 +133,40 @@ function SeekerBookingStatusScreen({ navigation, route }) {
     setModalVisible1(true);
   };
   const handleImagePicker = async () => {
+    const Permission = await askForLibraryPermission();
+    if (Permission) {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 4],
       quality: 1,
-
     });
-    console.log(result.assets[0].uri);
     if (!result.canceled) {
         setImages(images ? [...images, result.assets[0].uri] : [result.assets[0].uri]);
     }
+  }
 };
+
+const handleCameraPicker = async () => {
+  const Permission = await askForCameraPermission();
+  if (Permission) {
+  let result = await ImagePicker.launchCameraAsync(
+    {
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    }
+
+  );
+
+  if (!result.canceled) {
+      setImages(images ? [...images, result.assets[0].uri] : [result.assets[0].uri]);
+  }
+}
+};
+
+
   const removeImage = (index) => {
     const newImages = images.filter((image, i) => i !== index);
     if (newImages.length === 0) {
@@ -158,8 +182,10 @@ const messageProvider = () => {
     usersOnline: { seeker: true, provider: true },
     usersFullName: { seeker: data.seekerName, provider: data.providerName},
     usersImage: { seeker: data.seekerImage, provider: data.providerImage},
+    usersNumbers: { seeker: data.seekerMobile, provider: data.providerMobile},
     lastMessage: '',
     lastSeen: { seeker: false, provider: true },
+    createdAt: new Date(),
     lastMessageTime: new Date(),
     messages: [],
   }
@@ -167,10 +193,10 @@ const messageProvider = () => {
     firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
       if (querySnapshot.empty) {
         firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messageData);
-        navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}` });
+        navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile });
       } else {
         querySnapshot.forEach((doc) => {
-          navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id });
+          navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile });
         });
       }
     }
@@ -332,7 +358,7 @@ Date
 Time`}</Text>
         <Text style={[styles.booking, styles.bookingPosition]}>{`${data.bookingId}
 ${data.providerName}
-${data.mobile}
+${data.providerMobile}
 ${data.location.address}
 ${data.date}
 ${data.time}
@@ -440,7 +466,7 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
 
           <View style={styles.container01}>
             <View style={styles.providerInfo}>
-              <RealTimeInfoProvider providerName={data.providerName} role="Seeker" providerImage={data.providerImage} location={data.location.address} />
+              <RealTimeInfoProvider providerName={data.providerName} providerImage={data.providerImage} location={data.location.address} data={data} />
             </View>
           </View>
 
@@ -574,7 +600,7 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
                     onChangeText={(text) => setReviewText(text)}
                     value={reviewText}
                 />
-                <TouchableOpacity style={[styles.cameraIconContainer, {opacity : images && images.length === 3 ? 0.2 : 1}]} onPress={handleImagePicker} disabled={images && images.length === 3}>
+                <TouchableOpacity style={[styles.cameraIconContainer, {opacity : images && images.length === 3 ? 0.2 : 1}]} onPress={() => setModalOptionssVisible(true)} disabled={images && images.length === 3}>
                     <AntDesign name="camerao" size={24} color="gray" />
                 </TouchableOpacity>
             </View>
@@ -583,8 +609,18 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {images && images.map((image, index) => (
                 <View key={index} style={{ position: 'relative' }}>
-                    <Image source={{ uri: image }} style={styles.image} />
-                    {/* Put a circle */}
+                
+                  {image.includes('.mp4') ? <Video
+                    source={{ uri: image }}
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={true}
+                    shouldPlay
+                    isLooping
+                    style={styles.image}
+                />
+                : <Image source={{ uri: image }} style={styles.image} />}
+
                     <TouchableOpacity style={styles.closeIcon} onPress={() => removeImage(index)}>
                         <AntDesign name="closecircle" size={12} color="red" />
                     </TouchableOpacity>
@@ -621,7 +657,46 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
         </View>
     </View>
 </Modal>
-
+<Modal animationType="slide" transparent={true} visible={modalOptionssVisible}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <Pressable style={styles.closeButtons} onPress={() => setModalOptionssVisible(false)}>
+            <Ionicons name="close-circle" size={36} color="white" />
+          </Pressable>
+          <View
+            style={{
+              backgroundColor: "white",
+              width: "80%",
+              padding: 16,
+              borderRadius: 16,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleCameraPicker}
+            >
+              <Text>Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                padding: 16,
+              }}
+              onPress={handleImagePicker}
+            >
+              <Text>Photo Library</Text>
+            </TouchableOpacity>
+            
+          </View>
+        </View>
+      </Modal>
     
     </View>
 
@@ -1214,6 +1289,11 @@ servicitime: {
   fontStyle: 'italic',
   position: "absolute", 
   top: windowHeight * 0.565, 
+},
+closeButtons: {
+  position: 'absolute',
+  top: windowHeight * 0.02,
+  right: 20,
 },
 });
   

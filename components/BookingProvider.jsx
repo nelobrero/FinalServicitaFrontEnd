@@ -26,7 +26,7 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
     endTimeValue: item.data.endTimeValue,
     location: item.data.location,
     imageSource: item.serviceData.data.coverImage,
-    mobile: item.seekerMobile,
+    seekerMobile: item.seekerMobile,
     createdAt: item.data.createdAt,
     expiresAt: item.data.expiresAt,
     paymentMethod: item.data.paymentMethod,
@@ -37,7 +37,8 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
     providerId: item.data.providerId,
     seekerName: `${item.seekerData.data.name.firstName} ${item.seekerData.data.name.lastName}`,
     seekerImage: item.seekerImage,
-    providerImage: item.providerImage
+    providerImage: item.providerImage,
+    providerMobile: item.providerMobile
 }));
   
   const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);
@@ -169,7 +170,6 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
           date: item.date,
           location: item.location,
           imageSource: item.imageSource,
-          mobile: item.mobile,
           createdAt: item.createdAt,
           expiresAt: item.expiresAt,
           paymentMethod: item.paymentMethod,
@@ -181,6 +181,8 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
           seekerName: item.seekerName,
           seekerImage: item.seekerImage,
           providerImage: item.providerImage,
+          seekerMobile: item.seekerMobile,
+          providerMobile: item.providerMobile,
         },
         userData: userData,
         })}>

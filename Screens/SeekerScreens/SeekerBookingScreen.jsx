@@ -31,7 +31,7 @@ export default function SeekerBookingScreen({ navigation, route }) {
     try {
       const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail })
       setUserData(result.data.data);
-      return { id: result.data.data._id, image: result.data.data.profileImage };
+      return { id: result.data.data._id, image: result.data.data.profileImage, mobile: result.data.data.mobile };
     } catch (error) {
       console.error('Error getting user data from MongoDB:', error);
     }
@@ -47,7 +47,7 @@ export default function SeekerBookingScreen({ navigation, route }) {
         for (const doc of snapshot.docs) {
             
             const seekerSnapshot = await firestore().collection('seekers').doc(doc.data().seekerId).get();
-            const seekerData = { image: userId.image, data: seekerSnapshot.data()}
+            const seekerData = { image: userId.image, data: seekerSnapshot.data(), mobile: userId.mobile }
             const serviceSnapshot = await firestore().collection('services').doc(doc.data().serviceId).get();
             const serviceData = { id: serviceSnapshot.id, data: serviceSnapshot.data()}
             const providerSnapshot = await firestore().collection('providers').doc(doc.data().providerId).get();

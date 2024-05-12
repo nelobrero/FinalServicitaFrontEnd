@@ -1,13 +1,56 @@
 import * as React from "react";
-import { StyleSheet, View, Text, Image, Dimensions } from "react-native";
+import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, Linking, Platform } from "react-native";
 import { Border, FontFamily, Color, FontSize } from "../GlobalStyles";
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import firestore from '@react-native-firebase/firestore';
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height
 
 
-const RealTimeInfoSeeker = ({seekerName, location, seekerImage}) => {
+const RealTimeInfoSeeker = ({seekerName, location, seekerImage, data}) => {
+
+  const messageSeeker = () => {
+    const messageData = {
+      users: [data.seekerId, data.providerId],
+      usersOnline: { seeker: true, provider: true },
+      usersFullName: { seeker: data.seekerName, provider: data.providerName},
+      usersImage: { seeker: data.seekerImage, provider: data.providerImage},
+      usersNumbers: { seeker: data.seekerMobile, provider: data.providerMobile },
+      lastMessage: '',
+      lastSeen: { seeker: false, provider: true },
+      createdAt: new Date(),
+      lastMessageTime: new Date(),
+      messages: [],
+    }
+    try {
+      firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messageData);
+          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile });  
+        } else {
+          querySnapshot.forEach((doc) => {
+            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile });
+          });
+        }
+      }
+      );
+    }
+    catch (error) {
+      console.error('Error creating chat:', error);
+    }
+  };
+
+  const handleCall = () => {
+    if(Platform.OS === 'android') {
+      Linking.openURL(`tel:${data.seekerMobile}`);
+    } else {
+      Linking.openURL(`telprompt:${data.seekerMobile}`);
+    }
+  }
+
+  
+
   return (
     <View style={styles.seekerrealtimeinfo}>
       <View
@@ -29,12 +72,16 @@ const RealTimeInfoSeeker = ({seekerName, location, seekerImage}) => {
       
 
       {/* <View style={{right: windowWidth * 0.03, top: 12}}> */}
+        <TouchableOpacity onPress={messageSeeker}>
         <View style={[styles.message, styles.messageLayout]}>
           <MaterialCommunityIcons name="message-text" size={25} color="#07374d"  style={[styles.smsIcon]} />
         </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleCall}>
         <View style={[styles.call, styles.messageLayout]}>  
           <MaterialCommunityIcons name="phone" size={25} color="#07374d"  style={[styles.callIcon]} />
         </View>
+        </TouchableOpacity>
       {/* </View> */}
       
     </View>

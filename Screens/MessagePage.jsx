@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, TextInput, FlatList, Image, Dimensions, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AntDesign } from '@expo/vector-icons';
-import { messagesData } from '../data'; // Ensure that messagesData and users are imported correctly
-import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatTimeStamps, generateMessageId, sortMessagesByTimestamp } from '../helper/helperFunction';
+import { formatTimeStamps, generateMessageId, sortConversationsByLastMessageTime } from '../helper/helperFunction';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -18,71 +16,54 @@ const MessagePage = ({ navigation, route }) => {
   const { userEmail, userRole } = route.params;
   const [userData, setUserData] = useState({});
   const [loading, isLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
+
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail });
+        const userData = response.data.data;
+        setUserData(userData);
+        
+        const userId = userData._id;
   
-  async function getUserData() {
-    try {
-      await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
-        setUserData(response.data.data);
-        return response.data.data._id;
+        const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId);
+  
+  
+        if (!chatSnapshots) {
+          isLoading(false);
+          return;
+        }
+  
+        const unsubscribe = chatSnapshots.onSnapshot((snapshot) => {
+          const chats = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          setFilteredUsers(chats);
+          isLoading(false);
+        });
+        
+
+
+        return () => unsubscribe();
+      } catch (error) {
+        AsyncStorage.removeItem('isLoggedIn');
+        console.error('Error getting user data from MongoDB:', error);
       }
-      );
-
-    } catch (error) {
-      AsyncStorage.removeItem('isLoggedIn');
-      console.error('Error getting user data from MongoDB:', error);
     }
-  }
+  
+    fetchData();
+  }, [userEmail]);
+  
 
-  // async function getMessageData() {
-  //   try {
-  //     const userId = await getUserData();
-  //     const chatSnapshot = await firestore().collection('messages').where('users', 'array-contains', userId).get();
-  //     setFilteredUsers(chatSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-  //     isLoading(false);
-  //   }
-  //   catch (error) {
-  //     console.error('Error getting message data:', error);
-  //   }
-  // }
+  const sortedData = sortConversationsByLastMessageTime(filteredUsers);
+  const filteredData = sortedData.filter((user) => userRole === 'Provider' ? user.usersFullName.seeker.toLowerCase().includes(searchQuery.toLowerCase()) : user.usersFullName.provider.toLowerCase().includes(searchQuery.toLowerCase()));
 
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     getMessageData();
-  //   }, [route])
-  // );
-
-  useEffect(async () => {
-    const userId = await getUserData();
-    const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId);
-    
-
-    const unsubscribe = chatSnapshots.onSnapshot((snapshot) => {
-      const chats = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      // const sortedChats = sortMessagesByTimestamp(chats);
-      setFilteredUsers(chats);
-      isLoading(false);
-    }
-    );
-
-    return () => unsubscribe();
-  }, [userId]);
-
-  const handleSearch = (text)=>{
-    setSearch(text);
-
-    const filteredData = messagesData.filter((user) =>
-      userRole === 'Provider' ? user.usersFullName.seeker.toLowerCase().includes(text.toLowerCase()) : user.usersFullName.provider.toLowerCase().includes(text.toLowerCase())
-    );
-
-    setFilteredUsers(filteredData)
-  }
 
   const renderItem = ({ item, index }) => (
+
     <TouchableOpacity
-      onPress={() => navigation.navigate("Chat", { userId: userData._id, chatId: item.id })}
+      onPress={() => navigation.navigate("Chat", { userId: userData._id, chatId: item.id, otherUserName: userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider })}
       style={[
         styles.userContainer,
       ]}
@@ -107,11 +88,11 @@ const MessagePage = ({ navigation, route }) => {
       <View style={{ flex: 1 }}>
         <View style={styles.userInfoContainer}>
           <Text style={styles.userName}>{userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider}</Text>
-          <Text style={styles.lastSeen}>{item.messages && item.messages.length > 0 ? item.messages[item.messages.length - 1].lastMessage : 'You are now connected'}</Text>
+          <Text style={styles.lastSeen}>{item.messages && item.messages.length > 0 ? item.messages[0].user._id === userData._id ? item.messages[0].video ? 'You sent a video' : item.messages[0].image ? 'You sent an image' : `You: ${item.messages[0].text}` : item.messages[0].video ? 'Sent a video' : item.messages[0].image ? 'Sent an image' : item.messages[0].text : 'You are now connected!'}</Text>
         </View>
 
         <View style={{ position: "absolute", right: 4, alignItems: "center" }}>
-          <Text style={styles.lastMessageTime}>{item.messages && item.messages.length > 0 ? formatTimeStamps(item.messages[item.messages.length - 1].createdAt) : ''}</Text>
+          <Text style={styles.lastMessageTime}>{item.messages && item.messages.length > 0 ? formatTimeStamps(item.messages[0].createdAt) : formatTimeStamps(item.createdAt)}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -141,14 +122,14 @@ const MessagePage = ({ navigation, route }) => {
         <TextInput
           style={styles.searchInput}
           placeholder='Search....'
-          value={search}
-          onChangeText={handleSearch}
+          value={searchQuery}
+          onChangeText={text => setSearchQuery(text)}
         />
       </View>
 
       {/* FlatList */}
       <FlatList
-        data={filteredUsers}
+        data={filteredData}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}

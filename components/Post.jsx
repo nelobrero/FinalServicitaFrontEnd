@@ -3,6 +3,7 @@ import axios from 'axios';
 import { View, Text, Image, StyleSheet, Pressable, FlatList, Modal, Dimensions, ActivityIndicator } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { Ionicons } from '@expo/vector-icons';
+import { Video } from 'expo-av';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -10,6 +11,7 @@ const windowHeight = Dimensions.get('window').height;
 const PostItem = ({ item }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const videoRef = React.useRef(null);
   
     const openModal = (index) => {
       setSelectedIndex(index);
@@ -34,7 +36,13 @@ const PostItem = ({ item }) => {
               data={item.postImages}
               renderItem={({ item, index }) => (
                 <Pressable onPress={() => openModal(index)}>
-                  <Image source={{ uri: item }} style={styles.postImage} />
+                  {
+                    item.includes('.mp4') ?
+                    <>
+                    <Video source={{ uri: item }} style={styles.postImage} resizeMode='cover' /> 
+                    <Ionicons name="play-circle" size={36} color="red" style={{ position: 'absolute', top: '50%', left: '50%', marginLeft: -18, marginTop: -18 }} />
+                    </>  : <Image source={{ uri: item }} style={styles.postImage} />
+                  }
                 </Pressable>
               )}
               keyExtractor={(item, index) => index.toString()}
@@ -49,11 +57,18 @@ const PostItem = ({ item }) => {
               index={selectedIndex}
               loop={false}
               showsPagination={false}
-              onIndexChanged={(index) => setSelectedIndex(index)}
+              onIndexChanged={(index) => {
+                setSelectedIndex(index)
+                videoRef.current.pauseAsync();
+              }}
             >
               {item.postImages && item.postImages.map((image, index) => (
                 <View key={index} style={styles.swiperImageContainer}>
-                  <Image source={{ uri: image }} style={styles.swiperImage} />
+                  { image.includes('.mp4') ?
+                  <>
+                  <Video source={{ uri: image }} style={styles.swiperImage} resizeMode='cover' ref={videoRef} useNativeControls />
+                  </>  : <Image source={{ uri: image }} style={styles.swiperImage} />
+                }
                 </View>
               ))}
             </Swiper>

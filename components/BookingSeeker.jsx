@@ -24,7 +24,7 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
     endTimeValue: item.data.endTimeValue,
     location: item.data.location,
     imageSource: item.serviceData.data.coverImage,
-    mobile: item.providerMobile,
+    providerMobile: item.providerMobile,
     createdAt: item.data.createdAt,
     expiresAt: item.data.expiresAt,
     paymentMethod: item.data.paymentMethod,
@@ -35,7 +35,8 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
     providerId: item.data.providerId,
     seekerName: `${item.seekerData.data.name.firstName} ${item.seekerData.data.name.lastName}`,
     seekerImage: item.seekerData.image,
-    providerImage: item.providerImage
+    providerImage: item.providerImage,
+    seekerMobile: item.seekerData.mobile
 }));
   
   const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);
@@ -54,10 +55,10 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
 
     // If both dates are in the future, sort based on the dates
     if (a.convertedDate < b.convertedDate) {
-        return -1;
-    } else if (a.convertedDate > b.convertedDate) {
         return 1;
-    } else {
+    } else if (a.convertedDate > b.convertedDate) {
+        return -1;
+    }  else {
         // If dates are equal, prioritize based on start time
         return a.startTimeValue - b.startTimeValue;
     }
@@ -77,7 +78,6 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
           date: item.date,
           location: item.location,
           imageSource: item.imageSource,
-          mobile: item.mobile,
           createdAt: item.createdAt,
           expiresAt: item.expiresAt,
           paymentMethod: item.paymentMethod,
@@ -89,6 +89,8 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
           seekerName: item.seekerName,
           seekerImage: item.seekerImage,
           providerImage: item.providerImage,
+          providerMobile: item.providerMobile,
+          seekerMobile: item.seekerMobile,
         },
         userData: userData,
         serviceData: bookingData.find(booking => booking.id === item.id).serviceData,
