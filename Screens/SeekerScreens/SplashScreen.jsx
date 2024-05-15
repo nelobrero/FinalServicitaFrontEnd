@@ -28,7 +28,7 @@ export default SplashScreen1 = ({navigation, route}) => {
   const listenToPaymentStatus = () => {
     try {
       intervalId = setInterval(() => {
-        axios.post("http://192.168.1.7:5000/payment/retrievePayment", { id: paymentId })
+        axios.post("http://172.16.9.33:5000/payment/retrievePayment", { id: paymentId })
           .then((response) => {
             if (response.data.data.status === "paid") {
               const bookingId = generateBookingId();

@@ -118,7 +118,7 @@ function SeekerBookingStatusScreen({ navigation, route }) {
         bookingId: data.bookingId,
         reason: complaint,
       }
-      await axios.post("http://192.168.1.7:5000/report/createReport", reportData);
+      await axios.post("http://172.16.9.33:5000/report/createReport", reportData);
       const providerRef = firestore().collection('providers').doc(data.providerId);
       const providerDoc = await providerRef.get();
       const reportsReceived = providerDoc.data().reportsReceived + 1;
@@ -233,7 +233,7 @@ const handleSubmitReview = async () => {
 
   await Promise.all(imageUploadPromises);
 
-  await axios.post("http://192.168.1.7:5000/rating/createRating", { bookingId: data.bookingId, rating: starCount, comment: reviewText, serviceId: data.serviceId, seekerId: data.seekerId, providerId: data.providerId, images: reviewData.images, seekerImage: data.seekerImage, seekerName: data.seekerName });
+  await axios.post("http://172.16.9.33:5000/rating/createRating", { bookingId: data.bookingId, rating: starCount, comment: reviewText, serviceId: data.serviceId, seekerId: data.seekerId, providerId: data.providerId, images: reviewData.images, seekerImage: data.seekerImage, seekerName: data.seekerName });
 
   const providerRef = firestore().collection('providers').doc(data.providerId);
   const providerDoc = await providerRef.get();
@@ -256,8 +256,8 @@ const handleSubmitReview = async () => {
 
   useEffect(() => {
     const checkForReport = async () => {
-      const response = await axios.post("http://192.168.1.7:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.seekerId });
-      const response2 = await axios.post("http://192.168.1.7:5000/rating/getRatingByBookingId", { bookingId: data.bookingId });
+      const response = await axios.post("http://172.16.9.33:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.seekerId });
+      const response2 = await axios.post("http://172.16.9.33:5000/rating/getRatingByBookingId", { bookingId: data.bookingId });
       setHasReported(response.data);
       setHasReviewed(response2.data);
   }

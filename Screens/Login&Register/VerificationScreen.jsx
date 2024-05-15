@@ -68,13 +68,13 @@ export default function VerificationScreen({ navigation, route, props }) {
         }
         try {
             await confirm.confirm(code.join(''));
-            await axios.post(`http://192.168.1.7:5000/user/signup`, userData).then(async (res) => {
+            await axios.post(`http://172.16.9.33:5000/user/signup`, userData).then(async (res) => {
                 if (res.status === 200) {
                     console.log("User created successfully");
                     await saveDetails(res.data.data._id);
                 }
             })
-            await axios.post("http://192.168.1.7:5000/user/login", {email: email, password: storeData.data.password}).then((res) => {
+            await axios.post("http://172.16.9.33:5000/user/login", {email: email, password: storeData.data.password}).then((res) => {
             console.log(res.data)
             if (res.data.status === 'SUCCESS') {
                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
@@ -99,7 +99,7 @@ export default function VerificationScreen({ navigation, route, props }) {
 
     const fetchTempData = async () => {
         try {
-            await axios.post(`http://192.168.1.7:5000/user/getTempDetails`, {email : email}).then((res) => {
+            await axios.post(`http://172.16.9.33:5000/user/getTempDetails`, {email : email}).then((res) => {
                 setStoreData(res.data);
                 setBirthDate(res.data.data.birthDate);
                 setFinalMobile(res.data.data.mobile);
@@ -197,7 +197,7 @@ export default function VerificationScreen({ navigation, route, props }) {
 
     const verifyChangedNumber = async () => {
         try {
-            await axios.post(`http://192.168.1.7:5000/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
+            await axios.post(`http://172.16.9.33:5000/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
                 if (res.status === 200) {
                     setModalVisible(false);
                     setFinalMobile(mobile);
@@ -207,7 +207,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                         Alert.alert("Error", "The mobile number you entered is already in use.", [{ text: "OK"}]);
                     }
                 })
-            await axios.patch(`http://192.168.1.7:5000/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
+            await axios.patch(`http://172.16.9.33:5000/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
                     if (res.status === 200) {
                         Alert.alert("Success", "Mobile number changed successfully.", [{ text: "OK"}]);
                     }

@@ -154,7 +154,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       bookingId: data.bookingId,
       reason: complaint,
     }
-    await axios.post("http://192.168.1.7:5000/report/createReport", reportData);
+    await axios.post("http://172.16.9.33:5000/report/createReport", reportData);
     const seekerRef = firestore().collection('seekers').doc(data.seekerId);
     const seekerDoc = await seekerRef.get();
     const reportsReceived = seekerDoc.data().reportsReceived + 1;
@@ -178,7 +178,7 @@ const handleArrivedPress = async () => {
 
 useEffect(() => {
   const checkForReport = async () => {
-    const response = await axios.post("http://192.168.1.7:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.providerId });
+    const response = await axios.post("http://172.16.9.33:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.providerId });
     setHasReported(response.data);
 }
 checkForReport();

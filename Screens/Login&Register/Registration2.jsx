@@ -154,7 +154,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
             const userData = {
                 email: email,
             }
-            const res = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", userData);
+            const res = await axios.post("http://172.16.9.33:5000/user/getUserDetailsByEmail", userData);
             if (res.data.status === 'SUCCESS') {
                 return true;
             }
@@ -184,7 +184,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
                 },
                 birthDate,
             }
-            await axios.post("http://192.168.1.7:5000/user/addTempDetails", userData).then(async (res) => {
+            await axios.post("http://172.16.9.33:5000/user/addTempDetails", userData).then(async (res) => {
                 const result = res.data;
                 const { data, message, status } = result
                 if (status === 'SUCCESS') {
