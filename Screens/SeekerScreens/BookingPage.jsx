@@ -58,7 +58,7 @@ useEffect(() => {
         console.log("get live location after 3 second", latitude, longitude)
         animate(latitude, longitude)
         updateState({
-            heading: heading,
+            heading: 0,
             curLoc: { latitude, longitude },
             coordinate: new AnimatedRegion({
                 latitude: latitude,
@@ -76,7 +76,7 @@ useEffect(() => {
     if (locPermissionDenied) {
         const { latitude, longitude, heading } = await getCurrentLocation()
         updateState({
-            heading: heading,
+            heading: 0,
             curLoc: { latitude, longitude },
             coordinate: new AnimatedRegion({
                 latitude: latitude,
