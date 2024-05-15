@@ -369,7 +369,7 @@ const Chat = ({ navigation, route }) => {
               <Ionicons name="images-outline" size={24} color="black" />
             </TouchableOpacity>
           
-          <TouchableOpacity onPress={() => submitHandler([{ text: inputMessage, createdAt: new Date(), user: { _id: userId }, _id: `${chatId}_${new Date().getTime()}_${userId}` }])}>
+          <TouchableOpacity onPress={() => submitHandler([{ text: inputMessage, createdAt: new Date(), user: { _id: userId }, _id: `${chatId}_${new Date().getTime()}_${userId}` }])} disabled={inputMessage.length === 0} style={{ opacity: inputMessage.length === 0 ? 0.5 : 1 }}>
             <Feather name="send" size={24} color="black" marginRight={10} />
           </TouchableOpacity>
           </View>
@@ -499,7 +499,37 @@ const Chat = ({ navigation, route }) => {
               </View>
             );
           }
+          
           }
+          renderLoading={() => (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ActivityIndicator size="large" color="blue" />
+            </View>
+          )}
+        renderAvatarOnTop={true}
+        renderAvatar={(props) => {
+          return (
+            <Image
+              source={{ uri: otherUserImage }}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 18,
+                marginRight: 8,
+              }}
+            />
+          );
+        }
+        }
+        loadEarlier={true}
+        isLoadingEarlier={true}
+        infiniteScroll={true}
       />
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View
