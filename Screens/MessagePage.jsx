@@ -23,7 +23,7 @@ const MessagePage = ({ navigation, route }) => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.post("http://192.168.50.68:5000/user/getUserDetailsByEmail", { email: userEmail });
+        const response = await axios.post("http://172.16.9.33:5000/user/getUserDetailsByEmail", { email: userEmail });
         const userData = response.data.data;
         setUserData(userData);
         
@@ -82,7 +82,7 @@ const MessagePage = ({ navigation, route }) => {
   
 
   const sortedData = sortConversationsByLastMessageTime(filteredUsers);
-  const filteredData = sortedData.filter((user) => userRole === 'Provider' ? user.usersFullName.seeker.toLowerCase().includes(searchQuery.toLowerCase()) : user.usersFullName.provider.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredData = sortedData.filter((user) => user.admin === true ? user.usersFullName.admin.toLowerCase().includes(searchQuery.toLowerCase()) : userRole === 'Provider' ? user.usersFullName.seeker.toLowerCase().includes(searchQuery.toLowerCase()) : user.usersFullName.provider.toLowerCase().includes(searchQuery.toLowerCase()));
 
 
   const renderItem = ({ item, index }) => (
@@ -108,7 +108,7 @@ const MessagePage = ({ navigation, route }) => {
           }
         ]} />}
         <Image
-          source={{ uri: item.admin === true ? item.adminImage : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider }}
+          source={{ uri: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider }}
           resizeMode='cover'
           style={styles.userImage}
         />
@@ -118,7 +118,7 @@ const MessagePage = ({ navigation, route }) => {
         
       <View style={{ flex: 1 }}>
         <View style={styles.userInfoContainer}>
-          <Text style={styles.userName}>{ item.admin === true ? item.adminFullName : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider }</Text>
+          <Text style={styles.userName}>{ item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider }</Text>
           <Text style={styles.lastSeen}>{item.messages && item.messages.length > 0 ? item.messages[0].user._id === userData._id ? item.messages[0].video ? 'You sent a video' : item.messages[0].image ? 'You sent an image' : `You: ${item.messages[0].text}` : item.messages[0].video ? 'Sent a video' : item.messages[0].image ? 'Sent an image' : item.messages[0].text : 'You are now connected!'}</Text>
         </View>
 
