@@ -106,7 +106,7 @@ const AppNavigator = () => {
 
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
-        await axios.post("http://172.16.9.33:5000/user/userData", {token: token}).then((res) => {
+        await axios.post("http://192.168.50.68:5000/user/userData", {token: token}).then((res) => {
         setUserRole(res.data.data.data.role);
         setUserEmail(res.data.data.data.email);
         setUserDataFetched(true);

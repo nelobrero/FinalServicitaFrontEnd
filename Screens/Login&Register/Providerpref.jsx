@@ -299,7 +299,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
 
     const fetchServices = async () => {
         try {
-            const response = await axios.get('http://172.16.9.33:5000/service/getServices');
+            const response = await axios.get('http://192.168.50.68:5000/service/getServices');
             setData(response.data.data);
             
         } catch (error) {
@@ -362,7 +362,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                 userData.services.push(service);
             });
 
-            await axios.post("http://172.16.9.33:5000/user/addTempDetails", userData).then(async (res) => {
+            await axios.post("http://192.168.50.68:5000/user/addTempDetails", userData).then(async (res) => {
                 const result = res.data;
                 const { data, message, status } = result
                 if (status === 'SUCCESS') {

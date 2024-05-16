@@ -23,37 +23,62 @@ const MessagePage = ({ navigation, route }) => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.post("http://172.16.9.33:5000/user/getUserDetailsByEmail", { email: userEmail });
+        const response = await axios.post("http://192.168.50.68:5000/user/getUserDetailsByEmail", { email: userEmail });
         const userData = response.data.data;
         setUserData(userData);
         
         const userId = userData._id;
   
-        const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId);
+        const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId)
+        const chatWithAdminSnapshots = firestore().collection("adminChats").where('users', 'array-contains', userId)
   
+        const [chatSnapshot, chatWithAdminSnapshot] = await Promise.all([chatSnapshots.get(), chatWithAdminSnapshots.get()]);
   
-        if (!chatSnapshots) {
-          isLoading(false);
-          return;
-        }
+        // Extract the data from the snapshots
+        const chatDocs = chatSnapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
+        const chatWithAdminDocs = chatWithAdminSnapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
   
-        const unsubscribe = chatSnapshots.onSnapshot((snapshot) => {
-          const chats = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-          setFilteredUsers(chats);
-          isLoading(false);
-        });
+        // Combine or set them as needed
+        const allChats = [...chatDocs, ...chatWithAdminDocs];
+        setFilteredUsers(allChats);
+        
         
 
-
-        return () => unsubscribe();
       } catch (error) {
         AsyncStorage.removeItem('isLoggedIn');
         console.error('Error getting user data from MongoDB:', error);
+      } finally {
+        isLoading(false);
       }
     }
   
     fetchData();
+
+    const chatUnsubscribe = firestore().collection("chats").onSnapshot((snapshot) => {
+      const chatDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
+      setFilteredUsers(prevState => {
+        const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
+        chatDocs.forEach(chat => updatedChats.set(chat.id, chat));
+        return Array.from(updatedChats.values());
+      });
+    });
+  
+    const chatWithAdminUnsubscribe = firestore().collection("adminChats").onSnapshot((snapshot) => {
+      const chatWithAdminDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
+      setFilteredUsers(prevState => {
+        const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
+        chatWithAdminDocs.forEach(chat => updatedChats.set(chat.id, chat));
+        return Array.from(updatedChats.values());
+      });
+    });
+
+    return () => {
+      chatUnsubscribe();
+      chatWithAdminUnsubscribe();
+    }
+
   }, [userEmail]);
+  
   
 
   const sortedData = sortConversationsByLastMessageTime(filteredUsers);
@@ -63,31 +88,37 @@ const MessagePage = ({ navigation, route }) => {
   const renderItem = ({ item, index }) => (
 
     <TouchableOpacity
-      onPress={() => navigation.navigate("Chat", { userId: userData._id, chatId: item.id, otherUserName: userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider })}
+      onPress={() => navigation.navigate("Chat", { userId: userData._id, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin })}
       style={[
         styles.userContainer,
       ]}
     >
       <View style={styles.userImageContainer}>
-        {userRole === 'Provider' ?  item.usersOnline.seeker ? (
-          <View style={[styles.onlineIndicator, { backgroundColor: '#34C800' }]} />
-        ) : (
-          <View style={[styles.onlineIndicator, { backgroundColor: '#FF0000' }]} />
-        ) : item.usersOnline.provider ? (
-          <View style={[styles.onlineIndicator, { backgroundColor: '#34C800' }]} />
-        ) : (
-          <View style={[styles.onlineIndicator, { backgroundColor: '#FF0000' }]} />
-        )}
+
+        {/* If admin is true instead of the online indicator, there should be a light blue checkmark icon */}
+
+        {item.admin === true ? <AntDesign name="checkcircle" size={24} color="#00BFFF" style={styles.onlineIndicator} /> :<View style={[
+          styles.onlineIndicator,
+          {
+            backgroundColor: 
+              (userRole === 'Provider' && item.usersOnline.seeker) ||
+              (userRole !== 'Provider' && item.usersOnline.provider)
+                ? '#34C800'
+                : '#FF0000'
+          }
+        ]} />}
         <Image
-          source={{ uri: userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider }}
+          source={{ uri: item.admin === true ? item.adminImage : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider }}
           resizeMode='cover'
           style={styles.userImage}
         />
+        
       </View>
 
+        
       <View style={{ flex: 1 }}>
         <View style={styles.userInfoContainer}>
-          <Text style={styles.userName}>{userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider}</Text>
+          <Text style={styles.userName}>{ item.admin === true ? item.adminFullName : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider }</Text>
           <Text style={styles.lastSeen}>{item.messages && item.messages.length > 0 ? item.messages[0].user._id === userData._id ? item.messages[0].video ? 'You sent a video' : item.messages[0].image ? 'You sent an image' : `You: ${item.messages[0].text}` : item.messages[0].video ? 'Sent a video' : item.messages[0].image ? 'Sent an image' : item.messages[0].text : 'You are now connected!'}</Text>
         </View>
 

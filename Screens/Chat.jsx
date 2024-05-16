@@ -30,7 +30,7 @@ const windowWidth = Dimensions.get("window").width;
 
 
 const Chat = ({ navigation, route }) => {
-  const { userId, chatId, otherUserName, otherUserImage, role, otherUserMobile } = route.params;
+  const { userId, chatId, otherUserName, otherUserImage, role, otherUserMobile, admin } = route.params;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [messages, setMessages] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -48,13 +48,14 @@ const Chat = ({ navigation, route }) => {
 
 
   useEffect(() => {
-    const chatReference = firestore().collection("chats").doc(chatId);
+
+    const chatReference = admin === false ? firestore().collection("chats").doc(chatId) : firestore().collection("adminChats").doc(chatId);
     
 
     const unsubscribe = chatReference.onSnapshot((doc) => {
       if (doc.exists) {
         setMessages(doc.data().messages);
-        setOtherUserStatus(role === "Provider" ? doc.data().usersOnline.seeker : doc.data().usersOnline.provider);
+        setOtherUserStatus(admin === true ? doc.data.adminStatus : role === "Provider" ? doc.data().usersOnline.seeker : doc.data().usersOnline.provider);
         
         const messages = doc.data().messages.sort((a, b) => {
           return new Date(b.createdAt) - new Date(a.createdAt);
@@ -208,7 +209,7 @@ const Chat = ({ navigation, route }) => {
     }
 
   const submitHandler = async (newMessages = []) => {
-    const chatReference = firestore().collection("chats").doc(chatId);
+    const chatReference = admin === false ? firestore().collection("chats").doc(chatId) : firestore().collection("adminChats").doc(chatId);
     const formattedMessage = newMessages.map((message) => ({
       ...message,
       createdAt: new Date(message.createdAt),
@@ -330,6 +331,8 @@ const Chat = ({ navigation, route }) => {
             alignItems: "center",
           }}
         >
+
+          {admin === 'false' && (
           <TouchableOpacity
             style={{
               marginHorizontal: 16,
@@ -338,6 +341,7 @@ const Chat = ({ navigation, route }) => {
           >
             <Feather name="phone" size={24} color="gray" />
           </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -514,22 +518,42 @@ const Chat = ({ navigation, route }) => {
           )}
         renderAvatarOnTop={true}
         renderAvatar={(props) => {
+          
+          const { currentMessage, previousMessage } = props;
+
+        
+
           return (
-            <Image
-              source={{ uri: otherUserImage }}
+            <View
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: 18,
-                marginRight: 8,
+                marginLeft: 12,
+                marginRight: 12,
+                marginBottom: 4,
               }}
-            />
+            >
+              {currentMessage?.user?._id !== previousMessage?.user?._id ? (
+  <Image
+    source={{ uri: otherUserImage }}
+    style={{
+      height: 32,
+      width: 32,
+      borderRadius: 16,
+      marginRight: windowWidth * 0.08
+    }}
+  />
+) : (
+  <View style={{ height: 32, width: 32, marginRight: windowWidth * 0.08 }} />
+)}
+
+
+            </View>
+            
           );
         }
         }
-        loadEarlier={true}
-        isLoadingEarlier={true}
-        infiniteScroll={true}
+        // loadEarlier={true}
+        // isLoadingEarlier={true}
+        // infiniteScroll={true}
       />
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View

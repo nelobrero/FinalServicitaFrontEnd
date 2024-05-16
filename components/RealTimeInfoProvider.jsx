@@ -21,16 +21,25 @@ const RealTimeInfoProvider = ({providerName, providerImage, location, data}) => 
       lastSeen: { seeker: false, provider: true },
       createdAt: new Date(),
       lastMessageTime: new Date(),
-      messages: [],
+      messages: [
+        {
+          text: 'Hello, I would like to know more about your services.',
+          createdAt: new Date(),
+          user: {
+            _id: data.seekerId,
+          },
+          _id: `${data.seekerId}_${data.providerId}_${new Date().getTime()}_${data.seekerId}`,
+        }
+      ],
     }
     try {
       firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messageData);
-          navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile });
+          navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile });
+            navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false});
           });
         }
       }

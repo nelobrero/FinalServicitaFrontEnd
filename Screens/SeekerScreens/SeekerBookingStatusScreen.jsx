@@ -117,8 +117,9 @@ function SeekerBookingStatusScreen({ navigation, route }) {
         reportedId: data.providerId,
         bookingId: data.bookingId,
         reason: complaint,
+        status: 'PENDING'
       }
-      await axios.post("http://172.16.9.33:5000/report/createReport", reportData);
+      await axios.post("http://192.168.50.68:5000/report/createReport", reportData);
       const providerRef = firestore().collection('providers').doc(data.providerId);
       const providerDoc = await providerRef.get();
       const reportsReceived = providerDoc.data().reportsReceived + 1;
@@ -187,16 +188,25 @@ const messageProvider = () => {
     lastSeen: { seeker: false, provider: true },
     createdAt: new Date(),
     lastMessageTime: new Date(),
-    messages: [],
+    messages: [ 
+      {
+        text: 'Hello! I would like to inquire about your service.',
+        createdAt: new Date(),
+        user: {
+          _id: data.seekerId,
+        },
+        _id: `${data.seekerId}_${data.providerId}_${new Date().getTime()}_${data.seekerId}`,
+      }
+    ]
   }
   try {
     firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
       if (querySnapshot.empty) {
         firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messageData);
-        navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile });
+        navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false });
       } else {
         querySnapshot.forEach((doc) => {
-          navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile });
+          navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false });
         });
       }
     }
@@ -233,7 +243,7 @@ const handleSubmitReview = async () => {
 
   await Promise.all(imageUploadPromises);
 
-  await axios.post("http://172.16.9.33:5000/rating/createRating", { bookingId: data.bookingId, rating: starCount, comment: reviewText, serviceId: data.serviceId, seekerId: data.seekerId, providerId: data.providerId, images: reviewData.images, seekerImage: data.seekerImage, seekerName: data.seekerName });
+  await axios.post("http://192.168.50.68:5000/rating/createRating", { bookingId: data.bookingId, rating: starCount, comment: reviewText, serviceId: data.serviceId, seekerId: data.seekerId, providerId: data.providerId, images: reviewData.images, seekerImage: data.seekerImage, seekerName: data.seekerName });
 
   const providerRef = firestore().collection('providers').doc(data.providerId);
   const providerDoc = await providerRef.get();
@@ -256,8 +266,8 @@ const handleSubmitReview = async () => {
 
   useEffect(() => {
     const checkForReport = async () => {
-      const response = await axios.post("http://172.16.9.33:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.seekerId });
-      const response2 = await axios.post("http://172.16.9.33:5000/rating/getRatingByBookingId", { bookingId: data.bookingId });
+      const response = await axios.post("http://192.168.50.68:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.seekerId });
+      const response2 = await axios.post("http://192.168.50.68:5000/rating/getRatingByBookingId", { bookingId: data.bookingId });
       setHasReported(response.data);
       setHasReviewed(response2.data);
   }

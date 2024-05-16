@@ -124,16 +124,25 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       lastSeen: { seeker: false, provider: true },
       createdAt: new Date(),
       lastMessageTime: new Date(),
-      messages: [],
+      messages: [
+        {
+          text: `Hello, ${data.seekerName}!`,
+          createdAt: new Date(),
+          user: {
+            _id: data.providerId,
+          },
+          _id: `${data.providerId}_${data.seekerId}_${new Date().getTime()}_${data.providerId}`,
+        },
+      ],
     }
     try {
       firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messageData);
-          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile });  
+          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile });
+            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false});
           });
         }
       }
@@ -153,8 +162,9 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       reportedId: data.seekerId,
       bookingId: data.bookingId,
       reason: complaint,
+      status: 'PENDING',
     }
-    await axios.post("http://172.16.9.33:5000/report/createReport", reportData);
+    await axios.post("http://192.168.50.68:5000/report/createReport", reportData);
     const seekerRef = firestore().collection('seekers').doc(data.seekerId);
     const seekerDoc = await seekerRef.get();
     const reportsReceived = seekerDoc.data().reportsReceived + 1;
@@ -178,7 +188,7 @@ const handleArrivedPress = async () => {
 
 useEffect(() => {
   const checkForReport = async () => {
-    const response = await axios.post("http://172.16.9.33:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.providerId });
+    const response = await axios.post("http://192.168.50.68:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.providerId });
     setHasReported(response.data);
 }
 checkForReport();
