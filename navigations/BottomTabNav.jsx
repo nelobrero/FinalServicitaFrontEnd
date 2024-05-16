@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { COLORS } from "../constants/theme.jsx";
 import { Home, Message, Profile, Booking, Create } from "./../Screens/ProviderScreens"
 import { HomePage, ProfilePage, MessagePage, BookingPage} from "./../Screens/SeekerScreens"
+import AIScreen from "../Screens/AIScreen.jsx";
 
 const Tab = createBottomTabNavigator();
 

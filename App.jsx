@@ -51,6 +51,7 @@ import BookingPage from './Screens/SeekerScreens/BookingPage';
 import ChooseLocation from './Screens/SeekerScreens/ChooseLocation';
 import ProviderBookingPage from './Screens/ProviderScreens/ProviderBookingPage';
 import Chat from './Screens/Chat';
+import NotificationScreen from './Screens/NotificationScreen';
 
 const LoginNav = () => {
 
@@ -201,6 +202,13 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Chat"
                     component={Chat}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Notification"
+                    component={NotificationScreen}
                     options={{
                       headerShown: false
                     }}
@@ -364,6 +372,13 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Chat"
                     component={Chat}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Notification"
+                    component={NotificationScreen}
                     options={{
                       headerShown: false
                     }}
