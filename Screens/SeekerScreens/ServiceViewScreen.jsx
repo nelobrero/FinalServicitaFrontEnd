@@ -25,10 +25,10 @@ export default ServiceViewScreen = ({navigation, route}) => {
 
   async function getMessageNeededData () {
     const resultSeeker = await axios.post("http://172.16.9.33:5000/user/getUserDetailsById", { id: userData._id });
-    const seekerSnapshot = await firestore().collection('seeker').doc(userData._id).get();
+    const seekerSnapshot = await firestore().collection('seekers').doc(userData._id).get();
     const seekerData = { id: seekerSnapshot.id, ...seekerSnapshot.data(), image: resultSeeker.data.data.profileImage, mobile: resultSeeker.data.data.mobile };
     const resultProvider = await axios.post("http://172.16.9.33:5000/user/getUserDetailsById", { id: data.providerId });
-    const providerSnapshot = await firestore().collection('provider').doc(data.providerId).get();
+    const providerSnapshot = await firestore().collection('providers').doc(data.providerId).get();
     const providerData = { id: providerSnapshot.id, ...providerSnapshot.data(), image: resultProvider.data.data.profileImage, mobile: resultProvider.data.data.mobile };
     setmessagesData({seekerData, providerData});
     setLoading(false);

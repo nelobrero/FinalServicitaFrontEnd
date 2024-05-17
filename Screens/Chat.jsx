@@ -471,7 +471,7 @@ const Chat = ({ navigation, route }) => {
             return (
               <View style={{ borderRadius: 15, padding: 2}}>
                 <Pressable onPress={() => {
-                  //Play the video
+            
                   setSelectedIndex(allImages.indexOf(props.currentMessage.video));
                   setModalVisible(true);
                 }
@@ -480,6 +480,7 @@ const Chat = ({ navigation, route }) => {
                     source={{ uri: props.currentMessage.video }}
                     style={{ width: 200, height: 200, borderRadius: 15, padding: 6 }}
                     resizeMode="cover"
+          
                   />
 
                  
