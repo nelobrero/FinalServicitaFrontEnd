@@ -602,7 +602,7 @@ const handleSelectBarangay = (barangay) => {
           }}
         >
           <Pressable style={{position: 'absolute',
-  top: windowHeight * 0.02,
+  top: height * 0.02,
   right: 20,}} onPress={() => setModalOptionsVisible(false)}>
             <Ionicons name="close-circle" size={36} color="white" />
           </Pressable>
