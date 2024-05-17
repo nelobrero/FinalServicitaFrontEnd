@@ -22,65 +22,62 @@ const MessagePage = ({ navigation, route }) => {
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const response = await axios.post("http://172.16.9.33:5000/user/getUserDetailsByEmail", { email: userEmail });
-        const userData = response.data.data;
-        setUserData(userData);
-        
-        const userId = userData._id;
-  
-        const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId)
-        const chatWithAdminSnapshots = firestore().collection("adminChats").where('userIds.user', '==', userId);
-  
-        const [chatSnapshot, chatWithAdminSnapshot] = await Promise.all([chatSnapshots.get(), chatWithAdminSnapshots.get()]);
-  
-        // Extract the data from the snapshots
-        const chatDocs = chatSnapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
-        const chatWithAdminDocs = chatWithAdminSnapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
-  
-        // Combine or set them as needed
-        const allChats = [...chatDocs, ...chatWithAdminDocs];
-        setFilteredUsers(allChats);
-        
-        
+        try {
+            const response = await axios.post("http://172.16.9.33:5000/user/getUserDetailsByEmail", { email: userEmail });
+            const userData = response.data.data;
+            setUserData(userData);
+            
+            const userId = userData._id;
+      
+            const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId);
+            const chatWithAdminSnapshots = firestore().collection("adminChats").where('userIds.user', '==', userId);
+      
+            const [chatSnapshot, chatWithAdminSnapshot] = await Promise.all([chatSnapshots.get(), chatWithAdminSnapshots.get()]);
+      
+            // Extract the data from the snapshots
+            const chatDocs = chatSnapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
+            const chatWithAdminDocs = chatWithAdminSnapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
+      
+            // Combine or set them as needed
+            const allChats = [...chatDocs, ...chatWithAdminDocs];
+            setFilteredUsers(allChats);
+            
+            // Set up snapshot listeners after the initial data fetch
+            const chatUnsubscribe = chatSnapshots.onSnapshot((snapshot) => {
+                const chatDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
+                setFilteredUsers(prevState => {
+                    const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
+                    chatDocs.forEach(chat => updatedChats.set(chat.id, chat));
+                    return Array.from(updatedChats.values());
+                });
+            });
+          
+            const chatWithAdminUnsubscribe = chatWithAdminSnapshots.onSnapshot((snapshot) => {
+                const chatWithAdminDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
+                setFilteredUsers(prevState => {
+                    const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
+                    chatWithAdminDocs.forEach(chat => updatedChats.set(chat.id, chat));
+                    return Array.from(updatedChats.values());
+                });
+            });
 
-      } catch (error) {
-        AsyncStorage.removeItem('isLoggedIn');
-        console.error('Error getting user data from MongoDB:', error);
-      } finally {
-        isLoading(false);
-      }
+            // Return the unsubscribe functions to be called on cleanup
+            return () => {
+                chatUnsubscribe();
+                chatWithAdminUnsubscribe();
+            };
+            
+        } catch (error) {
+            AsyncStorage.removeItem('isLoggedIn');
+            console.error('Error getting user data from MongoDB:', error);
+        } finally {
+            isLoading(false); // Ensure this function call is correct
+        }
     }
   
     fetchData();
+}, [userEmail]);
 
-    const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userData._id);
-      const chatWithAdminSnapshots = firestore().collection("adminChats").where('userIds.user', '==', userData._id);
-
-    const chatUnsubscribe = chatSnapshots.onSnapshot((snapshot) => {
-      const chatDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
-      setFilteredUsers(prevState => {
-        const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
-        chatDocs.forEach(chat => updatedChats.set(chat.id, chat));
-        return Array.from(updatedChats.values());
-      });
-    });
-  
-    const chatWithAdminUnsubscribe = chatWithAdminSnapshots.onSnapshot((snapshot) => {
-      const chatWithAdminDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
-      setFilteredUsers(prevState => {
-        const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
-        chatWithAdminDocs.forEach(chat => updatedChats.set(chat.id, chat));
-        return Array.from(updatedChats.values());
-      });
-    });
-
-    return () => {
-      chatUnsubscribe();
-      chatWithAdminUnsubscribe();
-    }
-
-  }, [userEmail]);
   
   
 
