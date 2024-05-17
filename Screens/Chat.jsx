@@ -482,9 +482,9 @@ const Chat = ({ navigation, route }) => {
                     resizeMode="cover"
                   />
 
-                  {/* Play Icon */}
+                 
 
-                  <View
+                  {/* <View
                     style={{
                       position: "absolute",
                       top: "50%",
@@ -494,7 +494,7 @@ const Chat = ({ navigation, route }) => {
                     }}
                   >
                     <Ionicons name="play-circle" size={48} color="white" />
-                  </View>
+                  </View> */}
 
                 </Pressable>
 

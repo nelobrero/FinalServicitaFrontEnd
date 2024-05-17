@@ -30,7 +30,7 @@ const MessagePage = ({ navigation, route }) => {
         const userId = userData._id;
   
         const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId)
-        const chatWithAdminSnapshots = firestore().collection("adminChats").where('users', 'array-contains', userId)
+        const chatWithAdminSnapshots = firestore().collection("adminChats").where('userIds.user', '==', userId);
   
         const [chatSnapshot, chatWithAdminSnapshot] = await Promise.all([chatSnapshots.get(), chatWithAdminSnapshots.get()]);
   
