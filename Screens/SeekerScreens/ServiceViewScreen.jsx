@@ -21,7 +21,7 @@ export default ServiceViewScreen = ({navigation, route}) => {
   const { data, userData } = route.params;
   const [ loading, setLoading ] = useState(true);
 
-  const [ messageData , setMessageData ] = useState(null);
+  const [ messagesData , setmessagesData ] = useState(null);
 
   async function getMessageNeededData () {
     const resultSeeker = await axios.post("http://172.16.9.33:5000/user/getUserDetailsById", { id: userData._id });
@@ -30,7 +30,7 @@ export default ServiceViewScreen = ({navigation, route}) => {
     const resultProvider = await axios.post("http://172.16.9.33:5000/user/getUserDetailsById", { id: data.providerId });
     const providerSnapshot = await firestore().collection('provider').doc(data.providerId).get();
     const providerData = { id: providerSnapshot.id, ...providerSnapshot.data(), image: resultProvider.data.data.profileImage, mobile: resultProvider.data.data.mobile };
-    setMessageData({seekerData, providerData});
+    setmessagesData({seekerData, providerData});
     setLoading(false);
   }
   
@@ -44,7 +44,7 @@ export default ServiceViewScreen = ({navigation, route}) => {
     setActiveTab(tabName);
   };
 
-  if (!messageData) {
+  if (!messagesData) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <ActivityIndicator size="large" color={Color.colorPrimary} />
@@ -70,7 +70,7 @@ export default ServiceViewScreen = ({navigation, route}) => {
             <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
             </TouchableOpacity>
         <View>
-          <ServiceTop data={data} navigation={navigation} userData={userData} messageData={messageData} />
+          <ServiceTop data={data} navigation={navigation} userData={userData} messagesData={messagesData} />
         </View>
 
         <View style={[styles.navigator, styles.navigatorContainer]}>

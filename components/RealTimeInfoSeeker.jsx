@@ -11,7 +11,7 @@ const windowHeight = Dimensions.get("window").height
 const RealTimeInfoSeeker = ({seekerName, location, seekerImage, data}) => {
 
   const messageSeeker = () => {
-    const messageData = {
+    const messagesData = {
       users: [data.seekerId, data.providerId],
       usersOnline: { seeker: true, provider: true },
       usersFullName: { seeker: data.seekerName, provider: data.providerName},
@@ -36,7 +36,7 @@ const RealTimeInfoSeeker = ({seekerName, location, seekerImage, data}) => {
     try {
       firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
-          firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messageData);
+          firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
           navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false });
         } else {
           querySnapshot.forEach((doc) => {

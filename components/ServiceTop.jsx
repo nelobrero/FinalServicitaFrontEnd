@@ -15,7 +15,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 
-const ServiceTop= ({data, navigation, userData, messageData}) => {
+const ServiceTop= ({data, navigation, userData, messagesData}) => {
 
   const [price, setPrice] = useState(`${data.minprice} - ₱${data.maxprice}`);
   const [serviceName, setServiceName] = useState(data.service);
@@ -29,11 +29,11 @@ const ServiceTop= ({data, navigation, userData, messageData}) => {
 
   const messageProvider = () => {
     const messageData = {
-      users: [messageData.seekerData.id, messageData.providerData.id],
+      users: [messagesData.seekerData.id, messagesData.providerData.id],
       usersOnline: { seeker: true, provider: true },
-      usersFullName: { seeker: `${messageData.seekerData.name.firstName} ${messageData.seekerData.name.lastName}`, provider: `${messageData.providerData.name.firstName} ${messageData.providerData.name.lastName}`},
-      usersImage: { seeker: messageData.seekerData.image, provider: messageData.providerData.image},
-      usersNumbers: { seeker: messageData.seekerData.mobile, provider: messageData.providerData.mobile},
+      usersFullName: { seeker: `${messagesData.seekerData.name.firstName} ${messagesData.seekerData.name.lastName}`, provider: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`},
+      usersImage: { seeker: messagesData.seekerData.image, provider: messagesData.providerData.image},
+      usersNumbers: { seeker: messagesData.seekerData.mobile, provider: messagesData.providerData.mobile},
       lastMessage: '',
       lastSeen: { seeker: false, provider: true },
       createdAt: new Date(),
@@ -43,20 +43,20 @@ const ServiceTop= ({data, navigation, userData, messageData}) => {
           text: 'Hello! I would like to inquire about your service.',
           createdAt: new Date(),
           user: {
-            _id: messageData.seekerData.id,
+            _id: messagesData.seekerData.id,
           },
-          _id: `${messageData.seekerData.id}_${messageData.providerData.id}_${new Date().getTime()}_${messageData.seekerData.id}`,
+          _id: `${messagesData.seekerData.id}_${messagesData.providerData.id}_${new Date().getTime()}_${messagesData.seekerData.id}`,
         }
       ]
     }
     try {
-      firestore().collection('chats').where('users', '==', [messageData.seekerData.id, messageData.providerData.id]).get().then((querySnapshot) => {
+      firestore().collection('chats').where('users', '==', [messagesData.seekerData.id, messagesData.providerData.id]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
-          firestore().collection('chats').doc(`${messageData.seekerData.id}_${messageData.providerData.id}`).set(messageData);
-          navigation.navigate('Chat', { userId: messageData.seekerData.id, chatId: `${messageData.seekerData.id}_${messageData.providerData.id}`, otherUserName: `${messageData.providerData.name.firstName} ${messageData.providerData.name.lastName}`, otherUserImage: messageData.providerData.image, role: 'Seeker', otherUserMobile: messageData.providerData.mobile, admin: false });
+          firestore().collection('chats').doc(`${messagesData.seekerData.id}_${messagesData.providerData.id}`).set(messageData);
+          navigation.navigate('Chat', { userId: messagesData.seekerData.id, chatId: `${messagesData.seekerData.id}_${messagesData.providerData.id}`, otherUserName: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`, otherUserImage: messagesData.providerData.image, role: 'Seeker', otherUserMobile: messagesData.providerData.mobile, admin: false });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: messageData.seekerData.id, chatId: doc.id, otherUserName: `${messageData.providerData.name.firstName} ${messageData.providerData.name.lastName}`, otherUserImage: messageData.providerData.image, role: 'Seeker', otherUserMobile: messageData.providerData.mobile, admin: false });
+            navigation.navigate('Chat', { userId: messagesData.seekerData.id, chatId: doc.id, otherUserName: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`, otherUserImage: messagesData.providerData.image, role: 'Seeker', otherUserMobile: messagesData.providerData.mobile, admin: false });
           });
         }
       }
