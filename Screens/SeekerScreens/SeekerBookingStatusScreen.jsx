@@ -249,12 +249,25 @@ const handleSubmitReview = async () => {
   const providerDoc = await providerRef.get();
   const providerRatingCount = providerDoc.data().ratingCount + 1;
   const providerRating = ((providerDoc.data().rating * providerDoc.data().ratingCount) + starCount) / providerRatingCount;
-  await providerRef.update({ rating: providerRating, ratingCount: providerRatingCount });
+  await providerRef.update({ rating: providerRating, ratingCount: providerRatingCount, ratingNumberCount:{
+    one: providerDoc.data().ratingNumberCount.one + (starCount === 1 ? 1 : 0),
+    two: providerDoc.data().ratingNumberCount.two + (starCount === 2 ? 1 : 0),
+    three: providerDoc.data().ratingNumberCount.three + (starCount === 3 ? 1 : 0),
+    four: providerDoc.data().ratingNumberCount.four + (starCount === 4 ? 1 : 0),
+    five: providerDoc.data().ratingNumberCount.five + (starCount === 5 ? 1 : 0),
+  } });
   const serviceRef = firestore().collection('services').doc(data.serviceId);
   const serviceDoc = await serviceRef.get();
   const serviceRatingCount = serviceDoc.data().ratingCount + 1;
   const serviceRating = ((serviceDoc.data().rating * serviceDoc.data().ratingCount) + starCount) / serviceRatingCount;
-  await serviceRef.update({ rating: serviceRating, ratingCount: serviceRatingCount });
+  await serviceRef.update({ rating: serviceRating, ratingCount: serviceRatingCount, ratingNumberCount:{
+    one: serviceDoc.data().ratingNumberCount.one + (starCount === 1 ? 1 : 0),
+    two: serviceDoc.data().ratingNumberCount.two + (starCount === 2 ? 1 : 0),
+    three: serviceDoc.data().ratingNumberCount.three + (starCount === 3 ? 1 : 0),
+    four: serviceDoc.data().ratingNumberCount.four + (starCount === 4 ? 1 : 0),
+    five: serviceDoc.data().ratingNumberCount.five + (starCount === 5 ? 1 : 0),
+  } });
+
   setIsLoading(false);
   alert('Review submitted successfully!');
   setReviewText('');

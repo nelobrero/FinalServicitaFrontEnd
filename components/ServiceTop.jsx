@@ -7,13 +7,15 @@ import  { useState } from "react";
 import { SwiperFlatList } from "react-native-swiper-flatlist";
 import ServiceImage from './ServiceImage'; 
 import RatingStars from './RatingStars';
+import firestore from '@react-native-firebase/firestore';
+
 
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 
-const ServiceTop= ({data, navigation, userData}) => {
+const ServiceTop= ({data, navigation, userData, messageData}) => {
 
   const [price, setPrice] = useState(`${data.minprice} - ₱${data.maxprice}`);
   const [serviceName, setServiceName] = useState(data.service);
@@ -24,6 +26,46 @@ const ServiceTop= ({data, navigation, userData}) => {
     setIsFavorite(!isFavorite);
   };
 
+
+  const messageProvider = () => {
+    const messageData = {
+      users: [messageData.seekerData.id, messageData.providerData.id],
+      usersOnline: { seeker: true, provider: true },
+      usersFullName: { seeker: `${messageData.seekerData.name.firstName} ${messageData.seekerData.name.lastName}`, provider: `${messageData.providerData.name.firstName} ${messageData.providerData.name.lastName}`},
+      usersImage: { seeker: messageData.seekerData.image, provider: messageData.providerData.image},
+      usersNumbers: { seeker: messageData.seekerData.mobile, provider: messageData.providerData.mobile},
+      lastMessage: '',
+      lastSeen: { seeker: false, provider: true },
+      createdAt: new Date(),
+      lastMessageTime: new Date(),
+      messages: [ 
+        {
+          text: 'Hello! I would like to inquire about your service.',
+          createdAt: new Date(),
+          user: {
+            _id: data.seekerId,
+          },
+          _id: `${messageData.seekerData.id}_${messageData.providerData.id}_${new Date().getTime()}_${messageData.seekerData.id}`,
+        }
+      ]
+    }
+    try {
+      firestore().collection('chats').where('users', '==', [messageData.seekerData.id, messageData.providerData.id]).get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          firestore().collection('chats').doc(`${messageData.seekerData.id}_${messageData.providerData.id}`).set(messageData);
+          navigation.navigate('Chat', { userId: messageData.seekerData.id, chatId: `${messageData.seekerData.id}_${messageData.providerData.id}`, otherUserName: `${messageData.providerData.name.firstName} ${messageData.providerData.name.lastName}`, otherUserImage: messageData.providerData.image, role: 'Seeker', otherUserMobile: messageData.providerData.mobile, admin: false });
+        } else {
+          querySnapshot.forEach((doc) => {
+            navigation.navigate('Chat', { userId: messageData.seekerData.id, chatId: doc.id, otherUserName: `${messageData.providerData.name.firstName} ${messageData.providerData.name.lastName}`, otherUserImage: messageData.providerData.image, role: 'Seeker', otherUserMobile: messageData.providerData.mobile, admin: false });
+          });
+        }
+      }
+      );
+    }
+    catch (error) {
+      console.error('Error creating chat:', error);
+    }
+  };
 
 
   return (
@@ -79,7 +121,7 @@ const ServiceTop= ({data, navigation, userData}) => {
       </View>
       
 
-      <TouchableOpacity onPress={() => console.log('Message')}>
+      <TouchableOpacity onPress={messageProvider}>
       <View style={[styles.message, styles.bookPosition2]}>
         <View style={[styles.messageChild, styles.childShadowBox]} />
         <Text style={[styles.message1, styles.message1Position]}>Message</Text>

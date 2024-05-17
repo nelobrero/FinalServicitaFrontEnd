@@ -135,6 +135,14 @@ export default function VerificationScreen({ navigation, route, props }) {
             if (storeData.data.role === 'Provider') {
                 userData.rating = 0;
                 userData.completedBookings = 0;
+                userData.ratingCount = 0;
+                userData.ratingNumberCount = {
+                    one: 0,
+                    two: 0,
+                    three: 0,
+                    four: 0,
+                    five: 0
+                };
                 const serviceIds = storeData.data.services.map(services => services.serviceId);
                 userData.services = serviceIds;
                 for (const service of storeData.data.services) {
@@ -149,6 +157,13 @@ export default function VerificationScreen({ navigation, route, props }) {
                         rating: 0,
                         status: 'Pending',
                         ratingCount: 0,
+                        ratingNumberCount: {
+                            one: 0,
+                            two: 0,
+                            three: 0,
+                            four: 0,
+                            five: 0
+                        },
                         dateSubmitted: firestore.Timestamp.now(),
                         address: {
                             cityMunicipality: storeData.data.address.cityMunicipality,

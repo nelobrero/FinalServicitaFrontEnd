@@ -1,15 +1,17 @@
 
-import { View, StyleSheet, ScrollView,TouchableOpacity, Dimensions, Text} from 'react-native';
+import { View, StyleSheet, ScrollView,TouchableOpacity, Dimensions, Text, ActivityIndicator} from 'react-native';
 import { Color, FontSize, FontFamily } from "./../../GlobalStyles";
 import ServiceTop from './../../components/ServiceTop';
 import Description from './../../components/Description';
 import Post from './../../components/Post';
 import Review from './../../components/Review';
 import Photos1 from './../../components/Photos1';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import firestore from '@react-native-firebase/firestore';
+import axios from 'axios';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -17,12 +19,38 @@ const windowHeight = Dimensions.get('window').height;
 export default ServiceViewScreen = ({navigation, route}) => {
 
   const { data, userData } = route.params;
+  const [ loading, setLoading ] = useState(true);
+
+  const [ messageData , setMessageData ] = useState(null);
+
+  async function getMessageNeededData () {
+    const resultSeeker = await axios.post("http://172.16.9.33:5000/user/getUserDetailsById", { id: userData._id });
+    const seekerSnapshot = await firestore().collection('seeker').doc(userData._id).get();
+    const seekerData = { id: seekerSnapshot.id, ...seekerSnapshot.data(), image: resultSeeker.data.data.profileImage, mobile: resultSeeker.data.data.mobile };
+    const resultProvider = await axios.post("http://172.16.9.33:5000/user/getUserDetailsById", { id: data.providerId });
+    const providerSnapshot = await firestore().collection('provider').doc(data.providerId).get();
+    const providerData = { id: providerSnapshot.id, ...providerSnapshot.data(), image: resultProvider.data.data.profileImage, mobile: resultProvider.data.data.mobile };
+    setMessageData({seekerData, providerData});
+    setLoading(false);
+  }
+  
+  useEffect(() => {
+    getMessageNeededData();
+  }, []);
 
   const [activeTab, setActiveTab] = useState("Post"); // State to track active tab
 
   const handleTabPress = (tabName) => {
     setActiveTab(tabName);
   };
+
+  if (!messageData) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color={Color.colorPrimary} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView>
@@ -42,7 +70,7 @@ export default ServiceViewScreen = ({navigation, route}) => {
             <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
             </TouchableOpacity>
         <View>
-          <ServiceTop data={data} navigation={navigation} userData={userData} />
+          <ServiceTop data={data} navigation={navigation} userData={userData} messageData={messageData} />
         </View>
 
         <View style={[styles.navigator, styles.navigatorContainer]}>
