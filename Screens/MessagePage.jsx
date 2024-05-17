@@ -54,7 +54,7 @@ const MessagePage = ({ navigation, route }) => {
   
     fetchData();
 
-    const chatUnsubscribe = firestore().collection("chats").onSnapshot((snapshot) => {
+    const chatUnsubscribe = firestore().collection("chats").where('users', 'array-contains', userData._id).onSnapshot((snapshot) => {
       const chatDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
       setFilteredUsers(prevState => {
         const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
@@ -63,7 +63,7 @@ const MessagePage = ({ navigation, route }) => {
       });
     });
   
-    const chatWithAdminUnsubscribe = firestore().collection("adminChats").onSnapshot((snapshot) => {
+    const chatWithAdminUnsubscribe = firestore().collection("adminChats").where('userIds.user', '==', userData._id).onSnapshot((snapshot) => {
       const chatWithAdminDocs = snapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
       setFilteredUsers(prevState => {
         const updatedChats = new Map(prevState.map(chat => [chat.id, chat]));
