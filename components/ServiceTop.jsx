@@ -43,7 +43,7 @@ const ServiceTop= ({data, navigation, userData, messageData}) => {
           text: 'Hello! I would like to inquire about your service.',
           createdAt: new Date(),
           user: {
-            _id: data.seekerId,
+            _id: messageData.seekerData.id,
           },
           _id: `${messageData.seekerData.id}_${messageData.providerData.id}_${new Date().getTime()}_${messageData.seekerData.id}`,
         }
