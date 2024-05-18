@@ -78,9 +78,9 @@ const ChooseLocation = ({ navigation, route }) => {
                 <Button
                     title="Choose Location"
                     filled Color={Color.colorWhite}
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 16, opacity: address === '' || Object.keys(startCords).length === 0 ? 0.5 : 1 }}
                     onPress={onDone}
-
+                    disabled={address === '' || Object.keys(startCords).length === 0}
                 />
             </View>
         </View>

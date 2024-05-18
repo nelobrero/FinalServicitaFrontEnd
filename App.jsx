@@ -52,6 +52,7 @@ import ChooseLocation from './Screens/SeekerScreens/ChooseLocation';
 import ProviderBookingPage from './Screens/ProviderScreens/ProviderBookingPage';
 import Chat from './Screens/Chat';
 import NotificationScreen from './Screens/NotificationScreen';
+import AIScreen from './Screens/AIScreen';
 
 const LoginNav = () => {
 
@@ -73,7 +74,7 @@ const LoginNav = () => {
   };
 
     return (
-        <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName='AI' screenOptions={{ headerShown: false }}>
 
             <Stack.Screen name='UserRole' component={UserRoleScreen} />
             <Stack.Screen name='Login' component={LoginPage} />
@@ -88,6 +89,7 @@ const LoginNav = () => {
             <Stack.Screen name='AddressForm' component={AddressForm} />
             <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
             <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
+            <Stack.Screen name='AI' component={AIScreen} />
 
         </Stack.Navigator>
         )
@@ -107,7 +109,7 @@ const AppNavigator = () => {
 
     async function getUserData() {
         const token = await AsyncStorage.getItem('token');
-        await axios.post("http://192.168.43.30:5000/user/userData", {token: token}).then((res) => {
+        await axios.post("http://192.168.1.7:5000/user/userData", {token: token}).then((res) => {
         setUserRole(res.data.data.data.role);
         setUserEmail(res.data.data.data.email);
         setUserDataFetched(true);

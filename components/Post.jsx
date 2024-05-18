@@ -89,7 +89,7 @@ const PostItem = ({ item }) => {
     useEffect(() => {
       const getPosts = async () => {
         try {
-          const response = await axios.post('http://192.168.43.30:5000/post/getPostsById', { serviceId });
+          const response = await axios.post('http://192.168.1.7:5000/post/getPostsById', { serviceId });
           setPostsData(response.data.data);
           setLoading(false);
         } catch (error) {

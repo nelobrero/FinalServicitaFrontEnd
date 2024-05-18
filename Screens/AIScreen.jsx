@@ -6,68 +6,109 @@ import {
   Image,
   TextInput,
   StyleSheet,
+  ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
+  Dimensions,
 } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
-import { Bubble } from "react-native-gifted-chat";
+import { GiftedChat, Bubble  } from "react-native-gifted-chat";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import axios from "axios";
 
+const { width } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
-const AIScreen = ({ navigation }) => {
+// const AIScreen = ({ navigation, role }) => {
+  const AIScreen = ({ navigation }) => {
+  const role = "Seeker";
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState(false);
 
   const handleInputText = (text) => {
     setInputMessage(text);
   };
 
+  const renderChatFooter = () => {
+    return <View style={{ height: 40 }} />;
+  }
+
   const renderMessage = (props) => {
     const { currentMessage } = props;
+    const isReceived = currentMessage.user._id !== 1
 
-    if (currentMessage.user._id === 1) {
-      return (
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            justifyContent: "flex-end",
+    return (
+      <View
+        style={{
+          flex: 1,
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Bubble
+          {...props}
+
+          wrapperStyle={{
+            right: {
+              backgroundColor: '#218aff',
+              marginRight: 12,
+              marginBottom: 12,
+            },
+            left: {
+              backgroundColor: "#d8d8d8",
+              marginLeft: 12,
+              marginBottom: 12,
+            },
+          
           }}
-        >
-          <Bubble
-            {...props}
-            wrapperStyle={{
-              right: {
-                backgroundColor: "#07374D",
-                marginRight: 12,
-                marginBottom: 5,
-              },
-            }}
-            textStyle={{
-              right: {
-                color: "white",
-              },
-            }}
-          />
-        </View>
-      );
-    }
+          containerStyle={{
+            left: {
+              marginLeft: isReceived ? 5 : 0,
+            },
+          
+          }}
+          textStyle={{
+            right: {
+              color: "white",
+            },
+          }}
+        />
+      </View>
+    );
   };
 
-  const submitHandler = () => {
+  const submitHandler = async () => {
+
+
     const message = {
       _id: Math.random().toString(36).toString(7),
       text: inputMessage,
-      // Use any method to generate your desired timestamp, for example, adding a random number of milliseconds to the current time
       createdAt: new Date().getTime() + Math.floor(Math.random() * 1000),
       user: { _id: 1 },
     };
 
-    setMessages((previousMessages) => [message, ...previousMessages]);
+    try {
+      setLoadingMessage(true);
+      setMessages((previousMessages) => [message, ...previousMessages]);
+      setInputMessage("");
 
-    setInputMessage("");
+      const response = role === "Seeker" ? await axios.post("http://192.168.1.7:5000/ai/generateSeekerContent", { inputText: inputMessage }) : await axios.post("http://192.168.1.7:5000/ai/generateProviderContent", { inputText: inputMessage })
+      console.log(response);
+      const botMessage = {
+        _id: Math.random().toString(36).toString(7),
+        text: response.data.outputText,
+        createdAt: new Date().getTime() + Math.floor(Math.random() * 1000),
+        user: { _id: 2 },
+      };
+
+      setMessages((previousMessages) => [botMessage, ...previousMessages]);
+      setLoadingMessage(false);
+    } catch (error) {
+      console.log(error);
+    }
+
   };
 
   return (
@@ -78,11 +119,21 @@ const AIScreen = ({ navigation }) => {
             justifyContent: "center",
             alignItems: "center",}}
       >
-<View style={{ flex: 1, flexDirection: "row", }}>
-  <TouchableOpacity style={{margin: 15}}>
-    <AntDesign name="arrowleft" size={28} color="black" />
-  </TouchableOpacity>
 
+<View style={{ flex: 1, flexDirection: "row", }}>
+ 
+<View
+          style={{
+            position: "absolute",
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ margin: 12 }}
+          >
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
   
 
 
@@ -98,17 +149,24 @@ const AIScreen = ({ navigation }) => {
             }}
           /> */}
         
-
         <GiftedChat
           messages={messages}
           renderInputToolbar={() => {
             return null;
           }}
           user={{ _id: 1 }}
-          minInputToolbarHeight={0}
+      
           renderMessage={renderMessage}
-          
+          disabled={loadingMessage}
+          renderChatFooter={renderChatFooter}
+      
         />
+
+        {loadingMessage && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#07374D" />
+          </View>
+        )}
 
         <View style={styles.inputContainer}>
           <View style={styles.inputMessageContainer}>
@@ -119,13 +177,13 @@ const AIScreen = ({ navigation }) => {
               onChangeText={handleInputText}
             />
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{ marginHorizontal: 8 }}
               >
                 <Ionicons name="images-outline" size={24} color="black" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
-            <TouchableOpacity onPress={submitHandler}>
+            <TouchableOpacity onPress={submitHandler} disabled={!inputMessage || loadingMessage} styles={{ opacity: !inputMessage || loadingMessage ? 0.5 : 1 }}>
               <Feather
                 name="send"
                 size={24}
@@ -144,27 +202,37 @@ const AIScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   inputContainer: {
     backgroundColor: "white",
-    height: 72,
+    height: 'auto',
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: 0,
+    bottom: height * 0.02,
     width: "100%",
   },
   inputMessageContainer: {
     height: 54,
-    width: 380,
     flexDirection: "row",
     justifyContent: "center",
     borderWidth: 1,
     borderRadius: 16,
     alignItems: "center",
     borderColor: "black",
+
   },
   input: {
     color: "black",
     flex: 1,
     paddingHorizontal: 10,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)", // Semi-transparent background
   },
 });
 
