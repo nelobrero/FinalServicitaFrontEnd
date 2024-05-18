@@ -74,7 +74,7 @@ const LoginNav = () => {
   };
 
     return (
-        <Stack.Navigator initialRouteName='AI' screenOptions={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
 
             <Stack.Screen name='UserRole' component={UserRoleScreen} />
             <Stack.Screen name='Login' component={LoginPage} />
@@ -89,7 +89,7 @@ const LoginNav = () => {
             <Stack.Screen name='AddressForm' component={AddressForm} />
             <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
             <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
-            <Stack.Screen name='AI' component={AIScreen} />
+            {/* <Stack.Screen name='AI' component={AIScreen} /> */}
 
         </Stack.Navigator>
         )
