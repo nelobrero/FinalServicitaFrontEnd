@@ -19,8 +19,8 @@ function ProviderBookingStatusScreen({ navigation, route }) {
 
   const { data, userData} = route.params;
 
-    const [statusText, setStatusText] = useState(data.status);
-    // const [statusText, setStatusText] = useState("En Route");
+    // const [statusText, setStatusText] = useState(data.status);
+    const [statusText, setStatusText] = useState("En Route");
     const [serviceName, setServiceName] = useState(data.serviceName);
     const [buttonsVisible, setButtonsVisible] = useState(true);
     const [buttonsVisible2, setButtonsVisible2] = useState(true);

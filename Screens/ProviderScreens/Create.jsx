@@ -261,6 +261,13 @@ const handleValuesChange = (values) => {
             rating: 0,
             status: 'Pending',
             ratingCount: 0,
+            ratingNumberCount: {
+                one: 0,
+                two: 0,
+                three: 0,
+                four: 0,
+                five: 0
+            },
             dateSubmitted: firestore.Timestamp.now(),
             address: {
               cityMunicipality: userData.address.cityMunicipality,
