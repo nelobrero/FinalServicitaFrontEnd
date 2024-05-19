@@ -1,36 +1,218 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity } from 'react-native';
+
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState, useEffect, useRef } from "react";
+import * as Device from 'expo-device';
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+
+export const usePushNotifications = () => {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldPlaySound: true,
+      shouldShowAlert: true,
+      shouldSetBadge: true,
+    }),
+  });
+
+  const [expoPushToken, setExpoPushToken] = useState(undefined);
+  const [notification, setNotification] = useState(undefined);
+
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification");
+        return;
+      }
+
+      token = await Notifications.getExpoPushTokenAsync({
+        projectId: Constants.expoConfig?.extra?.eas.projectId,
+      });
+    } else {
+      alert("Must be using a physical device for Push notifications");
+    }
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    return token;
+  }
+
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) => {
+      setExpoPushToken(token);
+    });
+
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  return {
+    expoPushToken,
+    notification,
+  };
+};
+
+export const sendPushNotification = async (expoPushToken, title, body, userId) => {
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title: title,
+    body: body,
+  };
+
+  console.log("Sending push notification:", message);
+
+
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      host: "exp.host",
+      accept: "application/json",
+      "accept-encoding": "gzip, deflate",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
+
+  const notification = {
+    userId: userId,
+    message: body,
+    title: title,
+  };
+
+  const result = await axios.post("http://192.168.1.7:5000/notifications/create", notification)
+  return result;
+};
+
+
+
 
 const { width, height } = Dimensions.get('window');
 
-const notifications = {
-  today: [
-    { id: 1, time: '10:00 AM', message: 'Your appointment with John Doe at 2:00 PM today has been confirmed.', image: require('../assets/icon.png') },
-    { id: 2, time: '9:30 AM', message: 'Jane Smith will be 15 minutes late for your 3:00 PM appointment.', image: require('../assets/icon.png') }
-  ],
-  yesterday: [
-    { id: 1, time: '3:00 PM', message: 'Your appointment with Sarah Johnson has been rescheduled to 4:00 PM.', image: require('../assets/icon.png') },
-    { id: 2, time: '1:00 PM', message: 'Reminder: You have an appointment with Michael Brown tomorrow at 10:00 AM.', image: require('../assets/icon.png') }
-  ],
-  thisWeekend: [
-    { id: 1, time: 'Saturday 2:00 PM', message: 'Your appointment with Emma Davis is confirmed for Saturday at 2:00 PM.', image: require('../assets/icon.png') },
-    { id: 2, time: 'Sunday 11:00 AM', message: 'Your appointment with Chris Lee is confirmed for Sunday at 11:00 AM.', image: require('../assets/icon.png') }
-  ]
-};
+// const notifications = {
+//   today: [
+//     { id: 1, time: '10:00 AM', message: 'Your appointment with John Doe at 2:00 PM today has been confirmed.', image: require('../assets/icon.png') },
+//     { id: 2, time: '9:30 AM', message: 'Jane Smith will be 15 minutes late for your 3:00 PM appointment.', image: require('../assets/icon.png') }
+//   ],
+//   yesterday: [
+//     { id: 1, time: '3:00 PM', message: 'Your appointment with Sarah Johnson has been rescheduled to 4:00 PM.', image: require('../assets/icon.png') },
+//     { id: 2, time: '1:00 PM', message: 'Reminder: You have an appointment with Michael Brown tomorrow at 10:00 AM.', image: require('../assets/icon.png') }
+//   ],
+//   thisWeekend: [
+//     { id: 1, time: 'Saturday 2:00 PM', message: 'Your appointment with Emma Davis is confirmed for Saturday at 2:00 PM.', image: require('../assets/icon.png') },
+//     { id: 2, time: 'Sunday 11:00 AM', message: 'Your appointment with Chris Lee is confirmed for Sunday at 11:00 AM.', image: require('../assets/icon.png') }
+//   ]
+// };
 
-const NotificationScreen = () => {
+const NotificationScreen = ({navigation}) => {
+  
+    const [notifications, setNotifications] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+
+
+
+    const renderDateObjectToDateAndTimeString = (dateObject) => {
+      const date = dateObject instanceof Date ? dateObject : new Date(dateObject || Date.now());
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 || 12;
+      const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+      const isToday = date.toDateString() === new Date().toDateString();
+      const isYesterday = date.toDateString() === new Date(new Date().setDate(new Date().getDate() - 1)).toDateString();
+      //Take into account today and yesterday
+      const formattedNameOfDay = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const finalDay = isToday ? 'Today' : isYesterday ? 'Yesterday' : formattedNameOfDay;
+
+  
+      return `${finalDay}, ${formattedHours}:${formattedMinutes} ${ampm}`;
+    }
+
+
+    useEffect(() => {
+      const fetchNotifications = async () => {
+        try {
+          const userId = await AsyncStorage.getItem('userId');
+          const response = await axios.get(`http://192.168.1.7:5000/notifications/getNotifications/${userId}`);
+          setNotifications(
+            response.data.reduce((acc, notification) => {
+              const date = notification.createdAt instanceof Date ? notification.createdAt : new Date(notification.createdAt || Date.now());
+              const day = date.getDate();
+              const today = new Date().getDate();
+              const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).getDate();
+              const isToday = day === today;
+              const isYesterday = day === yesterday;
+              const isThisWeek = date >= new Date(new Date().setDate(new Date().getDate() - 7));
+  
+              if (isToday) {
+                acc.today.push(notification);
+              } else if (isYesterday) {
+                acc.yesterday.push(notification);
+              } else if (isThisWeek) {
+                acc.thisWeekend.push(notification);
+              }
+  
+              return acc;
+            }, { today: [], yesterday: [], thisWeekend: [] })
+          );
+  
+        } catch (error) {
+          console.error('Error fetching notifications:', error);
+
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      fetchNotifications();
+      const intervalId = setInterval(fetchNotifications, 10000);
+  
+      return () => clearInterval(intervalId);
+    }, []);
+
+
   const renderNotifications = (title, notifications) => (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
       {notifications.map((notification) => (
-        <View key={notification.id} style={styles.notificationItem}>
+        <View key={notification._id} style={styles.notificationItem}>
           <View style={styles.notificationContent}>
-            <Image source={notification.image} style={styles.notificationImage} />
+            <Image source={require('../assets/icon.png')} style={styles.notificationImage} />
             <View style={styles.notificationText}>
-              <Text style={styles.notificationTime}>{notification.time}</Text>
+              <Text style={styles.notificationTime}>{notification.title}</Text>
               <Text style={styles.notificationMessage}>{notification.message}</Text>
+              <Text style={styles.notificationTime}>{renderDateObjectToDateAndTimeString(notification.createdAt)}</Text>
             </View>
           </View>
         </View>
@@ -41,15 +223,35 @@ const NotificationScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <AntDesign name="arrowleft" size={24} color="#07364B" />
         </TouchableOpacity>
         <Text style={styles.title}>Notifications</Text>
       </View>
       <ScrollView style={styles.scrollContainer}>
-        {renderNotifications('Today', notifications.today)}
-        {renderNotifications('Yesterday', notifications.yesterday)}
-        {renderNotifications('This Weekend', notifications.thisWeekend)}
+      {isLoading ? (
+  <ActivityIndicator size="large" color="#07364B" />
+) : (
+  <>
+    {notifications && (  // Check if notifications is not null
+      (notifications.today && notifications.today.length > 0) ||
+      (notifications.yesterday && notifications.yesterday.length > 0) ||
+      (notifications.thisWeekend && notifications.thisWeekend.length > 0)
+    ) ? (
+      <>
+        {notifications.today && notifications.today.length > 0 && renderNotifications('Today', notifications.today)}
+        {notifications.yesterday && notifications.yesterday.length > 0 && renderNotifications('Yesterday', notifications.yesterday)}
+        {notifications.thisWeekend && notifications.thisWeekend.length > 0 && renderNotifications('This Weekend', notifications.thisWeekend)}
+      </>
+    ) : (
+      <Text>No notifications available.</Text>
+    )}
+  </>
+)}
+
+
+
+
       </ScrollView>
     </View>
   );

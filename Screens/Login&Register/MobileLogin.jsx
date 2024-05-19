@@ -8,6 +8,9 @@ import auth from '@react-native-firebase/auth';
 import axios from "axios";
 import Button from "../../components/Button";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import firestore from '@react-native-firebase/firestore';
+import * as Notifications from 'expo-notifications';
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -37,12 +40,34 @@ export default function MobileLogin({navigation}) {
     const confirmCode = async () => {
         try {
             await confirm.confirm(code.join(''));
-            await axios.post("http://192.168.1.7:5000/user/loginUsingMobile", { mobile: mobile }).then((res) => {
+            await axios.post("http://192.168.1.7:5000/user/loginUsingMobile", { mobile: mobile }).then(async (res) => {
         console.log(res.data)
         if (res.data.status === 'SUCCESS') {
             Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-            AsyncStorage.setItem('token', res.data.data);
-            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            await AsyncStorage.setItem('token', res.data.data);
+            await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            await AsyncStorage.setItem('userId', res.data.userId);
+            const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
             navigation.navigate('Tab');
         }
     }). catch((error) => {

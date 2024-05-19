@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -28,7 +29,7 @@ export default HomePage = ({navigation, route}) => {
       );
 
     } catch (error) {
-      AsyncStorage.removeItem('isLoggedIn');
+      await AsyncStorage.removeItem('isLoggedIn');
       console.error('Error getting user data from MongoDB:', error);
     }
   }
@@ -299,6 +300,8 @@ export default HomePage = ({navigation, route}) => {
     </View>
     <PopularServices serviceData={serviceData} navigation={navigation} userData={userData} />
     </ScrollView>
+    {/* Button for navigation to Notification screen */}
+
     </SafeAreaView>
 
   )

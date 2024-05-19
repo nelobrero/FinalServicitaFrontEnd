@@ -36,7 +36,9 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
     seekerName: `${item.seekerData.data.name.firstName} ${item.seekerData.data.name.lastName}`,
     seekerImage: item.seekerData.image,
     providerImage: item.providerImage,
-    seekerMobile: item.seekerData.mobile
+    seekerMobile: item.seekerData.mobile,
+    seekerExpoTokens: item.seekerData.expoTokens,
+    providerExpoTokens: item.providerData.expoTokens
 }));
   
   const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);
@@ -91,6 +93,8 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
           providerImage: item.providerImage,
           providerMobile: item.providerMobile,
           seekerMobile: item.seekerMobile,
+          seekerExpoTokens: item.seekerExpoTokens,
+          providerExpoTokens: item.providerExpoTokens,
         },
         userData: userData,
         serviceData: bookingData.find(booking => booking.id === item.id).serviceData,

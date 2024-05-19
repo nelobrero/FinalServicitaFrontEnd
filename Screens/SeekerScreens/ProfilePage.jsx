@@ -23,8 +23,8 @@ export default ProfilePage = ({ navigation, route }) => {
       setUserData(response.data.data);
     const storedId = response.data.data._id;
     getStoreData(storedId);
-    }).catch((err) => {
-      AsyncStorage.removeItem('isLoggedIn');
+    }).catch(async (err) => {
+      await AsyncStorage.removeItem('isLoggedIn');
       console.log(err);
     });
   }

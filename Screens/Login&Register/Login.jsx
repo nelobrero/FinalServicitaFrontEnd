@@ -12,6 +12,12 @@ import Error from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from "expo-linear-gradient";
 import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import firestore from '@react-native-firebase/firestore';
+import * as Device from 'expo-device';
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+import DeviceInformation from 'react-native-device-info';
+
 
 export default function LoginPage ({ navigation }) {
     const [email, setEmail] = useState('');
@@ -62,12 +68,35 @@ export default function LoginPage ({ navigation }) {
                                 if (remainingTime <= 0) {
                                   axios.patch(`http://192.168.1.7:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
                                     if (res.data.status === 'SUCCESS') {
-                                      axios.post("http://192.168.1.7:5000/user/loginOther", {email: userData.email }).then((res) => {
+                                      axios.post("http://192.168.1.7:5000/user/loginOther", {email: userData.email }).then(async (res) => {
                                         console.log(res.data)
+                                    console.log("User ID: ", res.data.userId);
                                         if (res.data.status === 'SUCCESS') {
                                             Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                                            AsyncStorage.setItem('token', res.data.data);
-                                            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                            await AsyncStorage.setItem('token', res.data.data);
+                                            await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                            await AsyncStorage.setItem('userId', res.data.userId);
+                                            const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
                                             navigation.navigate('App', { email: userData.email });
                                         }
                                     }
@@ -86,12 +115,35 @@ export default function LoginPage ({ navigation }) {
                                 const formatMessage = remainingTime >= 60 ? `${Math.floor(remainingTime / 60)} hour${Math.floor(remainingTime / 60) > 1 ? 's' : ''} and ${remainingTime % 60} minute${remainingTime % 60 > 1 ? 's' : ''}`: `${remainingTime} minute${remainingTime > 1 ? 's' : ''}`;
                 Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
                               } else if (res.data.type === 'NOT_SUSPENDED') {
-                                axios.post("http://192.168.1.7:5000/user/loginOther", userEmail).then((res) => {
+                                axios.post("http://192.168.1.7:5000/user/loginOther", userEmail).then(async (res) => {
                                     console.log(res.data)
+                                    console.log("User ID: ", res.data.userId);
                                     if (res.data.status === 'SUCCESS') {
                                         Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                                        AsyncStorage.setItem('token', res.data.data);
-                                        AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                        await AsyncStorage.setItem('token', res.data.data);
+                                        await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                        await AsyncStorage.setItem('userId', res.data.userId);
+                                        const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
                                         navigation.navigate('App', { email: userData.email });
                                     }
                                 }).catch((err) => {
@@ -149,12 +201,35 @@ export default function LoginPage ({ navigation }) {
                     if (remainingTime <= 0) {
                       axios.patch(`http://192.168.1.7:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
                         if (res.data.status === 'SUCCESS') {
-                          axios.post("http://192.168.1.7:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
+                          axios.post("http://192.168.1.7:5000/user/loginOther", {email: userInfo.user.email }).then(async (res) => {
                             console.log(res.data)
+                                    console.log("User ID: ", res.data.userId);
                             if (res.data.status === 'SUCCESS') {
                                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                                AsyncStorage.setItem('token', res.data.data);
-                                AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                await AsyncStorage.setItem('token', res.data.data);
+                                await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                                await AsyncStorage.setItem('userId', res.data.userId);
+                                const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
                                 navigation.navigate('App', { email: userData.email });
                             }
                         }
@@ -171,12 +246,35 @@ export default function LoginPage ({ navigation }) {
                     Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
                     }
                   } else if (res.data.type === 'NOT_SUSPENDED') {
-                  axios.post("http://192.168.1.7:5000/user/loginOther", {email: userInfo.user.email }).then((res) => {
-                  console.log(res.data)
+                  axios.post("http://192.168.1.7:5000/user/loginOther", {email: userInfo.user.email }).then(async (res) => {
+                    console.log(res.data)
+                    console.log("User ID: ", res.data.userId);
                   if (res.data.status === 'SUCCESS') {
                       Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                      AsyncStorage.setItem('token', res.data.data);
-                      AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                      await AsyncStorage.setItem('token', res.data.data);
+                      await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                      await AsyncStorage.setItem('userId', res.data.userId);
+                      const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
                       navigation.navigate('App', { email: userData.email });
                   }
               }).catch((err) => {
@@ -242,19 +340,41 @@ export default function LoginPage ({ navigation }) {
         axios.post("http://192.168.1.7:5000/user/login", userData).then((res) => {
         const storedData = res.data.data;
         if (res.data.status === 'SUCCESS') {
-          axios.get(`http://192.168.1.7:5000/admin/checkSuspensionStatus/${email}`).then((res) => {
+          axios.get(`http://192.168.1.7:5000/admin/checkSuspensionStatus/${email}`).then(async (res) => {
             if (res.data.status === 'SUCCESS') {
               if (res.data.type === 'SUSPENDED') {
                 const remainingTime = res.data.remainingTime;
                 if (remainingTime <= 0) {
                   axios.patch(`http://192.168.1.7:5000/admin/unsuspendUser`, { email: userData.email }).then((res) => {
                     if (res.data.status === 'SUCCESS') {
-                      axios.post("http://192.168.1.7:5000/user/loginOther", {email: userData.email }).then((res) => {
+                      axios.post("http://192.168.1.7:5000/user/loginOther", {email: userData.email }).then(async (res) => {
                         console.log(res.data)
                         if (res.data.status === 'SUCCESS') {
                             Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                            AsyncStorage.setItem('token', res.data.data);
-                            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                            await AsyncStorage.setItem('token', res.data.data);
+                            await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                            await AsyncStorage.setItem('userId', res.data.userId);
+                            const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
                             navigation.navigate('App', { email: userData.email });
                         }
                     }
@@ -272,8 +392,30 @@ export default function LoginPage ({ navigation }) {
                 }
               } else if (res.data.type === 'NOT_SUSPENDED') {
                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                AsyncStorage.setItem('token', storedData);
-                AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                await AsyncStorage.setItem('token', storedData);
+                await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                await AsyncStorage.setItem('userId', res.data.userId);
+                const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
                 navigation.navigate('App', { email: userData.email });
               }
             }

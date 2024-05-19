@@ -5,6 +5,8 @@ import { StyleSheet, View, Text, Image, Dimensions, FlatList, TouchableOpacity, 
 import { Color, FontFamily, FontSize, Border } from "./../GlobalStyles";
 import { parse, set } from 'date-fns';
 import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendPushNotification } from '../NotificationScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -38,7 +40,9 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
     seekerName: `${item.seekerData.data.name.firstName} ${item.seekerData.data.name.lastName}`,
     seekerImage: item.seekerImage,
     providerImage: item.providerImage,
-    providerMobile: item.providerMobile
+    providerMobile: item.providerMobile,
+    seekerExpoTokens: item.seekerData.expoTokens,
+    providerExpoTokens: item.providerData.expoTokens
 }));
   
   const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);
@@ -74,12 +78,19 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
     // Update status of booking to 'Accepted' in firestore
     await firestore().collection('bookings').doc(item.id).update({ status: 'Accepted' });
     Alert.alert('Booking Accepted, Seeker will be notified.');
+    // Send push notification to seeker
+    for (const token of item.seekerExpoTokens) {
+      sendPushNotification(token, 'Booking Accepted', `Your booking for ${item.serviceName} has been accepted by ${item.providerName}`);
+    }
     setActionDone(true);
   };
 
   const handleDecline = async (item, userData) => {
     await firestore().collection('bookings').doc(item.id).update({ status: 'Declined' });
     Alert.alert('Booking Declined, Seeker will be notified.');
+    for (const token of item.seekerExpoTokens) {
+      sendPushNotification(token, 'Booking Declined', `Your booking for ${item.serviceName} has been declined by ${item.providerName}`);
+    }
     setActionDone(true);
   };
 
@@ -183,6 +194,8 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
           providerImage: item.providerImage,
           seekerMobile: item.seekerMobile,
           providerMobile: item.providerMobile,
+          seekerExpoTokens: item.seekerExpoTokens,
+          providerExpoTokens: item.providerExpoTokens,
         },
         userData: userData,
         })}>

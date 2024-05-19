@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Text, StyleSheet, View, TextInput, Alert, Dimensions, Pressable, Image, SafeAreaView, ScrollView, Modal} from "react-native";
+import { Text, StyleSheet, View, TextInput, Alert, Dimensions, Pressable, Image, SafeAreaView, ScrollView, Modal, ActivityIndicator} from "react-native";
 import { Color, FontFamily, FontSize, Border, errorText } from "../../GlobalStyles";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
@@ -10,12 +10,14 @@ import Button from "../../components/Button";
 import auth from '@react-native-firebase/auth';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 export default function VerificationScreen({ navigation, route, props }) {
-    
+
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
     const [confirm, setConfirm] = useState(null);
@@ -28,6 +30,7 @@ export default function VerificationScreen({ navigation, route, props }) {
     const [mobileVerify, setMobileVerify] = useState(false);
     const [equal, setEqual] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DEPOLTIMEJ.jpg?alt=media&token=720651f9-4b46-4b9d-8131-ec4d8951a81b";
     const DEFAULT_IMAGE_URL_SEEKER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DPULTO.jpg?alt=media&token=7c029ca7-8b0c-4182-8d35-951b55281a15";
     const DEFAULT_IMAGE_SERVICE_PROFILE = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/COVERPAGE.jpg?alt=media&token=ff9d0b7b-3bc9-4d63-8aeb-2e4149583941";
@@ -39,6 +42,7 @@ export default function VerificationScreen({ navigation, route, props }) {
     useEffect(() => {
         setEqual(checkIfMobileAndFinalMobileAreEqual());
     }, [mobile]);
+
 
     const checkIfMobileAndFinalMobileAreEqual = () => {
         if (mobile === finalMobile) {
@@ -74,12 +78,34 @@ export default function VerificationScreen({ navigation, route, props }) {
                     await saveDetails(res.data.data._id);
                 }
             })
-            await axios.post("http://192.168.1.7:5000/user/login", {email: email, password: storeData.data.password}).then((res) => {
+            await axios.post("http://192.168.1.7:5000/user/login", {email: email, password: storeData.data.password}).then(async (res) => {
             console.log(res.data)
             if (res.data.status === 'SUCCESS') {
                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                AsyncStorage.setItem('token', res.data.data);
-                AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                await AsyncStorage.setItem('token', res.data.data);
+                await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                await AsyncStorage.setItem('userId', res.data.userId);
+                const expoToken = await Notifications.getExpoPushTokenAsync();         
+                                            let userDoc = null;                                            
+                                            if (res.data.role === "Seeker") {
+                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                            } else {
+                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                            }
+                                            if (userDoc.exists) {
+                                                const user = userDoc.data();                                             
+                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                    console.log('ExpoToken already exists');
+                                                } else {
+                                                    user.expoTokens.push(expoToken.data);
+                                                    if (res.data.role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    } else {
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    }
+                                                    console.log('ExpoToken added');
+                                                }
+                                            }
                 navigation.navigate('App', { email: email });
             }
         })
@@ -110,6 +136,7 @@ export default function VerificationScreen({ navigation, route, props }) {
     };
 
     const saveDetails = async (userId) => {
+        setIsLoading(true);
         try {
             const userData = {
                 name: {
@@ -123,9 +150,9 @@ export default function VerificationScreen({ navigation, route, props }) {
                     barangay: storeData.data.address.barangay
                 },
                 birthDate: firestore.Timestamp.fromDate(new Date(finalBirthDate)),
-                
                 reportsReceived: 0,
                 violationRecord: 0,
+                expoPushTokens: [await AsyncStorage.getItem('expoPushToken')],
             };
             
             if (storeData.data.role === 'Seeker') {
@@ -179,11 +206,13 @@ export default function VerificationScreen({ navigation, route, props }) {
             } else if (storeData.data.role === 'Provider') {
                 await firestore().collection('providers').doc(userId).set(userData);
             }
-    
+
             console.log('User details saved to Firestore!');
         } catch (error) {
             console.error('Error saving or deleting details in Firestore:', error);
             
+        } finally {
+            setIsLoading(false);
         }
     }   
 
@@ -231,6 +260,14 @@ export default function VerificationScreen({ navigation, route, props }) {
         } catch (error) {
             console.error('Error verifying changed number:', error);
         }
+    }
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color={Color.colorBlue} />
+            </View>
+        );
     }
 
     return (

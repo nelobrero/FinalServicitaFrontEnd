@@ -53,6 +53,7 @@ import ProviderBookingPage from './Screens/ProviderScreens/ProviderBookingPage';
 import Chat from './Screens/Chat';
 import NotificationScreen from './Screens/NotificationScreen';
 import AIScreen from './Screens/AIScreen';
+import { usePushNotifications, sendPushNotification } from './Screens/NotificationScreen';
 
 const LoginNav = () => {
 
@@ -103,20 +104,35 @@ const AppNavigator = () => {
     const [userEmail, setUserEmail] = useState('');
     const [userDataFetched, setUserDataFetched] = useState(false);
     const navigation = useNavigation();
+    
     useEffect(() => {
-        getUserData();
-    }, []);
+      
+      getUserData();
+  }, [userDataFetched]);
 
-    async function getUserData() {
+  const getUserData = async () => {
+    try {
         const token = await AsyncStorage.getItem('token');
-        await axios.post("http://192.168.1.7:5000/user/userData", {token: token}).then((res) => {
-        setUserRole(res.data.data.data.role);
-        setUserEmail(res.data.data.data.email);
+        if (!token) {
+            throw new Error('No token found');
+        }
+        const response = await axios.post("http://192.168.1.7:5000/user/userData", { token: token });
+        setUserRole(response.data.data.data.role);
+        setUserEmail(response.data.data.data.email);
+        await AsyncStorage.setItem('userId', response.data.data.data._id);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        console.log('Logging out user');
+        await AsyncStorage.removeItem('token');
+        await AsyncStorage.removeItem('isLoggedIn');
+        await AsyncStorage.removeItem('userId');
+        setUserRole('');
+        setUserEmail('');
+    } finally {
         setUserDataFetched(true);
-        }).catch((err) => {
-          console.log(err);
-        });
     }
+};
+
 
     useEffect(() => {
       const unsubscribeToLinks = Linking.addEventListener('url', (event) => {
@@ -126,6 +142,8 @@ const AppNavigator = () => {
           unsubscribeToLinks.remove();
       };
   }, []);
+
+
 
   const handleDeepLink = (event, navigation) => {
     const { path } = Linking.parse(event.url);
@@ -460,8 +478,19 @@ const config = {
 export default function App() {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    
-    
+    const { expoPushToken, notification } = usePushNotifications();
+
+    if (expoPushToken && expoPushToken.data) {
+  AsyncStorage.setItem('expoPushToken', expoPushToken.data)
+    .then(() => {
+      // console.log(expoPushToken.data)
+      console.log('Expo push token saved successfully.');
+    })
+    .catch((error) => {
+      console.error('Error saving expo push token:', error);
+    });
+}
+
     const linking = {
       prefixes: [prefix],
       config,
@@ -475,8 +504,10 @@ export default function App() {
         semiBold: require('./assets/fonts/Inter-SemiBold.ttf'),
       });
 
-      
-
+    async function sendTestNotification() {
+        await sendPushNotification(await AsyncStorage.getItem('expoPushToken'), 'Test Notification', 'This is a test notification', await AsyncStorage.getItem('userId'));
+    }
+    
     async function checkIfLoggedIn() {
         try {
             const data = await AsyncStorage.getItem('isLoggedIn');
@@ -485,6 +516,7 @@ export default function App() {
                 // await AsyncStorage.removeItem('isLoggedIn');
             } else {
                 setIsLoggedIn(false);
+        
             }
         } catch (error) {
 
@@ -519,6 +551,8 @@ export default function App() {
         requestTrackingPermission();
         checkIfLoggedIn();
     }, [isLoggedIn]);
+
+    // sendTestNotification();
 
     return (
       <NavigationContainer linking={linking} fallback={<ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />}>

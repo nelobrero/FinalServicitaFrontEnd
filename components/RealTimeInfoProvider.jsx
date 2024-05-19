@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, Image, Dimensions, Platform, Linking } from "re
 import { Border, FontFamily, Color, FontSize } from "../GlobalStyles";
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import firestore from '@react-native-firebase/firestore';
+import { sendPushNotification } from './../Screens/NotificationScreen';
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height
@@ -36,10 +37,13 @@ const RealTimeInfoProvider = ({providerName, providerImage, location, data}) => 
       firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
-          navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false });
+          for (const token of data.providerExpoTokens) {
+            sendPushNotification(token, 'New Conversation', `${data.seekerName} has started a conversation with you.`);
+          }
+          navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false});
+            navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens });
           });
         }
       }

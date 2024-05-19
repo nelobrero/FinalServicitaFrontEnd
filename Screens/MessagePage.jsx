@@ -68,7 +68,7 @@ const MessagePage = ({ navigation, route }) => {
             };
             
         } catch (error) {
-            AsyncStorage.removeItem('isLoggedIn');
+            await AsyncStorage.removeItem('isLoggedIn');
             console.error('Error getting user data from MongoDB:', error);
         } finally {
             isLoading(false); // Ensure this function call is correct

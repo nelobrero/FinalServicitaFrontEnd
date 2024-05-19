@@ -23,6 +23,8 @@ import { formatDayStamps, formatTimeStamps2, askForCameraPermission, askForLibra
 import * as ImagePicker from 'expo-image-picker';
 import storage from '@react-native-firebase/storage';
 import Swiper from 'react-native-swiper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendPushNotification } from './NotificationScreen'
 
 
 const windowHeight = Dimensions.get("window").height;
@@ -30,7 +32,7 @@ const windowWidth = Dimensions.get("window").width;
 
 
 const Chat = ({ navigation, route }) => {
-  const { userId, chatId, otherUserName, otherUserImage, role, otherUserMobile, admin } = route.params;
+  const { userId, chatId, otherUserName, otherUserImage, role, otherUserMobile, admin, otherUserTokens } = route.params;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [messages, setMessages] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -225,6 +227,11 @@ const Chat = ({ navigation, route }) => {
         messages: GiftedChat.append(messages, formattedMessage),
         lastMessageTime: lastMessageTime,
       }, { merge: true });
+
+      for (const token of otherUserTokens) {
+        sendPushNotification(token, 'New Message', `${otherUserName} has sent you a message.`);
+      }
+
     } catch (error) {
       console.log("Error sending message: ", error);
     }

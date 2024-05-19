@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { COLORS, FONTS } from "../../constants/theme";
 import { SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { MaterialIcons, AntDesign, Feather } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
@@ -28,8 +28,8 @@ export default Home = ({ navigation, route }) => {
       const roleText = response.data.data.role === 'Seeker' ? 'seekers' : 'providers';
       const storedId = response.data.data._id;
       getStoreData(roleText, storedId);
-    }).catch((err) => {
-      AsyncStorage.removeItem('isLoggedIn');
+    }).catch(async (err) => {
+      await AsyncStorage.removeItem('isLoggedIn');
       console.log(err);
     });
   }
@@ -113,6 +113,9 @@ export default Home = ({ navigation, route }) => {
         backgroundColor: COLORS.white,
       }}
     >
+      <View>
+
+    </View>
       <View style={styles.container}>
         <StatusBar />
         <View style={{ flex: 1, alignItems: "center", marginTop: height * 0.02 }}>
@@ -316,7 +319,7 @@ export default Home = ({ navigation, route }) => {
             }
             )}
             </View>
-        
+            
         
     
     </SafeAreaView>

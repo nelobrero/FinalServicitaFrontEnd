@@ -54,11 +54,11 @@ useEffect(() => {
             await firestore().collection('locations').doc(bookingId).update({
                 latitude: latitude,
                 longitude: longitude,
-                heading: heading
+                heading: 0
             })
             animate(latitude, longitude)
             updateState({
-                heading: heading,
+                heading: 0,
                 curLoc: { latitude, longitude },
                 coordinate: new AnimatedRegion({
                     latitude: latitude,
@@ -74,7 +74,7 @@ useEffect(() => {
         const { latitude, longitude, heading } = location.data()
         animate(latitude, longitude)
         updateState({
-            heading: heading,
+            heading: 0,
             curLoc: { latitude, longitude },
             coordinate: new AnimatedRegion({
                 latitude: latitude,
@@ -95,10 +95,10 @@ useEffect(() => {
             await firestore().collection('locations').doc(bookingId).set({
                 latitude: latitude,
                 longitude: longitude,
-                heading: heading
+                heading: 0
             })
             updateState({
-                heading: heading,
+                heading: 0,
                 curLoc: { latitude, longitude },
                 coordinate: new AnimatedRegion({
                     latitude: latitude,
@@ -117,7 +117,7 @@ useEffect(() => {
             const location = await firestore().collection('locations').doc(bookingId).get()
             const { latitude, longitude, heading } = location.data()
             updateState({
-                heading: heading,
+                heading: 0,
                 curLoc: { latitude, longitude },
                 coordinate: new AnimatedRegion({
                     latitude: latitude,

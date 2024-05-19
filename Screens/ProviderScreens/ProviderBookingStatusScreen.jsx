@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Pressable, Image, TouchableOpacity,  TextInput, Modal, ActivityIndicator  } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable, Image, TouchableOpacity,  TextInput, Modal, ActivityIndicator, Alert  } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import Button from './../../components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,8 @@ import RealTimeInfoSeeker from "../../components/RealTimeInfoSeeker";
 import firestore from '@react-native-firebase/firestore';
 import axios from 'axios';
 import { createdAt } from 'expo-updates';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendPushNotification } from '../NotificationScreen';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -19,8 +21,8 @@ function ProviderBookingStatusScreen({ navigation, route }) {
 
   const { data, userData} = route.params;
 
-    // const [statusText, setStatusText] = useState(data.status);
-    const [statusText, setStatusText] = useState("En Route");
+    const [statusText, setStatusText] = useState(data.status);
+    // const [statusText, setStatusText] = useState("En Route");
     const [serviceName, setServiceName] = useState(data.serviceName);
     const [buttonsVisible, setButtonsVisible] = useState(true);
     const [buttonsVisible2, setButtonsVisible2] = useState(true);
@@ -41,6 +43,9 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       await firestore().collection('bookings').doc(data.bookingId).update({ status: 'Accepted' });
       setStatusText("Accepted");
       setButtonsVisible(false);
+      for (const token of data.seekerExpoTokens) {
+        sendPushNotification(token, 'Booking Accepted', `${data.providerName} has accepted your booking!`);
+      }
       setIsLoading(false);
   };
 
@@ -49,21 +54,37 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       await firestore().collection('bookings').doc(data.bookingId).update({ status: 'Rejected' });
       setStatusText("Rejected");
       setButtonsVisible(false);
+      for (const token of data.seekerExpoTokens) {
+        sendPushNotification(token, 'Booking Declined', `${data.providerName} has declined your booking.`);
+      }
       setIsLoading(false);
+
+      
   };
   const handleCancel = async () => {
       setIsLoading(true);
       await firestore().collection('bookings').doc(data.bookingId).update({ status: 'Canceled' });
       setStatusText("Canceled");
       setButtonsVisible(false);
+      for (const token of data.seekerExpoTokens) {
+        sendPushNotification(token, 'Booking Canceled', `${data.providerName} has canceled your booking.`);
+      }
+      
       setIsLoading(false);
+
+      
   };
   const handleStart = async () => {
     setIsLoading(true);
     await firestore().collection('bookings').doc(data.bookingId).update({ status: 'En Route' });
     setStatusText("En Route");
     setStartPressed(true);
+    for (const token of data.seekerExpoTokens) {
+      sendPushNotification(token, 'Provider En Route', `${data.providerName} is on the way to your location.`);
+    }
+    
     setIsLoading(false);
+    
   };
   const handleCompleted = async () => {
     setIsLoading(true);
@@ -80,6 +101,9 @@ function ProviderBookingStatusScreen({ navigation, route }) {
     await seekerRef.update({ servicesAvailed: bookingsCompletedSeeker });
     const locationRef = firestore().collection('locations').doc(data.bookingId);
     await locationRef.delete();
+    for (const token of data.seekerExpoTokens) {
+      sendPushNotification(token, 'Service Completed', `${data.providerName} has completed your booking!`);
+    }
     setIsLoading(false);
   };
   const handleStopService = async () => {
@@ -89,6 +113,9 @@ function ProviderBookingStatusScreen({ navigation, route }) {
     await firestore().collection('bookings').doc(data.bookingId).update({ status: 'Failed' });
     const locationRef = firestore().collection('locations').doc(data.bookingId);
     await locationRef.delete();
+    for (const token of data.seekerExpoTokens) {
+      sendPushNotification(token, 'Service Failed', `${data.providerName} has stopped the service.`);
+    }
     setIsLoading(false);
   };
 
@@ -139,10 +166,13 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
-          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false });
+          for (const token of data.seekerExpoTokens) {
+            sendPushNotification(token, 'New Conversation', `${data.providerName} has started a conversation with you.`);
+          }
+          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false});
+            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
           });
         }
       }
@@ -178,11 +208,29 @@ function ProviderBookingStatusScreen({ navigation, route }) {
 
 const handleArrivedPress = async () => {
   setIsLoading(true);
-  await firestore().collection('bookings').doc(data.bookingId).update({ status: 'In Progress' });
-  setStatusText("In Progress");
-  setButtonsVisible2(false);
-  setIsLoading(false);
+
+  //Alert prompt if the provider is sure to change the status to In Progress
+  Alert.alert(
+    "Arrived",
+    "Are you sure you have arrived at the location?",
+    [
+      {
+        text: "Cancel",
+        onPress: () => setIsLoading(false),
+        style: "cancel"
+      },
+      { text: "Yes", onPress: async () => {
+        await firestore().collection('bookings').doc(data.bookingId).update({ status: 'In Progress' });
+        setStatusText("In Progress");
+        for (const token of data.seekerExpoTokens) {
+          sendPushNotification(token, 'Provider Arrived', `${data.providerName} has arrived at the location.`);
+        }
+        setIsLoading(false);
+      }}
+    ]
+  );
 };
+ 
 
 
 
@@ -459,7 +507,7 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
     <View style={{bottom:windowHeight > 732 ? windowHeight * -0.362 : windowHeight * -0.375}} >
     <View style={{ marginVertical: windowHeight * 0.01 }}>
       <Button 
-        title="Notify" 
+        title="Arrived" 
         filled 
         Color={Color.colorWhite} 
         style={{ 

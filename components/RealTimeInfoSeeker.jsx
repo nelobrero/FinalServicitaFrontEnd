@@ -3,6 +3,8 @@ import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, Linking, P
 import { Border, FontFamily, Color, FontSize } from "../GlobalStyles";
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendPushNotification } from './../Screens/NotificationScreen';
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height
@@ -37,10 +39,13 @@ const RealTimeInfoSeeker = ({seekerName, location, seekerImage, data}) => {
       firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
-          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false });
+          for (const token of data.seekerExpoTokens) {
+            sendPushNotification(token, 'New Conversation', `${data.providerName} has started a conversation with you.`);
+          }
+          navigation.navigate('Chat', { userId: data.providerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false});
+            navigation.navigate('Chat', { userId: data.providerId, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
           });
         }
       }

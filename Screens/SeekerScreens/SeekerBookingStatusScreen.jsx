@@ -13,6 +13,8 @@ import axios from 'axios';
 import MapPage from './../MapPage';
 import { askForCameraPermission, askForLibraryPermission } from "./../../helper/helperFunction";
 import { Video } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendPushNotification } from '../NotificationScreen';
 
 
 
@@ -91,6 +93,9 @@ function SeekerBookingStatusScreen({ navigation, route }) {
       await firestore().collection('bookings').doc(data.bookingId).update({ status: 'Canceled' });
       setStatusText("Canceled");
       setButtonsVisible(false);
+      for (const token of data.providerExpoTokens) {
+        sendPushNotification(token, 'Booking Canceled', `${data.seekerName} has canceled the booking.`);
+      }
       setIsLoading(false);
     };
     
@@ -203,10 +208,13 @@ const messageProvider = () => {
     firestore().collection('chats').where('users', '==', [data.seekerId, data.providerId]).get().then((querySnapshot) => {
       if (querySnapshot.empty) {
         firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
-        navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false });
+        for (const token of data.providerExpoTokens) {
+          sendPushNotification(token, 'New Conversation', `${data.seekerName} has started a conversation with you.`);
+        }
+        navigation.navigate('Chat', { userId: data.seekerId, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens });
       } else {
         querySnapshot.forEach((doc) => {
-          navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false });
+          navigation.navigate('Chat', { userId: data.seekerId, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens });
         });
       }
     }

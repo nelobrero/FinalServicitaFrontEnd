@@ -53,10 +53,13 @@ const ServiceTop= ({data, navigation, userData, messagesData}) => {
       firestore().collection('chats').where('users', '==', [messagesData.seekerData.id, messagesData.providerData.id]).get().then((querySnapshot) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${messagesData.seekerData.id}_${messagesData.providerData.id}`).set(messageData);
-          navigation.navigate('Chat', { userId: messagesData.seekerData.id, chatId: `${messagesData.seekerData.id}_${messagesData.providerData.id}`, otherUserName: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`, otherUserImage: messagesData.providerData.image, role: 'Seeker', otherUserMobile: messagesData.providerData.mobile, admin: false });
+          for (const token of messagesData.providerData.expoTokens) {
+            sendPushNotification(token, 'New Conversation', `${messagesData.seekerData.name.firstName} ${messagesData.seekerData.name.lastName} has started a conversation with you.`);
+          }
+          navigation.navigate('Chat', { userId: messagesData.seekerData.id, chatId: `${messagesData.seekerData.id}_${messagesData.providerData.id}`, otherUserName: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`, otherUserImage: messagesData.providerData.image, role: 'Seeker', otherUserMobile: messagesData.providerData.mobile, admin: false, otherUserTokens: messagesData.providerData.expoTokens });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: messagesData.seekerData.id, chatId: doc.id, otherUserName: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`, otherUserImage: messagesData.providerData.image, role: 'Seeker', otherUserMobile: messagesData.providerData.mobile, admin: false });
+            navigation.navigate('Chat', { userId: messagesData.seekerData.id, chatId: doc.id, otherUserName: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`, otherUserImage: messagesData.providerData.image, role: 'Seeker', otherUserMobile: messagesData.providerData.mobile, admin: false, otherUserTokens: messagesData.providerData.expoTokens });
           });
         }
       }
