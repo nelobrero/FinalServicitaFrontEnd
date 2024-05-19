@@ -13,10 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import firestore from '@react-native-firebase/firestore';
-import * as Device from 'expo-device';
 import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
-import DeviceInformation from 'react-native-device-info';
 
 
 export default function LoginPage ({ navigation }) {
