@@ -6,7 +6,7 @@ import { Color, FontFamily, FontSize, Border } from "./../GlobalStyles";
 import { parse, set } from 'date-fns';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { sendPushNotification } from '../NotificationScreen';
+import { sendPushNotification } from './../Screens/NotificationScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
