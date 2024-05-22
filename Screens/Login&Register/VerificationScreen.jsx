@@ -11,6 +11,7 @@ import auth from '@react-native-firebase/auth';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { set } from "date-fns";
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -129,6 +130,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                 setStoreData(res.data);
                 setBirthDate(res.data.data.birthDate);
                 setFinalMobile(res.data.data.mobile);
+                setIsLoading(false);
             })
           } catch (error) {
             console.error('Error getting temporary user data:', error);
