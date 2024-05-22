@@ -82,14 +82,14 @@ export default function LoginPage ({ navigation }) {
                                             }
                                             if (userDoc.exists) {
                                                 const user = userDoc.data();                                             
-                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                if (user.expoPushTokens.includes(expoToken.data)) {
                                                     console.log('ExpoToken already exists');
                                                 } else {
-                                                    user.expoTokens.push(expoToken.data);
+                                                    user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -98,11 +98,13 @@ export default function LoginPage ({ navigation }) {
                                         }
                                     }
                                     ).catch((err) => {
+                                        console.log("Not working");
                                         console.log(err);
                                         });
                                     }
                                   }
                                   ).catch((err) => {
+                                    console.log("Not working1");
                                     console.log(err);
                                   });
                                 } else {
@@ -129,14 +131,14 @@ export default function LoginPage ({ navigation }) {
                                             }
                                             if (userDoc.exists) {
                                                 const user = userDoc.data();                                             
-                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                if (user.expoPushTokens.includes(expoToken.data)) {
                                                     console.log('ExpoToken already exists');
                                                 } else {
-                                                    user.expoTokens.push(expoToken.data);
+                                                    user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -215,14 +217,14 @@ export default function LoginPage ({ navigation }) {
                                             }
                                             if (userDoc.exists) {
                                                 const user = userDoc.data();                                             
-                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                if (user.expoPushTokens.includes(expoToken.data)) {
                                                     console.log('ExpoToken already exists');
                                                 } else {
-                                                    user.expoTokens.push(expoToken.data);
+                                                    user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -260,14 +262,14 @@ export default function LoginPage ({ navigation }) {
                                             }
                                             if (userDoc.exists) {
                                                 const user = userDoc.data();                                             
-                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                if (user.expoPushTokens.includes(expoToken.data)) {
                                                     console.log('ExpoToken already exists');
                                                 } else {
-                                                    user.expoTokens.push(expoToken.data);
+                                                    user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -336,6 +338,8 @@ export default function LoginPage ({ navigation }) {
         }
         axios.post("http://192.168.1.7:5000/user/login", userData).then((res) => {
         const storedData = res.data.data;
+        const userId = res.data.userId;
+        const role = res.data.role;
         if (res.data.status === 'SUCCESS') {
           axios.get(`http://192.168.1.7:5000/admin/checkSuspensionStatus/${email}`).then(async (res) => {
             if (res.data.status === 'SUCCESS') {
@@ -360,14 +364,14 @@ export default function LoginPage ({ navigation }) {
                                             }
                                             if (userDoc.exists) {
                                                 const user = userDoc.data();                                             
-                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                if (user.expoPushTokens.includes(expoToken.data)) {
                                                     console.log('ExpoToken already exists');
                                                 } else {
-                                                    user.expoTokens.push(expoToken.data);
+                                                    user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -391,24 +395,26 @@ export default function LoginPage ({ navigation }) {
                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                 await AsyncStorage.setItem('token', storedData);
                 await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-                await AsyncStorage.setItem('userId', res.data.userId);
+                await AsyncStorage.setItem('userId', userId);
                 const expoToken = await Notifications.getExpoPushTokenAsync();         
                                             let userDoc = null;                                            
                                             if (res.data.role === "Seeker") {
-                                                userDoc = await firestore().collection('seekers').doc(res.data.userId).get();
+                                                userDoc = await firestore().collection('seekers').doc(userId).get();
                                             } else {
-                                                userDoc = await firestore().collection('providers').doc(res.data.userId).get();
+                                                userDoc = await firestore().collection('providers').doc(userId).get();
                                             }
                                             if (userDoc.exists) {
-                                                const user = userDoc.data();                                             
-                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                const user = userDoc.data();     
+                                                console.log(user);
+                                    
+                                                if (user.expoPushTokens.includes(expoToken.data)) {
                                                     console.log('ExpoToken already exists');
                                                 } else {
-                                                    user.expoTokens.push(expoToken.data);
-                                                    if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                    user.expoPushTokens.push(expoToken.data);
+                                                    if (role === "Seeker") {
+                                                        await firestore().collection('seekers').doc(userId).update({ expoTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('providers').doc(userId).update({ expoTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -419,6 +425,7 @@ export default function LoginPage ({ navigation }) {
         }
           ).catch((err) => {
             console.log(err);
+            console.log("Not working");
           }
           );
         }

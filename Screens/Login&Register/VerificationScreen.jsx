@@ -95,14 +95,14 @@ export default function VerificationScreen({ navigation, route, props }) {
                                             }
                                             if (userDoc.exists) {
                                                 const user = userDoc.data();                                             
-                                                if (user.expoTokens.includes(expoToken.data)) {
+                                                if (user.expoPushTokens.includes(expoToken.data)) {
                                                     console.log('ExpoToken already exists');
                                                 } else {
-                                                    user.expoTokens.push(expoToken.data);
+                                                    user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
