@@ -128,6 +128,7 @@ const AppNavigator = () => {
         await AsyncStorage.removeItem('userId');
         setUserRole('');
         setUserEmail('');
+        navigation.navigate('LoginNav');
     } finally {
         setUserDataFetched(true);
     }
