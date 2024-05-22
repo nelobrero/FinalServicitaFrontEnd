@@ -94,6 +94,7 @@ const ReviewsWithNonEmptyImages = ({ serviceId }) => {
           numColumns={3} // Display three photos per row
           contentContainerStyle={styles.flatListContainer} // Add this line
           scrollEnabled={false}
+          ListEmptyComponent={() => <Text>No photos available</Text>}
         />
       </View>
       <Modal visible={modalVisible} transparent={false}>

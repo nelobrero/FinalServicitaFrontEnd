@@ -257,13 +257,14 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
         setMaxPrice(1000);
         setSelectedValue(null);
         setServiceAvailability([
-        { day: 'Monday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Tuesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Wednesday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Thursday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Friday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Saturday', startTime: '', endTime: '', flagAvailable: false },
-        { day: 'Sunday', startTime: '', endTime: '', flagAvailable: false }]);
+            { day: 'Monday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Tuesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Wednesday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Thursday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Friday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Saturday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false },
+            { day: 'Sunday', startTime: '', endTime: '', startTimeValue: 0, endTimeValue: 0, flagAvailable: false }
+        ]);
         setKey('');
     }
 

@@ -367,7 +367,7 @@ const handleValuesChange = (values) => {
                             flexDirection: 'row',
                             marginTop: windowHeight * 0.01
                         }}>
-                            <FontAwesome5 name="map-marker-alt" color = {serviceName === null || serviceName === '' ? Color.colorBlue1 : serviceNameVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
+                            <FontAwesome name="bell-o" color = {serviceName === null || serviceName === '' ? Color.colorBlue1 : serviceNameVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
                             <TextInput
                                 placeholder='Service Name'
                                 placeholderTextColor={Color.colorBlue}
