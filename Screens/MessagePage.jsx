@@ -28,15 +28,31 @@ const MessagePage = ({ navigation, route }) => {
             setUserData(userData);
             
             const userId = userData._id;
-      
+            const userFirestoreData = userRole === 'Provider' ? await firestore().collection('providers').doc(userId).get() : await firestore().collection('seekers').doc(userId).get();
+            let otherUserId = '';
+            let otherUserExpoTokens = []
+
             const chatSnapshots = firestore().collection("chats").where('users', 'array-contains', userId);
+            
+           
+
+
+
+
             const chatWithAdminSnapshots = firestore().collection("adminChats").where('usersId.user', '==', userId);
       
             const [chatSnapshot, chatWithAdminSnapshot] = await Promise.all([chatSnapshots.get(), chatWithAdminSnapshots.get()]);
-      
+            if (chatSnapshot.docs.length > 0) {
+                const chatData = chatSnapshot.docs[0].data();
+                otherUserId = chatData.users.find(id => id !== userId);
+                const otherUserFirestoreData = userRole === 'Provider' ? await firestore().collection('seekers').doc(otherUserId).get() : await firestore().collection('providers').doc(otherUserId).get();
+                otherUserExpoTokens = otherUserFirestoreData.data().expoPushTokens;
+            }
+
             // Extract the data from the snapshots
-            const chatDocs = chatSnapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data() }));
-            const chatWithAdminDocs = chatWithAdminSnapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data() }));
+            const chatDocs = chatSnapshot.docs.map(doc => ({ id: doc.id, admin: false, ...doc.data(), otherUserTokens: otherUserExpoTokens })); 
+          
+            const chatWithAdminDocs = chatWithAdminSnapshot.docs.map(doc => ({ id: doc.id, admin: true, ...doc.data(), otherUserTokens: [] }));
       
             // Combine or set them as needed
             const allChats = [...chatDocs, ...chatWithAdminDocs];
@@ -88,7 +104,7 @@ const MessagePage = ({ navigation, route }) => {
   const renderItem = ({ item, index }) => (
 
     <TouchableOpacity
-      onPress={() => navigation.navigate("Chat", { userId: userData._id, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin })}
+      onPress={() => navigation.navigate("Chat", { userId: userData._id, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin, otherUserTokens: item.admin === true ? '' : item.otherUserTokens })} 
       style={[
         styles.userContainer,
       ]}

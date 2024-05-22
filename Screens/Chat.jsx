@@ -228,9 +228,11 @@ const Chat = ({ navigation, route }) => {
         lastMessageTime: lastMessageTime,
       }, { merge: true });
 
+      if (admin === false) {
       for (const token of otherUserTokens) {
         sendPushNotification(token, 'New Message', `${otherUserName} has sent you a message.`);
       }
+    }
 
     } catch (error) {
       console.log("Error sending message: ", error);
