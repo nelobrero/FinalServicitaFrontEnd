@@ -41,8 +41,8 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
     seekerImage: item.seekerImage,
     providerImage: item.providerImage,
     providerMobile: item.providerMobile,
-    seekerExpoTokens: item.seekerData.expoTokens,
-    providerExpoTokens: item.providerData.expoTokens
+    seekerExpoTokens: item.seekerData.expoPushTokens,
+    providerExpoTokens: item.providerData.expoPushTokens
 }));
   
   const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);

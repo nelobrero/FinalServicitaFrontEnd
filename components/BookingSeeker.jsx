@@ -37,8 +37,8 @@ const BookingSeeker = ({ navigation, filters, bookingData, userData}) => {
     seekerImage: item.seekerData.image,
     providerImage: item.providerImage,
     seekerMobile: item.seekerData.mobile,
-    seekerExpoTokens: item.seekerData.expoTokens,
-    providerExpoTokens: item.providerData.expoTokens
+    seekerExpoTokens: item.seekerData.expoPushTokens,
+    providerExpoTokens: item.providerData.expoPushTokens
 }));
   
   const filteredData = filters === 'All' ? data : data.filter((item) => item.status === filters);
