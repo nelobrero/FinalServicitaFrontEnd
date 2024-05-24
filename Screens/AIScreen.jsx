@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import axios from "axios";
+import { COLORS, FONTS } from "./../constants/theme";
 
 const { width } = Dimensions.get("window");
 const { height } = Dimensions.get("window");
@@ -163,9 +164,11 @@ const { height } = Dimensions.get("window");
         />
 
         {loadingMessage && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#07374D" />
-          </View>
+  
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+        <Image source={require('../assets/loading.gif')} style={{width: 100, height: 100}} />
+      </View>
+
         )}
 
         <View style={styles.inputContainer}>

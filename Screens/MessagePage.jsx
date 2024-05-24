@@ -6,6 +6,7 @@ import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatTimeStamps, generateMessageId, sortConversationsByLastMessageTime } from '../helper/helperFunction';
+import { COLORS, FONTS } from "./../constants/theme";
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -191,8 +192,8 @@ const MessagePage = ({ navigation, route }) => {
 
       if (loading) {
         return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#07364B" />
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+              <Image source={require('../assets/loading.gif')} style={{width: 200, height: 200}} />
           </View>
         );
       }

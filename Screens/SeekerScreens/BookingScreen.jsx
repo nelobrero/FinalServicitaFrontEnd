@@ -311,7 +311,11 @@ const initializeSelectedLocation = (locationDetails) => {
 
 
 if ( !bookingDataFetched || !bookingData || !unavailableDatesFetched || !unavailableDates) {
-  return null;
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+        <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+    </View>
+  );
 }
 
   return (

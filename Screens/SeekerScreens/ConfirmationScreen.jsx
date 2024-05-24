@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
+import { COLORS, FONTS } from "./../../constants/theme";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -42,7 +43,11 @@ async function getProviderData() {
 }
 
   if (!userDataFetched || userRole === '' || userEmail === '') {
-    return null;
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+      </View>
+    );
 }
 
 

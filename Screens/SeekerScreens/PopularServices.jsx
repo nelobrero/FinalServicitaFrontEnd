@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Dimensions } from 'react-native'
 import React from 'react'
+import { COLORS, FONTS } from "./../../constants/theme";
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -23,7 +24,11 @@ export default function PopularServices ({navigation, serviceData, userData}) {
     
 
     if (!serviceData || serviceData.length === 0 || !data) {
-        return null;
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+                <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+            </View>
+          );
     }
 
     const handlePress = (item) => {

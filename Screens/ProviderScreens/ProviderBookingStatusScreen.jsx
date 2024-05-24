@@ -12,7 +12,7 @@ import axios from 'axios';
 import { createdAt } from 'expo-updates';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendPushNotification } from '../NotificationScreen';
-
+import { COLORS, FONTS } from "../../constants/theme";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -248,13 +248,17 @@ if (statusText === "Accepted") {
 
 
 if (hasReported == null) {
-  return null;
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+        <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+    </View>
+  );
 }
 
 if (isLoading) {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" color="#07374d" />
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+        <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
     </View>
   );
 }

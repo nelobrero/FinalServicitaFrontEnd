@@ -6,6 +6,7 @@ import Loader from './../components/Loader';
 import { locationPermission, getCurrentLocation } from './../helper/helperFunction';
 import firestore from '@react-native-firebase/firestore';
 import MapViewDirections from 'react-native-maps-directions';
+import { COLORS, FONTS } from "./../../constants/theme";
 
 const screen = Dimensions.get('window');
 const ASPECT_RATIO = screen.width / screen.height;
@@ -177,7 +178,11 @@ const fetchTime = (d, t) => {
 }
 
 if (curLoc.latitude === undefined || curLoc.longitude === undefined || coordinate === null) {
-    return <Loader isLoading={true} />
+    return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+            <Image source={require('../assets/loading.gif')} style={{width: 200, height: 200}} />
+        </View>
+      );
 }
 
 return (

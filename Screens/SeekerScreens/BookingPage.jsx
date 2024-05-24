@@ -6,6 +6,7 @@ import imgPath from '../../constants/imgPath';
 import Loader from '../../components/Loader';
 import { locationPermission, getCurrentLocation } from '../../helper/helperFunction';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, FONTS } from "./../../constants/theme";
 
 const screen = Dimensions.get('window');
 const ASPECT_RATIO = screen.width / screen.height;
@@ -148,7 +149,11 @@ const onCenter = () => {
 
 
 if (curLoc.latitude === undefined || curLoc.longitude === undefined || coordinate === null) {
-    return <Loader isLoading={true} />
+    return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+            <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+        </View>
+      );
 }
 
 return (

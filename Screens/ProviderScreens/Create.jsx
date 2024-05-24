@@ -9,6 +9,7 @@ import axios from 'axios'
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import firestore from '@react-native-firebase/firestore'
 import Button from '../../components/Button';
+import { COLORS, FONTS } from "../../constants/theme";
 
 
 const { width: windowWidth, height: windowHeight} = Dimensions.get('window')
@@ -306,7 +307,11 @@ const handleValuesChange = (values) => {
     }
 
     if ( userId === null || !userDataFetched || !data || submittedServiceTypes === null) {
-      return null;
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+                <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+            </View>
+          );
     }
 
   return (

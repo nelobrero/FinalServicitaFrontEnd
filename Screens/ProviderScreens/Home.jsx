@@ -1,5 +1,4 @@
-import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensions, Pressable} from "react-native";
-
+import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensions, Pressable, ActivityIndicator} from "react-native";
 import { useFocusEffect } from '@react-navigation/native'
 import React, { useState } from "react";
 import { COLORS, FONTS } from "../../constants/theme";
@@ -100,9 +99,13 @@ export default Home = ({ navigation, route }) => {
     })
   )
 
+  // Use loading gif file
+
   if (!userDataFetched) {
     return (
-      null
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+      </View>
     );
   }
 

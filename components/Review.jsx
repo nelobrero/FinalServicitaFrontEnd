@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import ReviewItem from '../components/ReviewParent';
+import { COLORS, FONTS } from "./../constants/theme";
 
 
 const Reviews = ({ serviceId }) => {
@@ -34,8 +35,8 @@ const Reviews = ({ serviceId }) => {
   
   if (!reviewsData && loading) {
     return (
-      <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 20 }}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../assets/loading.gif')} style={{width: 200, height: 200}} />
       </View>
     );
   }

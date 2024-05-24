@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import CategoryFilter from './CategoryFilter';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, FONTS } from "./../../constants/theme";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -45,7 +46,9 @@ const CategoryScreen = ({ navigation, route }) => {
 
   if (!userDataFetched || !serviceData) {
     return (
-      null
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+      </View>
     );
   }
 

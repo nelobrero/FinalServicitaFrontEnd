@@ -7,6 +7,7 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
+import { COLORS, FONTS } from "./../constants/theme";
 
 export const usePushNotifications = () => {
   Notifications.setNotificationHandler({
@@ -230,7 +231,9 @@ const NotificationScreen = ({navigation}) => {
       </View>
       <ScrollView style={styles.scrollContainer}>
       {isLoading ? (
-  <ActivityIndicator size="large" color="#07364B" />
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../assets/loading.gif')} style={{width: 200, height: 200}} />
+      </View>
 ) : (
   <>
     {notifications && (  // Check if notifications is not null

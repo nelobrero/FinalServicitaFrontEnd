@@ -15,7 +15,7 @@ import { askForCameraPermission, askForLibraryPermission } from "./../../helper/
 import { Video } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendPushNotification } from '../NotificationScreen';
-
+import { COLORS, FONTS } from "./../../constants/theme";
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -297,7 +297,11 @@ const handleSubmitReview = async () => {
 , []);
 
 if (hasReported == null || hasReviewed == null) {
-  return null;
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+        <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+    </View>
+  );
 }
 
 if (isLoading) {

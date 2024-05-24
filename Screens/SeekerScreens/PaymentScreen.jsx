@@ -1,4 +1,3 @@
-
 import { Button, NativeBaseProvider } from "native-base";
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions, Text, Image, ScrollView, TextInput } from "react-native";

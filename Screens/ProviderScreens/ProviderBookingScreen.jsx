@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendPushNotification } from '../NotificationScreen';
+import { COLORS, FONTS } from "../../constants/theme";
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -90,11 +91,11 @@ export default function ProviderBookingScreen({ navigation, route }) {
   };
 
  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={Color.colorPrimary} />
-      </View>
-    );
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+        <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+    </View>
+  );
   }
 
   const handleActionDoneChange = (value) => {

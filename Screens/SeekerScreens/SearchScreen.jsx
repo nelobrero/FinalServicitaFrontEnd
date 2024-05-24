@@ -77,7 +77,9 @@ const SearchScreen = ({navigation, route}) => {
 
   if (!userDataFetched) {
     return (
-      null
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+      </View>
     );
   }
 

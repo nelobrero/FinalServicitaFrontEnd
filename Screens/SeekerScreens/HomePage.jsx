@@ -8,6 +8,8 @@ import firestore from '@react-native-firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { COLORS, FONTS } from "./../../constants/theme";
+
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -86,7 +88,9 @@ export default HomePage = ({navigation, route}) => {
 
   if (!userDataFetched || !userData || !serviceData) {
     return (
-      null
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+      </View>
     );
   }
 

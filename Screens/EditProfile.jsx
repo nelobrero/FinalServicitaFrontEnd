@@ -264,8 +264,8 @@ const handleSelectBarangay = (barangay) => {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../assets/loading.gif')} style={{width: 200, height: 200}} />
       </View>
     );
   }

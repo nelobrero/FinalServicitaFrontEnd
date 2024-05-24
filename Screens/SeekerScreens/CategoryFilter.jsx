@@ -116,7 +116,11 @@ export default function CategoryFilter({navigation, route}) {
     }, []);
 
     if (!cities) {
-        return null;
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+                <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+            </View>
+          );
     }
 
     // useEffect(() => {

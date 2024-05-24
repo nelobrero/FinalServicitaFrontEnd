@@ -4,6 +4,7 @@ import { View, Text, Image, StyleSheet, Pressable, FlatList, Modal, Dimensions, 
 import Swiper from 'react-native-swiper';
 import { Ionicons } from '@expo/vector-icons';
 import { Video } from 'expo-av';
+import { COLORS, FONTS } from "./../constants/theme";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -112,8 +113,8 @@ const PostItem = ({ item }) => {
     
     if (!postsData && loading) {
       return (
-        <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 20 }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+            <Image source={require('../assets/loading.gif')} style={{width: 200, height: 200}} />
         </View>
       );
     }

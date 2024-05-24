@@ -25,7 +25,7 @@ import storage from '@react-native-firebase/storage';
 import Swiper from 'react-native-swiper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendPushNotification } from './NotificationScreen'
-
+import { COLORS, FONTS } from "./../constants/theme";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -245,14 +245,8 @@ const Chat = ({ navigation, route }) => {
 
   if (loading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator size="large" color="blue" />
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+          <Image source={require('../assets/loading.gif')} style={{width: 100, height: 100}} />
       </View>
     );
   }
