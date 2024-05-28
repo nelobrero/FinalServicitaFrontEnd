@@ -1,11 +1,11 @@
 export default {
   "expo": {
     "scheme": "servicita",
-    "name": "FrontEnd",
-    "slug": "FrontEnd",
+    "name": "Servicita",
+    "slug": "Servicita",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Groups774.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -20,7 +20,7 @@ export default {
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/Groups774.png",
         "backgroundColor": "#000000"
       },
       "package": "com.xdhunter6.FrontEnd",
