@@ -5,7 +5,7 @@ export default {
     "slug": "Servicita",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/Groups774.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
