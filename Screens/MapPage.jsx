@@ -6,7 +6,7 @@ import Loader from './../components/Loader';
 import { locationPermission, getCurrentLocation } from './../helper/helperFunction';
 import firestore from '@react-native-firebase/firestore';
 import MapViewDirections from 'react-native-maps-directions';
-import { COLORS, FONTS } from "./../../constants/theme";
+import { COLORS, FONTS } from "../constants/theme";
 
 const screen = Dimensions.get('window');
 const ASPECT_RATIO = screen.width / screen.height;
