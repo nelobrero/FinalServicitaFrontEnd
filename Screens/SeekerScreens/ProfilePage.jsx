@@ -192,7 +192,7 @@ export default ProfilePage = ({ navigation, route }) => {
     </TouchableOpacity>
   );
   return (
-    <SafeAreaView
+    <View
       style={{
         flex: 1,
         backgroundColor: COLORS.white,
@@ -317,6 +317,6 @@ export default ProfilePage = ({ navigation, route }) => {
 
 
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };

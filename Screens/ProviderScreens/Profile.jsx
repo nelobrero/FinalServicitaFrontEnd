@@ -210,14 +210,9 @@ export default Profile = ({ navigation, route }) => {
     </TouchableOpacity>
   );
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: COLORS.white,
-      }}
-    >
+    
 
-      
+    <View style={{ flex: 1, backgroundColor: COLORS.white }}>
       <View
             style={{
               flexDirection:"row",
@@ -336,6 +331,6 @@ export default Profile = ({ navigation, route }) => {
 
 
       </ScrollView>
-    </SafeAreaView>
+   </View>
   );
 };

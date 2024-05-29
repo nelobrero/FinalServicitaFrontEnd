@@ -102,7 +102,7 @@ export default function ProviderBookingScreen({ navigation, route }) {
   
   
   return (
-    <SafeAreaView>
+    <View>
       <View style={styles.header}>
         <Text style={styles.title}>Bookings ({selectedFilter})</Text>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
@@ -142,7 +142,7 @@ export default function ProviderBookingScreen({ navigation, route }) {
       
 
       
-    </SafeAreaView>
+</View>
   );
 };
 

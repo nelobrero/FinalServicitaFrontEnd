@@ -1,6 +1,7 @@
 
 import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useRef } from "react";
 import * as Device from 'expo-device';
 import * as Notifications from "expo-notifications";
@@ -178,17 +179,36 @@ const NotificationScreen = ({navigation}) => {
       const fetchNotifications = async () => {
         try {
           const userId = await AsyncStorage.getItem('userId');
+          if (!userId) {
+            console.log('User ID not found.');
+            setIsLoading(false);
+            return;
+          }
+    
           const response = await axios.get(`http://192.168.1.7:5000/notifications/getNotifications/${userId}`);
+    
+          // Ensure response.data is an array
+          const notifications = Array.isArray(response.data) ? response.data : [];
+          if (notifications.length === 0) {
+            console.log('No notifications found.');
+            setNotifications({ today: [], yesterday: [], thisWeekend: [] });
+            setIsLoading(false);
+            return;
+          }
+    
           setNotifications(
-            response.data.reduce((acc, notification) => {
-              const date = notification.createdAt instanceof Date ? notification.createdAt : new Date(notification.createdAt || Date.now());
-              const day = date.getDate();
-              const today = new Date().getDate();
-              const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).getDate();
-              const isToday = day === today;
-              const isYesterday = day === yesterday;
-              const isThisWeek = date >= new Date(new Date().setDate(new Date().getDate() - 7));
-  
+            notifications.reduce((acc, notification) => {
+              const date = new Date(notification.createdAt || Date.now());
+              const today = new Date();
+              const yesterday = new Date(today);
+              yesterday.setDate(today.getDate() - 1);
+              const oneWeekAgo = new Date(today);
+              oneWeekAgo.setDate(today.getDate() - 7);
+    
+              const isToday = date.toDateString() === today.toDateString();
+              const isYesterday = date.toDateString() === yesterday.toDateString();
+              const isThisWeek = date >= oneWeekAgo && date < today;
+    
               if (isToday) {
                 acc.today.push(notification);
               } else if (isYesterday) {
@@ -196,24 +216,24 @@ const NotificationScreen = ({navigation}) => {
               } else if (isThisWeek) {
                 acc.thisWeekend.push(notification);
               }
-  
+    
               return acc;
             }, { today: [], yesterday: [], thisWeekend: [] })
           );
-  
+    
         } catch (error) {
           console.error('Error fetching notifications:', error);
-
         } finally {
           setIsLoading(false);
         }
       };
-  
+    
       fetchNotifications();
       const intervalId = setInterval(fetchNotifications, 10000);
-  
+    
       return () => clearInterval(intervalId);
     }, []);
+    
 
 
   const renderNotifications = (title, notifications) => (
@@ -238,6 +258,7 @@ const NotificationScreen = ({navigation}) => {
   );
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }} >
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -273,6 +294,7 @@ const NotificationScreen = ({navigation}) => {
 
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

@@ -20,7 +20,6 @@ const { width } = Dimensions.get("window");
 const { height } = Dimensions.get("window");
 
 const AIScreen = ({ navigation, role }) => {
-  // const AIScreen = ({ navigation }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [loadingMessage, setLoadingMessage] = useState(false);
@@ -110,7 +109,6 @@ const AIScreen = ({ navigation, role }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
     
     
          <LinearGradient
@@ -194,7 +192,6 @@ const AIScreen = ({ navigation, role }) => {
 
       
       
-    </SafeAreaView>
   );
 };
 

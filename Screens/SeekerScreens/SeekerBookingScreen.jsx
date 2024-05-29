@@ -100,7 +100,7 @@ export default function SeekerBookingScreen({ navigation, route }) {
   }
 
   return (
-    <SafeAreaView>
+    <View>
       <View style={styles.header}>
         <Text style={styles.title}>Bookings ({selectedFilter})</Text>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
@@ -132,7 +132,7 @@ export default function SeekerBookingScreen({ navigation, route }) {
         </View>
       </Modal>
 
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensions, Pressable } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensions, Pressable, TouchableOpacity } from "react-native";
 import { useFocusEffect } from '@react-navigation/native'
 import React, { useState } from "react";
 import { COLORS, FONTS } from "../../constants/theme";
@@ -110,16 +110,15 @@ export default Home = ({ navigation, route }) => {
   }
 
   return (
-    <SafeAreaView
-    style={{
-      backgroundColor: COLORS.white,
-    }}
-  >
-    <ScrollView>
-   
-      <View>
 
-    </View>
+    <ScrollView>
+      {/* Notification Button */}
+      <View style={styles.notificationButton}>
+        <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+        <Ionicons name="notifications" size={24} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.container}>
         <View style={{ flex: 1, alignItems: "center", marginTop: height * 0.02 }}>
           <Image
@@ -337,7 +336,6 @@ export default Home = ({ navigation, route }) => {
     
    
     </ScrollView>
-    </SafeAreaView>
   );
 };
 
@@ -380,6 +378,12 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderTopWidth: 1, // Adjust this value to control the "shadow" thickness
     borderTopColor: "rgba(0, 0, 0, 0.1)",
+  },
+  notificationButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 1,
   },
 
 });

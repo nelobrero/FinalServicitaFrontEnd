@@ -203,12 +203,12 @@ const MessagePage = ({ navigation, route }) => {
       }
 
   return (
-    <SafeAreaView style={styles.area}>
+   <View style={styles.area}>
       <StatusBar hidden />
       <View style={styles.container}>
         {renderContent()}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -95,7 +95,13 @@ export default HomePage = ({navigation, route}) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1}}>
+    <View style={{flex: 1}}>
+      <View style={styles.notificationButton}>
+        <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
+        <Ionicons name="notifications" size={24} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+
     <ScrollView  >
     <View style={styles.container}>
       
@@ -306,7 +312,7 @@ export default HomePage = ({navigation, route}) => {
     </ScrollView>
     {/* Button for navigation to Notification screen */}
 
-    </SafeAreaView>
+</View>
 
   )
 }
@@ -377,7 +383,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
 
-  }
+  },
+  notificationButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 1,
+  },
 });
  
   
