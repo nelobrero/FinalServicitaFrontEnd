@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "916162526509",
+    "project_id": "servicita-signin-fa66f",
+    "storage_bucket": "servicita-signin-fa66f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:916162526509:android:e1a62780960e29fe59a7a4",
+        "android_client_info": {
+          "package_name": "com.xdhunter6.FrontEnd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "916162526509-5m2d87etji9eqs0r6bqp22h80be7g7ca.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xdhunter6.FrontEnd",
+            "certificate_hash": "d074c85163bf997ae31f13b76d308fbf9e6f5a8b"
+          }
+        },
+        {
+          "client_id": "916162526509-ire5dhnqb76cjfqd8acfrsjjpne9oukh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xdhunter6.FrontEnd",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "916162526509-tvn3pvr4u7pmv8cf4av9qj665bgdpagj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xdhunter6.FrontEnd",
+            "certificate_hash": "a0c2bd66c82776ad0a65e1929aeb1927a2094ab3"
+          }
+        },
+        {
+          "client_id": "916162526509-cafrd93roeekc80suoporajs002l5l9q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBl7wIgTt9zyXO6rrpUF2HT1ki22umGzto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "916162526509-cafrd93roeekc80suoporajs002l5l9q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
