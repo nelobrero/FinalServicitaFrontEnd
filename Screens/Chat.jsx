@@ -26,13 +26,14 @@ import Swiper from 'react-native-swiper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendPushNotification } from './NotificationScreen'
 import { COLORS, FONTS } from "./../constants/theme";
+import axios from 'axios';
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
 
 const Chat = ({ navigation, route }) => {
-  const { userId, chatId, otherUserName, otherUserImage, role, otherUserMobile, admin, otherUserTokens } = route.params;
+  const { userId, userName, chatId, otherUserName, otherUserImage, role, otherUserMobile, admin, otherUserTokens } = route.params;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [messages, setMessages] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -230,8 +231,16 @@ const Chat = ({ navigation, route }) => {
 
       if (admin === false) {
       for (const token of otherUserTokens) {
-        sendPushNotification(token, 'New Message', `${otherUserName} has sent you a message.`);
-      }
+        sendPushNotification(token, 'New Message', `${userName} has sent you a message.`);
+      } 
+    } else {
+      const notification = {
+        userId: "66111acbea0491231d30d8a7",
+        message: `User ${userId} has sent you a message.`,
+        title: "New Message",
+      };
+    
+      await axios.post("http://192.168.1.7:5000/notifications/create", notification)
     }
 
     } catch (error) {

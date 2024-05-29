@@ -15,6 +15,7 @@ const MessagePage = ({ navigation, route }) => {
 
 
   const { userEmail, userRole } = route.params;
+  const [userName, setUserName] = useState('');
   const [userData, setUserData] = useState({});
   const [loading, isLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,6 +31,8 @@ const MessagePage = ({ navigation, route }) => {
             
             const userId = userData._id;
             const userFirestoreData = userRole === 'Provider' ? await firestore().collection('providers').doc(userId).get() : await firestore().collection('seekers').doc(userId).get();
+            const userFirestoreDataJson = userFirestoreData.data();
+            setUserName(`${userFirestoreDataJson.firstName} ${userFirestoreDataJson.lastName}`);
             let otherUserId = '';
             let otherUserExpoTokens = []
 
@@ -105,7 +108,7 @@ const MessagePage = ({ navigation, route }) => {
   const renderItem = ({ item, index }) => (
 
     <TouchableOpacity
-      onPress={() => navigation.navigate("Chat", { userId: userData._id, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin, otherUserTokens: item.admin === true ? '' : item.otherUserTokens })} 
+      onPress={() => navigation.navigate("Chat", { userId: userData._id, userName: userName, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin, otherUserTokens: item.admin === true ? '' : item.otherUserTokens })} 
       style={[
         styles.userContainer,
       ]}

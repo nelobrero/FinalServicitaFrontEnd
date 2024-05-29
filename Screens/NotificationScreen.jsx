@@ -140,8 +140,20 @@ const NotificationScreen = ({navigation}) => {
     const [notifications, setNotifications] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-
-
+    const deleteNotification = async (notificationId) => {
+      try {
+        await axios.delete(`http://192.168.1.7:5000/notifications/deleteNotification`, { notificationId });
+        setNotifications((prevNotifications) => {
+          const updatedNotifications = { ...prevNotifications };
+          Object.keys(updatedNotifications).forEach((key) => {
+            updatedNotifications[key] = updatedNotifications[key].filter((notification) => notification._id !== notificationId);
+          });
+          return updatedNotifications;
+        });
+      } catch (error) {
+        console.error('Error deleting notification:', error);
+      }
+    };
 
     const renderDateObjectToDateAndTimeString = (dateObject) => {
       const date = dateObject instanceof Date ? dateObject : new Date(dateObject || Date.now());
@@ -215,6 +227,9 @@ const NotificationScreen = ({navigation}) => {
               <Text style={styles.notificationMessage}>{notification.message}</Text>
               <Text style={styles.notificationTime}>{renderDateObjectToDateAndTimeString(notification.createdAt)}</Text>
             </View>
+            <TouchableOpacity onPress={() => deleteNotification(notification._id)}>
+              <AntDesign name="delete" size={24} color="red" />
+            </TouchableOpacity>
           </View>
         </View>
       ))}
