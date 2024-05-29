@@ -1,14 +1,11 @@
-import {  View, Text, TextInput, TouchableOpacity, Image, Pressable, Platform, Dimensions, Alert, ScrollView } from 'react-native'
+import {  View, Text, TextInput, TouchableOpacity, Image, Pressable, Platform, Dimensions, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Color, circleContainer, circleButton, errorText } from "./../../GlobalStyles";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome, Feather, MaterialIcons } from "@expo/vector-icons";
 import Button from './../../components/Button';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Feather from '@expo/vector-icons/Feather';
-import Error from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from "expo-linear-gradient";
 import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -487,7 +484,7 @@ export default function LoginPage ({ navigation }) {
                               {email.length < 1 ? null : emailVerify ? (
                           <Feather name="check-circle" color={Color.colorPrimary} size={24} style={{ position: "absolute", right: 12 }}/>
                       ) : (
-                          <Error name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
+                          <MaterialIcons name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
                       )}
                           </View>
 
