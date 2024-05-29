@@ -80,7 +80,7 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
     Alert.alert('Booking Accepted, Seeker will be notified.');
     // Send push notification to seeker
     for (const token of item.seekerExpoTokens) {
-      sendPushNotification(token, 'Booking Accepted', `Your booking for ${item.serviceName} has been accepted by ${item.providerName}`);
+      sendPushNotification(token, 'Booking Accepted', `Your booking for ${item.serviceName} has been accepted by ${item.providerName}`, item.providerId);
     }
     setActionDone(true);
   };
@@ -89,7 +89,7 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
     await firestore().collection('bookings').doc(item.id).update({ status: 'Declined' });
     Alert.alert('Booking Declined, Seeker will be notified.');
     for (const token of item.seekerExpoTokens) {
-      sendPushNotification(token, 'Booking Declined', `Your booking for ${item.serviceName} has been declined by ${item.providerName}`);
+      sendPushNotification(token, 'Booking Declined', `Your booking for ${item.serviceName} has been declined by ${item.providerName}`, item.providerId);
     }
     setActionDone(true);
   };

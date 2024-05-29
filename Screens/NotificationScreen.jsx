@@ -83,7 +83,7 @@ export const usePushNotifications = () => {
   };
 };
 
-export const sendPushNotification = async (expoPushToken, title, body, userId) => {
+export const sendPushNotification = async (expoPushToken, title, body, userId, otherUserId) => {
   const message = {
     to: expoPushToken,
     sound: "default",
@@ -109,6 +109,7 @@ export const sendPushNotification = async (expoPushToken, title, body, userId) =
     userId: userId,
     message: body,
     title: title,
+    otherUserId: otherUserId
   };
 
   const result = await axios.post("http://192.168.1.7:5000/notifications/create", notification)

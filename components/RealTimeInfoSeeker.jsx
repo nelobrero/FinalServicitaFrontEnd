@@ -40,7 +40,7 @@ const RealTimeInfoSeeker = ({seekerName, location, seekerImage, data}) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
           for (const token of data.seekerExpoTokens) {
-            sendPushNotification(token, 'New Conversation', `${data.providerName} has started a conversation with you.`);
+            sendPushNotification(token, 'New Conversation', `${data.providerName} has started a conversation with you.`, data.providerId);
           }
           navigation.navigate('Chat', { userId: data.providerId, userName: data.providerName, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
         } else {

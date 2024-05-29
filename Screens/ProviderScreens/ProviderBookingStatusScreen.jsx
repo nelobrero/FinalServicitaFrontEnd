@@ -44,7 +44,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       setStatusText("Accepted");
       setButtonsVisible(false);
       for (const token of data.seekerExpoTokens) {
-        sendPushNotification(token, 'Booking Accepted', `${data.providerName} has accepted your booking!`);
+        sendPushNotification(token, 'Booking Accepted', `${data.providerName} has accepted your booking!`, data.providerId);
       }
       setIsLoading(false);
   };
@@ -55,7 +55,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       setStatusText("Rejected");
       setButtonsVisible(false);
       for (const token of data.seekerExpoTokens) {
-        sendPushNotification(token, 'Booking Declined', `${data.providerName} has declined your booking.`);
+        sendPushNotification(token, 'Booking Declined', `${data.providerName} has declined your booking.`, data.providerId);
       }
       setIsLoading(false);
 
@@ -67,7 +67,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       setStatusText("Canceled");
       setButtonsVisible(false);
       for (const token of data.seekerExpoTokens) {
-        sendPushNotification(token, 'Booking Canceled', `${data.providerName} has canceled your booking.`);
+        sendPushNotification(token, 'Booking Canceled', `${data.providerName} has canceled your booking.`, data.providerId);
       }
       
       setIsLoading(false);
@@ -80,7 +80,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
     setStatusText("En Route");
     setStartPressed(true);
     for (const token of data.seekerExpoTokens) {
-      sendPushNotification(token, 'Provider En Route', `${data.providerName} is on the way to your location.`);
+      sendPushNotification(token, 'Provider En Route', `${data.providerName} is on the way to your location.`, data.providerId);
     }
     
     setIsLoading(false);
@@ -102,7 +102,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
     const locationRef = firestore().collection('locations').doc(data.bookingId);
     await locationRef.delete();
     for (const token of data.seekerExpoTokens) {
-      sendPushNotification(token, 'Service Completed', `${data.providerName} has completed your booking!`);
+      sendPushNotification(token, 'Service Completed', `${data.providerName} has completed your booking!`, data.providerId);
     }
     setIsLoading(false);
   };
@@ -114,7 +114,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
     const locationRef = firestore().collection('locations').doc(data.bookingId);
     await locationRef.delete();
     for (const token of data.seekerExpoTokens) {
-      sendPushNotification(token, 'Service Failed', `${data.providerName} has stopped the service.`);
+      sendPushNotification(token, 'Service Failed', `${data.providerName} has stopped the service.`, data.providerId);
     }
     setIsLoading(false);
   };
@@ -167,7 +167,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
           for (const token of data.seekerExpoTokens) {
-            sendPushNotification(token, 'New Conversation', `${data.providerName} has started a conversation with you.`);
+            sendPushNotification(token, 'New Conversation', `${data.providerName} has started a conversation with you.`, data.providerId);
           }
           navigation.navigate('Chat', { userId: data.providerId, userName: data.providerName, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
         } else {
@@ -202,7 +202,15 @@ function ProviderBookingStatusScreen({ navigation, route }) {
     setIsLoading(false);
     alert('Report submitted successfully! The Servicita team will review your report.');
     setComplaint('');
+    const notification = {
+      userId: "66111acbea0491231d30d8a7",
+      message: `User ${data.providerId} has reported user ${data.seekerId} for the booking ${data.bookingId}.`,
+      title: "New Report to Review",
+      otherUserId: data.providerId,
+    };
+    await axios.post("http://192.168.1.7:5000/notifications/create", notification)
     setModalVisible(false);
+    
     navigation.goBack();
 };
 
@@ -223,7 +231,7 @@ const handleArrivedPress = async () => {
         await firestore().collection('bookings').doc(data.bookingId).update({ status: 'In Progress' });
         setStatusText("In Progress");
         for (const token of data.seekerExpoTokens) {
-          sendPushNotification(token, 'Provider Arrived', `${data.providerName} has arrived at the location.`);
+          sendPushNotification(token, 'Provider Arrived', `${data.providerName} has arrived at the location.`, data.providerId);
         }
         setIsLoading(false);
       }}

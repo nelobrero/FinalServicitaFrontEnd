@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   Image,
   TextInput,
   StyleSheet,
   Dimensions,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { GiftedChat, Bubble  } from "react-native-gifted-chat";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -29,7 +30,7 @@ const AIScreen = ({ navigation, role }) => {
   };
 
   const renderChatFooter = () => {
-    return <View style={{ height: 40 }} />;
+    return <View style={{ height: 30 }} />;
   }
 
   const renderMessage = (props) => {
@@ -110,27 +111,15 @@ const AIScreen = ({ navigation, role }) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+    
+    
          <LinearGradient
         colors={["#3A6A80", "white"]}
         style={{flex: 1,
-            justifyContent: "center",
-            alignItems: "center",}}
+      }}
       >
-
+          
 <View style={{ flex: 1, flexDirection: "row", }}>
- 
-<View
-          style={{
-            position: "absolute",
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{ margin: 12 }}
-          >
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
   
 
 
@@ -145,78 +134,86 @@ const AIScreen = ({ navigation, role }) => {
               left: 170, // Adjust the left position as needed
             }}
           /> */}
-        
+     
         <GiftedChat
           messages={messages}
-          renderInputToolbar={() => {
-            return null;
+          renderInputToolbar={(props) => {
           }}
           user={{ _id: 1 }}
-      
           renderMessage={renderMessage}
-          disabled={loadingMessage}
           renderChatFooter={renderChatFooter}
-      
+          disabled={loadingMessage}
         />
 
-        {loadingMessage && (
-  
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
-        <Image source={require('../assets/loading.gif')} style={{width: 100, height: 100}} />
+        
+
+       
       </View>
 
-        )}
-
-        <View style={styles.inputContainer}>
-          <View style={styles.inputMessageContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Type here..."
-              value={inputMessage}
-              onChangeText={handleInputText}
-            />
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              {/* <TouchableOpacity
-                style={{ marginHorizontal: 8 }}
-              >
-                <Ionicons name="images-outline" size={24} color="black" />
-              </TouchableOpacity> */}
-            </View>
-            <TouchableOpacity onPress={submitHandler} disabled={!inputMessage || loadingMessage} styles={{ opacity: !inputMessage || loadingMessage ? 0.5 : 1 }}>
-              <Feather
-                name="send"
-                size={24}
-                color="black"
-                marginRight={10}
+      {loadingMessage ? (
+               
+               <View style={styles.loadingContainer}>
+               <Image source={require('../assets/loading.gif')} style={{width: 100, height: 100}} />
+           </View>
+             )  :
+             <View style={styles.inputContainer}>
+            <View style={styles.inputMessageContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Type here..."
+                value={inputMessage}
+                onChangeText={handleInputText}
               />
-            </TouchableOpacity>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                {/* <TouchableOpacity
+                  style={{ marginHorizontal: 8 }}
+                >
+                  <Ionicons name="images-outline" size={24} color="black" />
+                </TouchableOpacity> */}
+              </View>
+
+               
+
+              <TouchableOpacity onPress={submitHandler} disabled={!inputMessage || loadingMessage} styles={{ opacity: !inputMessage || loadingMessage ? 0.5 : 1 }}>
+                <Feather
+                  name="send"
+                  size={24}
+                  color="black"
+                  marginRight={10}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </View>
+    
+             
+             }
+
+      
+          
       </LinearGradient>
+
+      
+      
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   inputContainer: {
-    backgroundColor: "white",
-    height: 'auto',
     alignItems: "center",
     justifyContent: "center",
-    position: "absolute",
-    bottom: height * 0.02,
+    bottom: height * 0.1,
     width: "100%",
   },
   inputMessageContainer: {
-    height: 54,
+    height: 50,
     flexDirection: "row",
     justifyContent: "center",
     borderWidth: 1,
     borderRadius: 16,
     alignItems: "center",
     borderColor: "black",
-
+    backgroundColor: "white",
   },
   input: {
     color: "black",
@@ -231,7 +228,7 @@ const styles = StyleSheet.create({
     right: 0,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.5)", // Semi-transparent background
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
   },
 });
 

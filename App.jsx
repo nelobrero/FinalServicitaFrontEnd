@@ -52,8 +52,8 @@ import ChooseLocation from './Screens/SeekerScreens/ChooseLocation';
 import ProviderBookingPage from './Screens/ProviderScreens/ProviderBookingPage';
 import Chat from './Screens/Chat';
 import NotificationScreen from './Screens/NotificationScreen';
-import AIScreen from './Screens/AIScreen';
 import Splash from './Screens/Splash';
+import { Create } from './Screens/ProviderScreens';
 import { usePushNotifications, sendPushNotification } from './Screens/NotificationScreen';
 
 const LoginNav = () => {
@@ -91,7 +91,7 @@ const LoginNav = () => {
             <Stack.Screen name='AddressForm' component={AddressForm} />
             <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen} />
             <Stack.Screen name='ResetPassword' component={ResetPasswordScreen} />
-            {/* <Stack.Screen name='AI' component={AIScreen} /> */}
+           
 
         </Stack.Navigator>
         )
@@ -152,7 +152,7 @@ const AppNavigator = () => {
     console.log("App path: ", path);
   };
 
-    if (!userDataFetched || userRole === '' || userEmail === '') {
+    if (!userDataFetched || userRole === '' || userEmail === '' || navigation === null) {
         return null;
     }
 
@@ -231,6 +231,13 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Notification"
                     component={NotificationScreen}
+                    options={{
+                      headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Create"
+                    component={Create}
                     options={{
                       headerShown: false
                     }}

@@ -1,10 +1,11 @@
-import { View } from "react-native";
+import { Image } from "react-native";
 import React from "react";
-import { SimpleLineIcons, Feather, MaterialCommunityIcons, FontAwesome6, Entypo } from "@expo/vector-icons";
+import { SimpleLineIcons, Feather, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { COLORS } from "../constants/theme.jsx";
-import { Home, Message, Profile, Booking, Create } from "./../Screens/ProviderScreens"
+import { Home, Message, Profile, Booking } from "./../Screens/ProviderScreens"
 import { HomePage, ProfilePage, MessagePage, BookingPage} from "./../Screens/SeekerScreens"
+import { SafeAreaView } from "react-native-safe-area-context";
 import AIScreen from "../Screens/AIScreen.jsx";
 
 const Tab = createBottomTabNavigator();
@@ -31,15 +32,16 @@ export default BottomTabNav = ({route}) => {
   // console.log("User Email: ", userEmail);
 
   if (userRole === 'Provider') {
-    return (
 
+
+    return (
+      <SafeAreaView style={{flex: 1, backgroundColor: COLORS.white}}>
      
       <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen
           name="Home"
           component={Home}
           options={{
-            
             tabBarIcon: ({ focused }) => {
               return (
                 <SimpleLineIcons
@@ -47,11 +49,8 @@ export default BottomTabNav = ({route}) => {
                   size={24}
                   color={focused ? COLORS.primary : COLORS.black}
                 />
-                
               );
-              
             },
-            
           }}
           initialParams={{userEmail: userEmail}}
         />
@@ -72,32 +71,27 @@ export default BottomTabNav = ({route}) => {
           }}
           initialParams={{userEmail: userEmail}}
         />
-  
+
         <Tab.Screen
-          name="Create"
-          component={Create}
-  
+          name="AI"
+          component={AIScreen}
           options={{
             tabBarIcon: ({ focused }) => {
               return (
-                <View
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: COLORS.primary,
-                    borderWidth: 19,
-                    borderRadius: 65,
-                    borderColor: COLORS.primary,
-                  }}
-                >
-                  <FontAwesome6 name="add" size={24} color="white" />
-                </View>
+                <Image
+                source={require("./../assets/AI LOGO.png")}
+                style={{
+                  width: 24,
+                  height: 24,
+                  tintColor: focused ? COLORS.primary : COLORS.black,
+                }}
+              />
               );
             },
           }}
-          initialParams={{userEmail: userEmail}}
+          initialParams={{userEmail: userEmail, userRole: userRole}}
         />
-  
+
         <Tab.Screen
           name="Message"
           component={Message}
@@ -131,11 +125,11 @@ export default BottomTabNav = ({route}) => {
           initialParams={{userEmail: userEmail}}
         />
       </Tab.Navigator>
-     
+      </SafeAreaView>
     );
   } else if (userRole === 'Seeker'){
     return (
-      
+      <SafeAreaView style={{flex: 1, backgroundColor: COLORS.white}}>
       <Tab.Navigator screenOptions={screenOptions}>
 
         <Tab.Screen
@@ -170,7 +164,27 @@ export default BottomTabNav = ({route}) => {
           }}
           initialParams={{userEmail: userEmail}}
         />
-  
+
+        <Tab.Screen
+          name="AI"
+          component={AIScreen}
+          options={{
+            tabBarIcon: ({ focused }) => {
+              return (
+                <Image
+                  source={require("./../assets/AI LOGO.png")}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    tintColor: focused ? COLORS.primary : COLORS.black,
+                  }}
+                />
+              );
+            },
+          }}
+          initialParams={{userEmail: userEmail, userRole: userRole}}
+        />
+
         <Tab.Screen
           name="Message"
           component={MessagePage}
@@ -204,8 +218,8 @@ export default BottomTabNav = ({route}) => {
           initialParams={{userEmail: userEmail}}
         />
       </Tab.Navigator>
+      </SafeAreaView>
     )
+    
   }
-
-  
 };

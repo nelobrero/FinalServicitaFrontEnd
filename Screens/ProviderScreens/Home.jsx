@@ -2,7 +2,7 @@ import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensio
 import { useFocusEffect } from '@react-navigation/native'
 import React, { useState } from "react";
 import { COLORS, FONTS } from "../../constants/theme";
-import { SafeAreaView, useSafeAreaInsets} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons, AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -110,17 +110,17 @@ export default Home = ({ navigation, route }) => {
   }
 
   return (
-    <ScrollView style={{backgroundColor: COLORS.white}}>
     <SafeAreaView
-      style={{
-        backgroundColor: COLORS.white,
-      }}
-    >
+    style={{
+      backgroundColor: COLORS.white,
+    }}
+  >
+    <ScrollView>
+   
       <View>
 
     </View>
       <View style={styles.container}>
-        <StatusBar />
         <View style={{ flex: 1, alignItems: "center", marginTop: height * 0.02 }}>
           <Image
             source={{ uri: userData.profileImage ? userData.profileImage : DEFAULT_IMAGE_URL_PROVIDER }}
@@ -320,13 +320,24 @@ export default Home = ({ navigation, route }) => {
                 </View>
               );
             }
+            
+           
+
             )}
+
+<View style={{flexDirection: "row", justifyContent: "space-between", paddingHorizontal: width * 0.07, padding: width * 0.04, borderBottomWidth: 0.2, borderBottomColor: COLORS.primary, top: height * 0.009,}}>
+              <Pressable onPress={() => navigation.navigate('Create', {userEmail})}>
+                <Text style={{color: COLORS.primary}}>Create a new service</Text>
+              </Pressable>
+              <AntDesign name="plus" size={20} color={COLORS.primary} />
+            </View>
             </View>
             
         
     
-    </SafeAreaView>
+   
     </ScrollView>
+    </SafeAreaView>
   );
 };
 

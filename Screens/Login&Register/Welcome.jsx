@@ -87,7 +87,7 @@ export default function Welcome ({ navigation, route }) {
                                 fontStyle: 'normal',
                                 color: Color.colorWhite,
                                 textAlign: 'center',
-                                letterSpacing: 0.03 * height
+                                letterSpacing: 0.01 * height
                             }}>Servicita</Text>
 
                             <Button

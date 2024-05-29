@@ -14,7 +14,7 @@ import { COLORS, FONTS } from "../../constants/theme";
 
 const { width: windowWidth, height: windowHeight} = Dimensions.get('window')
 
-const Create = ({route}) => {
+const Create = ({route, navigation}) => {
   
   const DEFAULT_IMAGE_SERVICE_PROFILE = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/COVERPAGE.jpg?alt=media&token=ff9d0b7b-3bc9-4d63-8aeb-2e4149583941";
   const { userEmail } = route.params;
@@ -316,9 +316,27 @@ const handleValuesChange = (values) => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
-       <View style={styles.header}>
-        <Text style={styles.title}>Create A Service</Text>
-      </View>
+
+
+
+       <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.02 }}>
+                            <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
+                                            <Image
+                                            style={styles.userroleChild}
+                                            contentFit="cover"
+                                            source={require("./../../assets/arrow-1.png")}
+                                            />
+                            </Pressable>
+                            <View style={{ marginVertical: windowHeight * 0.02 }}>
+                    <Text style={{
+                        fontSize: windowWidth * 0.12,
+                        fontWeight: 'bold',
+                        color: Color.colorBlue,
+                    }}>
+                        Create A New Service
+                    </Text>
+                </View>
+        </View>
 
     <View style={{ flexDirection: 'column', marginTop: windowHeight * 0.03 }}>
 
@@ -864,7 +882,8 @@ const styles = StyleSheet.create({
   },
   locationIcon: {
     marginLeft: 5,
-  },input: {
+  },
+  input: {
     height: windowHeight * 0.045, 
     width: windowWidth * 0.77,
     borderColor: Color.colorDarkgray,
@@ -875,6 +894,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'black',
     left: windowWidth * 0.070,
+  },
+  arrowContainer: {
+    position: 'absolute',
+    left: -10,
+    top: -20,
+    padding: 10,
+
   },
 })
 

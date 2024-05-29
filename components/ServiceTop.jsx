@@ -54,7 +54,7 @@ const ServiceTop= ({data, navigation, userData, messagesData}) => {
         if (querySnapshot.empty) {
           firestore().collection('chats').doc(`${messagesData.seekerData.id}_${messagesData.providerData.id}`).set(messageData);
           for (const token of messagesData.providerData.expoPushTokens) {
-            sendPushNotification(token, 'New Conversation', `${messagesData.seekerData.name.firstName} ${messagesData.seekerData.name.lastName} has started a conversation with you.`);
+            sendPushNotification(token, 'New Conversation', `${messagesData.seekerData.name.firstName} ${messagesData.seekerData.name.lastName} has started a conversation with you.`, messagesData.seekerData.id);
           }
           navigation.navigate('Chat', { userId: messagesData.seekerData.id, userName: `${messagesData.seekerData.name.firstName} ${messagesData.seekerData.name.lastName}`, chatId: `${messagesData.seekerData.id}_${messagesData.providerData.id}`, otherUserName: `${messagesData.providerData.name.firstName} ${messagesData.providerData.name.lastName}`, otherUserImage: messagesData.providerData.image, role: 'Seeker', otherUserMobile: messagesData.providerData.mobile, admin: false, otherUserTokens: messagesData.providerData.expoTokens });
         } else {

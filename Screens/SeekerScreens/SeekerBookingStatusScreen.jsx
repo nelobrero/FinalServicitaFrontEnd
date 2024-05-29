@@ -93,7 +93,7 @@ function SeekerBookingStatusScreen({ navigation, route }) {
       setStatusText("Canceled");
       setButtonsVisible(false);
       for (const token of data.providerExpoTokens) {
-        sendPushNotification(token, 'Booking Canceled', `${data.seekerName} has canceled the booking.`);
+        sendPushNotification(token, 'Booking Canceled', `${data.seekerName} has canceled the booking.`, data.seekerId);
       }
       setIsLoading(false);
     };
@@ -141,6 +141,14 @@ function SeekerBookingStatusScreen({ navigation, route }) {
       setIsLoading(false);
       alert('Report submitted successfully! The Servicita team will review your report.');
       setComplaint('');
+      const notification = {
+        userId: "66111acbea0491231d30d8a7",
+        message: `User ${data.seekerId} has reported user ${data.providerId} for the booking ${data.bookingId}.`,
+        title: "New Report to Review",
+        otherUserId: data.seekerId,
+      };
+    
+      await axios.post("http://192.168.1.7:5000/notifications/create", notification)
       setModalVisible(false);
       navigation.goBack();
   };
@@ -218,7 +226,7 @@ const messageProvider = () => {
       if (querySnapshot.empty) {
         firestore().collection('chats').doc(`${data.seekerId}_${data.providerId}`).set(messagesData);
         for (const token of data.providerExpoTokens) {
-          sendPushNotification(token, 'New Conversation', `${data.seekerName} has started a conversation with you.`);
+          sendPushNotification(token, 'New Conversation', `${data.seekerName} has started a conversation with you.`, data.seekerId);
         }
         navigation.navigate('Chat', { userId: data.seekerId, userName: data.seekerName, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens });
       } else {

@@ -11,7 +11,6 @@ import auth from '@react-native-firebase/auth';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
-import { set } from "date-fns";
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -200,9 +199,18 @@ export default function VerificationScreen({ navigation, route, props }) {
                         },
                         bookings: []
                     });
+
+                    const notification = {
+                        userId: "66111acbea0491231d30d8a7",
+                        message: `New service added: ${service.name}`,
+                        title: "New Service for Approval",
+                        otherUserId: userId,
+                      };
+                    
+                      await axios.post("http://192.168.1.7:5000/notifications/create", notification)
                 }
             }
-    
+
             if (storeData.data.role === 'Seeker') {
                 await firestore().collection('seekers').doc(userId).set(userData);
             } else if (storeData.data.role === 'Provider') {

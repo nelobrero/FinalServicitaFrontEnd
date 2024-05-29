@@ -117,10 +117,11 @@ const MessagePage = ({ navigation, route }) => {
 
         {/* If admin is true instead of the online indicator, there should be a light blue checkmark icon */}
 
-        {item.admin === true ? <AntDesign name="checkcircle" size={24} color="#00BFFF" style={styles.onlineIndicator} /> :<View style={[
+        {item.admin === true ? <AntDesign name="checkcircle" size={width * 0.05} color="#00BFFF" style={styles.onlineIndicator} /> :<View style={[
           styles.onlineIndicator,
           {
             backgroundColor: 
+            // If admin is true, the online indicator should be light blue
               (userRole === 'Provider' && item.usersOnline.seeker) ||
               (userRole !== 'Provider' && item.usersOnline.provider)
                 ? '#34C800'
@@ -251,7 +252,6 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 15,
-    backgroundColor: "#90ee90",
     position: "absolute",
     borderWidth:3,
     borderColor: "white", 
