@@ -25,7 +25,7 @@ export default HomePage = ({navigation, route}) => {
 
   async function getUserData() {
     try {
-      await axios.post("http://3.26.234.99:5000/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
+      await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
         setUserData(response.data.data);
       }
       );

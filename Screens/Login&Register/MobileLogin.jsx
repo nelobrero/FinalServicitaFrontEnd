@@ -40,7 +40,7 @@ export default function MobileLogin({navigation}) {
     const confirmCode = async () => {
         try {
             await confirm.confirm(code.join(''));
-            await axios.post("http://3.26.234.99:5000/user/loginUsingMobile", { mobile: mobile }).then(async (res) => {
+            await axios.post("http://192.168.1.7:5000/user/loginUsingMobile", { mobile: mobile }).then(async (res) => {
         console.log(res.data)
         if (res.data.status === 'SUCCESS') {
             Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
@@ -87,7 +87,7 @@ export default function MobileLogin({navigation}) {
 
     const checkIfMobileExists = async (mobile) => {
         try {
-            const response = await axios.post("http://3.26.234.99:5000/user/getActualUserDetailsByMobile", { mobile });
+            const response = await axios.post("http://192.168.1.7:5000/user/getActualUserDetailsByMobile", { mobile });
             
             if(response.data.data) {
                 return true;

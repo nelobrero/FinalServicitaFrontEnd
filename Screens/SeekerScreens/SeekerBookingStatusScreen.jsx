@@ -6,7 +6,7 @@ import Button from './../../components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Border, FontSize, FontFamily, Color } from "./../../GlobalStyles";
 import storage from '@react-native-firebase/storage';
-import StarRating from 'react-native-star-rating';
+// import StarRating from 'react-native-star-rating';
 import * as ImagePicker from 'expo-image-picker';
 import RealTimeInfoProvider from "../../components/RealTimeInfoProvider";
 import axios from 'axios';
@@ -124,7 +124,7 @@ function SeekerBookingStatusScreen({ navigation, route }) {
         reason: complaint,
         status: 'PENDING'
       }
-      await axios.post("http://3.26.234.99:5000/report/createReport", reportData);
+      await axios.post("http://192.168.1.7:5000/report/createReport", reportData);
       const providerRef = firestore().collection('providers').doc(data.providerId);
       const providerDoc = await providerRef.get();
       const reportsReceived = providerDoc.data().reportsReceived + 1;
@@ -251,7 +251,7 @@ const handleSubmitReview = async () => {
 
   await Promise.all(imageUploadPromises);
 
-  await axios.post("http://3.26.234.99:5000/rating/createRating", { bookingId: data.bookingId, rating: starCount, comment: reviewText, serviceId: data.serviceId, seekerId: data.seekerId, providerId: data.providerId, images: reviewData.images, seekerImage: data.seekerImage, seekerName: data.seekerName });
+  await axios.post("http://192.168.1.7:5000/rating/createRating", { bookingId: data.bookingId, rating: starCount, comment: reviewText, serviceId: data.serviceId, seekerId: data.seekerId, providerId: data.providerId, images: reviewData.images, seekerImage: data.seekerImage, seekerName: data.seekerName });
 
   const providerRef = firestore().collection('providers').doc(data.providerId);
   const providerDoc = await providerRef.get();
@@ -287,8 +287,8 @@ const handleSubmitReview = async () => {
 
   useEffect(() => {
     const checkForReport = async () => {
-      const response = await axios.post("http://3.26.234.99:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.seekerId });
-      const response2 = await axios.post("http://3.26.234.99:5000/rating/getRatingByBookingId", { bookingId: data.bookingId });
+      const response = await axios.post("http://192.168.1.7:5000/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.seekerId });
+      const response2 = await axios.post("http://192.168.1.7:5000/rating/getRatingByBookingId", { bookingId: data.bookingId });
       setHasReported(response.data);
       setHasReviewed(response2.data);
   }
@@ -617,7 +617,7 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
             <TouchableOpacity onPress={handleReviewModalClose} style={styles.closeIcon}>
                 <AntDesign name="close" size={24} color="#07374d" />
             </TouchableOpacity>
-            <StarRating
+            {/* <StarRating
                 disabled={false}
                 maxStars={5}
                 rating={starCount}
@@ -625,7 +625,7 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
                 starSize={30}
                 fullStarColor="#07374d"
                 starStyle={{ paddingBottom:15, paddingHorizontal: 15 }}  // Adjust the spacing between stars
-            />
+            /> */}
             <View>
                 <TextInput
                     style={styles.input}

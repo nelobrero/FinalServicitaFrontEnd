@@ -53,7 +53,7 @@ import ProviderBookingPage from './Screens/ProviderScreens/ProviderBookingPage';
 import Chat from './Screens/Chat';
 import NotificationScreen from './Screens/NotificationScreen';
 import AIScreen from './Screens/AIScreen';
-import Splash from './Screens/Splash';
+// import Splash from './Screens/Splash';
 import { usePushNotifications, sendPushNotification } from './Screens/NotificationScreen';
 
 const LoginNav = () => {
@@ -76,8 +76,8 @@ const LoginNav = () => {
   };
 
     return (
-        <Stack.Navigator initialRouteName='Splash' screenOptions={{ headerShown: false }}>
-            <Stack.Screen name='Splash' component={Splash} />
+        <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
+            {/* <Stack.Screen name='Splash' component={Splash} /> */}
             <Stack.Screen name='UserRole' component={UserRoleScreen} />
             <Stack.Screen name='Login' component={LoginPage} />
             <Stack.Screen name='Register' component={RegisterPage} />
@@ -117,7 +117,7 @@ const AppNavigator = () => {
         if (!token) {
             throw new Error('No token found');
         }
-        const response = await axios.post("http://3.26.234.99:5000/user/userData", { token: token });
+        const response = await axios.post("http://192.168.1.7:5000/user/userData", { token: token });
         setUserRole(response.data.data.data.role);
         setUserEmail(response.data.data.data.email);
         await AsyncStorage.setItem('userId', response.data.data.data._id);
@@ -557,9 +557,8 @@ export default function App() {
     // sendTestNotification();
 
     return (
-      <NavigationContainer linking={linking} fallback={<ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />}>
+      <NavigationContainer>
         <GestureHandlerRootView style={{ flex: 1 }}>
-           
             {isLoggedIn ? (
                     <AppNavigator/>
                 ) : (

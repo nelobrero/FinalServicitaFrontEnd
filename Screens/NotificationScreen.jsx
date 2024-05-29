@@ -111,7 +111,7 @@ export const sendPushNotification = async (expoPushToken, title, body, userId) =
     title: title,
   };
 
-  const result = await axios.post("http://3.26.234.99:5000/notifications/create", notification)
+  const result = await axios.post("http://192.168.1.7:5000/notifications/create", notification)
   return result;
 };
 
@@ -165,7 +165,7 @@ const NotificationScreen = ({navigation}) => {
       const fetchNotifications = async () => {
         try {
           const userId = await AsyncStorage.getItem('userId');
-          const response = await axios.get(`http://3.26.234.99:5000/notifications/getNotifications/${userId}`);
+          const response = await axios.get(`http://192.168.1.7:5000/notifications/getNotifications/${userId}`);
           setNotifications(
             response.data.reduce((acc, notification) => {
               const date = notification.createdAt instanceof Date ? notification.createdAt : new Date(notification.createdAt || Date.now());
