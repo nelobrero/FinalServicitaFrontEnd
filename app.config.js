@@ -1,8 +1,8 @@
 export default {
   "expo": {
     "scheme": "servicita",
-    "name": "Servicita",
-    "slug": "Servicita",
+    "name": "FrontEnd",
+    "slug": "FrontEnd",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -77,9 +77,7 @@ export default {
         "projectId": "0f79223f-75c2-46b0-bdb3-5a0306917010"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/0f79223f-75c2-46b0-bdb3-5a0306917010"
     }

@@ -28,7 +28,7 @@ export default function ProviderBookingScreen({ navigation, route }) {
 
   const getUserIdAndImage = async () => {
     try {
-      const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsByEmail", { email: userEmail })
+      const result = await axios.post("http://3.26.234.99:5000/user/getUserDetailsByEmail", { email: userEmail })
       setUserData(result.data.data);
       return { id: result.data.data._id, image: result.data.data.profileImage, mobile: result.data.data.mobile };
     } catch (error) {
@@ -51,7 +51,7 @@ export default function ProviderBookingScreen({ navigation, route }) {
             const serviceData = { id: serviceSnapshot.id, data: serviceSnapshot.data()}
             const providerSnapshot = await firestore().collection('providers').doc(doc.data().providerId).get();
             const providerData = providerSnapshot.data();
-            const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsById", { id: seekerSnapshot.id })
+            const result = await axios.post("http://3.26.234.99:5000/user/getUserDetailsById", { id: seekerSnapshot.id })
             const expiresAt = doc.data().expiresAt.toDate();
             console.log(doc.data().status)
 

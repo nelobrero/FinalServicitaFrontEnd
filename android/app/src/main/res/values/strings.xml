@@ -1,9 +1,0 @@
-<resources>
-  <string name="app_name">FrontEnd</string>
-  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
-  <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
-  <string name="expo_runtime_version">1.0.0</string>
-  <string name="facebook_app_id">790139039804431</string>
-  <string name="facebook_client_token">7f6f80acf921318f2555a64924e52ea1</string>
-  <string name="fb_login_protocol_scheme">fb790139039804431</string>
-</resources>
