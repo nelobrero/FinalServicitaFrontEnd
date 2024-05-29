@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensions, Pressable, ActivityIndicator} from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensions, Pressable } from "react-native";
 import { useFocusEffect } from '@react-navigation/native'
 import React, { useState } from "react";
 import { COLORS, FONTS } from "../../constants/theme";

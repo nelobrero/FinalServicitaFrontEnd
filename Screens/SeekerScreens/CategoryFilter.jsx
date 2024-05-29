@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Button, View, Text, TextInput, Pressable, Dimensions, ScrollView, TouchableOpacity, FlatList, Modal } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { StyleSheet, Button, View, Text, Dimensions, ScrollView, TouchableOpacity, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { SelectList } from 'react-native-dropdown-select-list';

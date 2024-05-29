@@ -6,9 +6,6 @@ import {
   Image,
   TextInput,
   StyleSheet,
-  ActivityIndicator,
-  Platform,
-  KeyboardAvoidingView,
   Dimensions,
 } from "react-native";
 import { GiftedChat, Bubble  } from "react-native-gifted-chat";
@@ -21,9 +18,8 @@ import { COLORS, FONTS } from "./../constants/theme";
 const { width } = Dimensions.get("window");
 const { height } = Dimensions.get("window");
 
-// const AIScreen = ({ navigation, role }) => {
-  const AIScreen = ({ navigation }) => {
-  const role = "Seeker";
+const AIScreen = ({ navigation, role }) => {
+  // const AIScreen = ({ navigation }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [loadingMessage, setLoadingMessage] = useState(false);

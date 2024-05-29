@@ -1,50 +1,56 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-// import Carousel, {ParallaxImage} from 'react-native-snap-carousel';
+import { View, Text, Dimensions, Image } from 'react-native'
+import * as React from "react";
+import { useSharedValue } from "react-native-reanimated";
+import Carousel, { Pagination } from "react-native-reanimated-carousel";
 import { sliderImages } from '../constants/index1';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-
+const width = Dimensions.get("window").width;
 
 const ImageSlider = () => {
+
+  const ref = React.useRef(null);;
+  const progress = useSharedValue(0);
+
+  const onPressPagination = (index) => {
+    ref.current?.scrollTo({
+      count: index - progress.value,
+      animated: true,
+    });
+  };
+
   return (
-    // <Carousel
-    //   data={sliderImages}
-    //   loop={true}
-    //   autoplay={true}
-    //   renderItem={ItemCard}
-    //   hasParallaxImages={true}
-    //   sliderWidth={wp(100)}
-    //   firstItem={0}
-    //   autoplayInterval={4000}
-    //   itemWidth={wp(100)-70}
-    //   slideStyle={{display: 'flex', alignItems: 'center'}}
-      
-    // />
+    <View style={{ flex: 1 }}>
+    <Carousel
+      ref={ref}
+      width={width}
+      height={width / 2}
+      data={sliderImages}
+      onProgressChange={progress}
+      renderItem={({ index }) => (
+        <View
+          style={{
+            flex: 1,
+            borderWidth: 1,
+            justifyContent: "center",
+          }}
+        > 
+          <Image
+            source={sliderImages[index]}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </View>
+      )}
+    />
 
-    <View>
-      <Text>Image Slider</Text>
-    </View>
+    <Pagination.Basic
+      progress={progress}
+      data={sliderImages}
+      dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
+      containerStyle={{ gap: 5, marginTop: 10 }}
+      onPress={onPressPagination}
+    />
+  </View>
   )
-}
-
-const ItemCard = ({item, index}, parallaxProps) => {
-  return(
-    <View style={{width: wp(100)-70, height: hp(25)}}>
-      <ParallaxImage
-        source={item}
-        containerStyle={{borderRadius: 30, flex: 1}}
-        style={{resizeMode: 'contain'}}
-        parallaxFactor={1}
-        {...parallaxProps}
-        />
-    </View>
-  )
-
-
-
-
-  
 }
 
 export default ImageSlider

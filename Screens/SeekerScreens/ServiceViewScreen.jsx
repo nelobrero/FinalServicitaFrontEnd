@@ -1,5 +1,5 @@
 
-import { View, StyleSheet, ScrollView,TouchableOpacity, Dimensions, Text, ActivityIndicator} from 'react-native';
+import { View, StyleSheet, ScrollView,TouchableOpacity, Dimensions, Text, Image } from 'react-native';
 import { Color, FontSize, FontFamily } from "./../../GlobalStyles";
 import ServiceTop from './../../components/ServiceTop';
 import Description from './../../components/Description';

@@ -5,6 +5,8 @@ import { RFValue } from "react-native-responsive-fontsize";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { useNotifications, createNotifications } from 'react-native-notificated';
 import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from '@expo/vector-icons';
+import { COLORS } from "../../constants/theme";
 
 function UserRoleScreen({navigation, route, props}){
   const { NotificationsProvider } = createNotifications({
@@ -64,13 +66,12 @@ function UserRoleScreen({navigation, route, props}){
 
  return (
     <SafeAreaView style={styles.userRoleScreen}>
-       <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
-        <Image
-          style={styles.userroleChild}
-          contentFit="cover"
-          source={require("./../../assets/arrow-1.png")}
-        />
-      </Pressable>
+       <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.arrowContainer}
+        >
+            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.primary} />
+            </TouchableOpacity>
 
       <Text style={[styles.signingUpAs, styles.continueTypo]}>
         Signing Up as a...
@@ -218,9 +219,9 @@ const styles = StyleSheet.create({
   },
   arrowContainer: {
     position: "absolute",
-    top: hp('3%'),
-    left: wp('3%'),
-    zIndex: 1,
+    top: hp('5%'),
+    left: wp('5%'),
+    zIndex: 2,
   },
 });
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Pressable, Image, TouchableOpacity,  TextInput, Modal, ActivityIndicator, Alert  } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Pressable, Image, TouchableOpacity, TextInput, Modal, Alert} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import Button from './../../components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';

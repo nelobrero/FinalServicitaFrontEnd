@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, Modal, TextInput, Pressable, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, Modal, TextInput, Pressable, FlatList } from "react-native";
 import { Color, errorText } from '../../GlobalStyles'
 import React, { useState, useEffect } from "react";
 import { COLORS, FONTS } from "./../../constants/theme";

@@ -1,4 +1,5 @@
-import { View, Text, Image, Pressable, Dimensions, SafeAreaView, Alert, BackHandler } from 'react-native';
+import { View, Text, Image, Pressable, Dimensions, Alert, BackHandler } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect } from 'react' 
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from "expo-linear-gradient";
@@ -56,18 +57,18 @@ export default function Welcome ({ navigation, route }) {
                 style={{
                     flex: 1
                 }}
-                colors={[Color.colorSecondary, Color.colorPrimary]}
+                colors={[Color.colorPrimary, Color.colorPrimary]}
             >
                     <View style={{flex: 1}}>
                         <View>
                             <Image
-                                source={require("./../../assets/ServicitaLOGO.png")}
+                                source={require("./../../assets/animation.gif")}
                                 style={{
                                     height: height * 0.25,
-                                    width: width * 0.8,
+                                    width: width * 0.5 ,
                                     borderRadius: 20,
                                     position: "absolute",
-                                    top: 0.1 * height,
+                                    top: 0.2 * height,
                                     alignSelf: 'center'
                                 }}
                             />
@@ -76,24 +77,24 @@ export default function Welcome ({ navigation, route }) {
                         <View style={{
                             paddingHorizontal: 0.1 * width,
                             position: "absolute",
-                            top: 0.5 * height,
-                            width: "100%"
+                            top: 0.45 * height,
+                            width: "100%",
                         }}>
 
                             <Text style={{
-                                fontSize: 50,
+                                fontSize: 0.065 * height,
                                 fontWeight: 'normal',
                                 fontStyle: 'normal',
                                 color: Color.colorWhite,
-                                textAlign: 'center'
-                                
-                            }}>SERVICITA</Text>
+                                textAlign: 'center',
+                                letterSpacing: 5
+                            }}>Servicita</Text>
 
                             <Button
                                 title="Join Now"
                                 onPress={() => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}
                                 style={{
-                                    marginTop: height * 0.15,
+                                    marginTop: height * 0.25,
                                     width: "80%",
                                     alignSelf: 'center',
                                     borderWidth: 0,
@@ -107,14 +108,14 @@ export default function Welcome ({ navigation, route }) {
                                 justifyContent: "center"
                             }}>
                                 <Text style={{
-                                    fontSize: 0.025 * height,
+                                    fontSize: 0.02 * height,
                                     color: Color.colorWhite
                                 }}>Already have an account ?</Text>
                                 <Pressable
                                 onPress={() => navigation.navigate("Login")}
                                 >
                                     <Text style={{
-                                        fontSize: 0.025 * height,
+                                        fontSize: 0.02 * height,
                                         color: Color.colorWhite,
                                         fontWeight: "bold",
                                         marginLeft: 4

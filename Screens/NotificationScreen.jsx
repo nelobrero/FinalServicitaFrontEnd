@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableOpacity, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import React, { useState, useEffect, useRef } from "react";
 import * as Device from 'expo-device';

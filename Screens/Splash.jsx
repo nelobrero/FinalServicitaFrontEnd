@@ -107,7 +107,7 @@ const Splash = ({ navigation }) => {
             useNativeDriver: true,
           }),
         ]),
-        Animated.delay(5000),
+        Animated.delay(3000),
       ]).start(() => {
         navigation.navigate('Welcome', { screen: 'Login' });
       }

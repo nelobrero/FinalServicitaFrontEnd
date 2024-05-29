@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native'
-import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity} from "react-native";
+import { StyleSheet, View, Text, Dimensions, TextInput, TouchableOpacity, Image } from "react-native";
 import { Color, FontFamily, FontSize } from "./../../GlobalStyles";
 import Button from './../../components/Button';
 import { ScrollView } from "react-native-gesture-handler";

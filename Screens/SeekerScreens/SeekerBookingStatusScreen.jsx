@@ -6,14 +6,13 @@ import Button from './../../components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Border, FontSize, FontFamily, Color } from "./../../GlobalStyles";
 import storage from '@react-native-firebase/storage';
-// import StarRating from 'react-native-star-rating';
+import StarRating from 'react-native-star-rating-widget';
 import * as ImagePicker from 'expo-image-picker';
 import RealTimeInfoProvider from "../../components/RealTimeInfoProvider";
 import axios from 'axios';
 import MapPage from './../MapPage';
 import { askForCameraPermission, askForLibraryPermission } from "./../../helper/helperFunction";
 import { Video } from 'expo-av';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendPushNotification } from '../NotificationScreen';
 import { COLORS, FONTS } from "./../../constants/theme";
 
@@ -24,8 +23,8 @@ const windowHeight = Dimensions.get('window').height;
 function SeekerBookingStatusScreen({ navigation, route }) {
     const { data, userData, serviceData } = route.params;
 
-    const [statusText, setStatusText] = useState(data.status);
-    // const [statusText, setStatusText] = useState("In Progress");
+    // const [statusText, setStatusText] = useState(data.status);
+    const [statusText, setStatusText] = useState("Completed");
     const [serviceName, setServiceName] = useState(data.serviceName);
     const [buttonsVisible, setButtonsVisible] = useState(true);
     const [buttonsVisible1, setButtonsVisible1] = useState(true);
@@ -40,7 +39,7 @@ function SeekerBookingStatusScreen({ navigation, route }) {
     const [hasReviewed, setHasReviewed] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [modalOptionssVisible, setModalOptionssVisible] = useState(false);
-
+    console.log(starCount)
     const finalServiceData = {
       id: serviceData.id,
       minprice: serviceData.data.price.min,
@@ -114,7 +113,17 @@ function SeekerBookingStatusScreen({ navigation, route }) {
       setImages(null);
       setModalVisible1(false);
   };
-  
+
+  const handleStarRating = (rating) => {
+    // if half star round to nearest whole number
+    if (rating % 1 !== 0) {
+        rating = Math.round(rating);
+    }
+    setStarCount(rating);
+};
+
+
+
     const handleSubmit = async () => {
       setIsLoading(true);
       const reportData = {
@@ -617,15 +626,17 @@ ${data.paymentMethod === 'gcash' ? 'GCash' : data.paymentMethod === 'grab_pay' ?
             <TouchableOpacity onPress={handleReviewModalClose} style={styles.closeIcon}>
                 <AntDesign name="close" size={24} color="#07374d" />
             </TouchableOpacity>
-            {/* <StarRating
-                disabled={false}
+            {/* empty star should be gray */}
+            <StarRating
                 maxStars={5}
                 rating={starCount}
-                selectedStar={(rating) => setStarCount(rating)}
+                onChange={(rating) => handleStarRating(rating)}
                 starSize={30}
-                fullStarColor="#07374d"
-                starStyle={{ paddingBottom:15, paddingHorizontal: 15 }}  // Adjust the spacing between stars
-            /> */}
+                emptyColor={COLORS.gray}
+                color='#07374d'
+                starStyle={{ paddingBottom:15, paddingHorizontal: 5 }}  // Adjust the spacing between stars
+                enableHalfStars={false}
+            />
             <View>
                 <TextInput
                     style={styles.input}

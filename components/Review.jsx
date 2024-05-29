@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, Image } from 'react-native';
 import axios from 'axios';
 import ReviewItem from '../components/ReviewParent';
 import { COLORS, FONTS } from "./../constants/theme";

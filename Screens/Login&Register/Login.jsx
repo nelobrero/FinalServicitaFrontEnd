@@ -24,6 +24,8 @@ export default function LoginPage ({ navigation }) {
     const [isPasswordShown, setIsPasswordShown] = useState(false);
     const { width, height } = Dimensions.get('window');
 
+
+    console.log(email);
     const validateFields = () => {
         return emailVerify && passwordVerify;
     }
@@ -336,6 +338,7 @@ export default function LoginPage ({ navigation }) {
             email: email,
             password: password,
         }
+        console.log(userData);
         axios.post("http://192.168.1.7:5000/user/login", userData).then((res) => {
         const storedData = res.data.data;
         const userId = res.data.userId;
@@ -444,129 +447,130 @@ export default function LoginPage ({ navigation }) {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
-                <LinearGradient
-                    style={{ flex: 1 }}
-                    colors={[Color.colorSecondary, Color.colorPrimary]}
-                >
-                    <View style={{ flex: 1, marginHorizontal: 22 }}>
-                        <View style={{ marginVertical: Platform.OS === 'ios' ? height * 0.15 : height * 0.05 }}>
-                            <Image
-                                source={require("./../../assets/ServicitaLOGO.png")}
-                                style={{
-                                    height: height * 0.25,
-                                    width: width * 0.8,
-                                    borderRadius: 20,
-                                    alignSelf: 'center'
-                                }}
-                            />
-                        </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
+         
+              <LinearGradient
+                  style={{ flex: 1 }}
+                  colors={[Color.colorWhite, Color.colorWhite]}
+              >
+                  <View style={{ flex: 1, marginHorizontal: 22 }}>
+                      <View style={{ marginVertical: Platform.OS === 'ios' ? height * 0.15 : height * 0.1 }}>
+                          <Image
+                              source={require("./../../assets/ServicitaLogo2.png")}
+                              style={{
+                                  height: height * 0.1,
+                                  width: width * 0.32,
+                                  borderRadius: 20,
+                                  alignSelf: 'center',
+                                  
+                              }}
+                          />
+                      </View>
 
-                        <View style={{ marginBottom: height * 0.02 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 8, color: Color.colorWhite }}>Email Address</Text>
-                            <View style={{ width: "100%", height: 48, borderColor:  email === null || email === '' ? Color.colorWhite : emailVerify ? Color.colorWhite : Color.colorCoralShade, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", paddingLeft: 22, flexDirection: 'row', paddingHorizontal: 55}}>
-                              <FontAwesome name="envelope" color = { email === null || email === '' ? Color.colorWhite : emailVerify ? Color.colorWhite : Color.colorCoralShade } style={{marginRight: 5, fontSize: 24}} />
-                                <TextInput 
-                                    placeholder='Enter your email address' 
-                                    placeholderTextColor={Color.colorWhite} 
-                                    keyboardType='email-address' 
-                                    style={{ width: "100%" }}
-                                    color={ Color.colorWhite }
-                                    onChange={(e) => {
-                                        const trimmedEmail = e.nativeEvent.text.trim();
-                                        setEmail(trimmedEmail);
-                                        setEmailVerify(trimmedEmail.length > 1 && /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/.test(trimmedEmail));
-                                    }}
-                                    value={email}
-                                />
-                                {email.length < 1 ? null : emailVerify ? (
-                            <Feather name="check-circle" color={Color.colorWhite} size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : (
-                            <Error name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
-                        )}
-                            </View>
-
-                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                      <View style={{ marginBottom: height * 0.01 }}>
+                          <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 5, color: Color.colorPrimary }}>Email Address</Text>
+                          <View style={{ width: "100%", height: 48, borderColor:  email === null || email === '' ? Color.colorPrimary : emailVerify ? Color.colorPrimary : Color.colorCoralShade, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", paddingLeft: 22, flexDirection: 'row', paddingHorizontal: 55}}>
+                            <FontAwesome name="envelope" color = { email === null || email === '' ? Color.colorPrimary : emailVerify ? Color.colorPrimary : Color.colorCoralShade } style={{marginRight: 5, fontSize: 24}} />
+                              <TextInput 
+                                  placeholder='Enter your email address' 
+                                  placeholderTextColor={Color.colorPrimary} 
+                                  keyboardType='email-address' 
+                                  style={{ width: "100%" }}
+                                  color={ Color.colorPrimary }
+                                  onChange={(e) => {
+                                      const trimmedEmail = e.nativeEvent.text.trim();
+                                      setEmail(trimmedEmail);
+                                      setEmailVerify(trimmedEmail.length > 1 && /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/.test(trimmedEmail));
+                                  }}
+                                  value={email}
+                              />
                               {email.length < 1 ? null : emailVerify ? (
-                                  null
-                              ) : (
-                                  <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                                      <Text style={[errorText, { color: Color.colorCoralShade}]}>Please enter a valid email address.</Text>
-                                  </View>
-                              )}
-
+                          <Feather name="check-circle" color={Color.colorPrimary} size={24} style={{ position: "absolute", right: 12 }}/>
+                      ) : (
+                          <Error name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
+                      )}
                           </View>
-                        </View>
 
-                        <View style={{ marginBottom: height * 0.02 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 8, color: Color.colorWhite }}>Password</Text>
-                            <View style={{ width: "100%", height: 48, borderColor: password === null || password === '' ? Color.colorWhite : passwordVerify ? Color.colorWhite : Color.colorCoralShade, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", flexDirection: 'row', paddingLeft: 22, paddingHorizontal: 51.5}}>
-                            <FontAwesome name="lock" color = {password === null || password === '' ? Color.colorWhite : passwordVerify ? Color.colorWhite : Color.colorCoralShade} style={{marginRight: 5, fontSize: 24}} />
-                                <TextInput 
-                                    placeholder='Enter your password' 
-                                    placeholderTextColor={Color.colorWhite} 
-                                    secureTextEntry={!isPasswordShown} 
-                                    style={{ width: "100%" }} 
-                                    color={ Color.colorWhite }
-                                    onChange={(e) => {
-                                      const passwordInput = e.nativeEvent.text;
-                                      setPassword(passwordInput);
-                                      setPasswordVerify(passwordInput.length > 1 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(passwordInput));
-                                    }}
-                                    value={password}
-                                />
-                                <TouchableOpacity onPress={() => setIsPasswordShown(!isPasswordShown)} style={{ position: "absolute", right: 12 }}>
-                                    <Ionicons name={isPasswordShown ? "eye-off" : "eye"} size={24} color={password === null || password === '' ? Color.colorWhite : passwordVerify ? Color.colorWhite : Color.colorCoralShade} />
-                                </TouchableOpacity>
-                            </View>
-                            {password.length < 1 ? null : passwordVerify ? null : (
-                                <Text style={[errorText, {color: Color.colorCoralShade, textAlign: 'left' }]}>Password must be at least 8 characters long and include at least one uppercase letter and one digit.</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                            {email.length < 1 ? null : emailVerify ? (
+                                null
+                            ) : (
+                                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text style={[errorText, { color: Color.colorCoralShade}]}>Please enter a valid email address.</Text>
+                                </View>
                             )}
-                        </View>
 
-                        <View style={{ flexDirection: 'row', marginVertical: height * 0.005, justifyContent: 'flex-end' }}>
-                            <Pressable onPress={() => navigation.navigate("ForgotPassword")}>
-                                <Text style={{ color: Color.colorWhite, fontWeight: 'normal' }}>Forgot Password?</Text>
-                            </Pressable>
                         </View>
-                                                
-                        <Button title="Login" filled Color={Color.colorWhite} style={{ marginTop: height * 0.015, marginBottom: height * 0.005 }} onPress={handleSubmit} disabled={!validateFields()}/>
+                      </View>
 
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: height * 0.005 }}>
-                          <View style={{ flex: 1, height: 1, backgroundColor: Color.colorGrey, marginHorizontal: 10 }} />
-                          <Text style={{ fontSize: 14, color: Color.colorWhite }}>Or Login with</Text>
-                          <View style={{ flex: 1, height: 1, backgroundColor: Color.colorGrey, marginHorizontal: 10 }} />
-                        </View>
-
-                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                          <View style={circleContainer}>
-                            <TouchableOpacity onPress={onFacebookButtonPress} style={circleButton}>
-                              <Image source={require("./../../assets/facebook.png")} style={{ height: 36, width: 36, top: 7}} />
-                            </TouchableOpacity>
+                      <View style={{ marginBottom: height * 0.01 }}>
+                          <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 5, color: Color.colorPrimary }}>Password</Text>
+                          <View style={{ width: "100%", height: 48, borderColor: password === null || password === '' ? Color.colorPrimary : passwordVerify ? Color.colorPrimary : Color.colorCoralShade, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", flexDirection: 'row', paddingLeft: 22, paddingHorizontal: 51.5}}>
+                          <FontAwesome name="lock" color = {password === null || password === '' ? Color.colorPrimary : passwordVerify ? Color.colorPrimary : Color.colorCoralShade} style={{marginRight: 5, fontSize: 24}} />
+                              <TextInput 
+                                  placeholder='Enter your password' 
+                                  placeholderTextColor={Color.colorPrimary} 
+                                  secureTextEntry={!isPasswordShown} 
+                                  style={{ width: "100%" }} 
+                                  color={ Color.colorPrimary }
+                                  onChange={(e) => {
+                                    const passwordInput = e.nativeEvent.text;
+                                    setPassword(passwordInput);
+                                    setPasswordVerify(passwordInput.length > 1 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(passwordInput));
+                                  }}
+                                  value={password}
+                              />
+                              <TouchableOpacity onPress={() => setIsPasswordShown(!isPasswordShown)} style={{ position: "absolute", right: 12 }}>
+                                  <Ionicons name={isPasswordShown ? "eye-off" : "eye"} size={24} color={password === null || password === '' ? Color.colorPrimary : passwordVerify ? Color.colorPrimary : Color.colorCoralShade} />
+                              </TouchableOpacity>
                           </View>
-                          <View style={circleContainer}>
-                            <TouchableOpacity onPress={GoogleSignIn} style={circleButton}>
-                              <Image source={require("./../../assets/google.png")} style={{ height: 47, width: 47, top: 1 }} />
-                            </TouchableOpacity>
-                          </View>
-                          <View style={circleContainer}>
-                            <TouchableOpacity onPress={() => navigation.navigate('MobileLogin')} style={circleButton}>
-                              <Image source={require("./../../assets/phone.png")} style={{ height: 37, width: 37, top: 6 }} />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
+                          {password.length < 1 ? null : passwordVerify ? null : (
+                              <Text style={[errorText, {color: Color.colorCoralShade, textAlign: 'left' }]}>Password must be at least 8 characters long and include at least one uppercase letter and one digit.</Text>
+                          )}
+                      </View>
 
-                        <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: height * 0.03 }}>
-                            <Text style={{ fontSize: 16, color: Color.colorWhite }}>Don't have an account?</Text>
-                            <Pressable onPress={() => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}>
-                                <Text style={{ fontSize: 16, color: Color.colorWhite, fontWeight: 'bold', marginLeft: 8 }}>Register</Text>
-                            </Pressable>
+                      <View style={{ flexDirection: 'row', marginVertical: height * 0.005, justifyContent: 'flex-end' }}>
+                          <Pressable onPress={() => navigation.navigate("ForgotPassword")}>
+                              <Text style={{ color: Color.colorPrimary, fontWeight: 'normal' }}>Forgot Password?</Text>
+                          </Pressable>
+                      </View>
+                                              
+                      <Button title="Login" filled Color={Color.colorPrimary} style={{ marginTop: height * 0.03, marginBottom: height * 0.015 }} onPress={handleSubmit} disabled={!validateFields()}/>
+
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: height * 0.0010 }}>
+                        <View style={{ flex: 1, height: 1, backgroundColor: Color.colorGrey, marginHorizontal: 10 }} />
+                        <Text style={{ fontSize: 14, color: Color.colorPrimary }}>Or Login with</Text>
+                        <View style={{ flex: 1, height: 1, backgroundColor: Color.colorGrey, marginHorizontal: 10 }} />
+                      </View>
+
+                      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                        <View style={circleContainer}>
+                          <TouchableOpacity onPress={onFacebookButtonPress} style={circleButton}>
+                            <Image source={require("./../../assets/facebook.png")} style={{ height: 36, width: 36, top: 13 }} />
+                          </TouchableOpacity>
                         </View>
-                    </View>
-                </LinearGradient>
-            </ScrollView>
-            
-        </SafeAreaView>
-    )
+                        <View style={circleContainer}>
+                          <TouchableOpacity onPress={GoogleSignIn} style={circleButton}>
+                            <Image source={require("./../../assets/google.png")} style={{ height: 47, width: 47, top: 8 }} />
+                          </TouchableOpacity>
+                        </View>
+                        <View style={circleContainer}>
+                          <TouchableOpacity onPress={() => navigation.navigate('MobileLogin')} style={circleButton}>
+                            <Image source={require("./../../assets/phone.png")} style={{ height: 37, width: 37, top: 13 }} />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+
+                      <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: height * 0.1 }}>
+                          <Text style={{ fontSize: 16, color: Color.colorPrimary }}>Don't have an account?</Text>
+                          <Pressable onPress={() => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}>
+                              <Text style={{ fontSize: 16, color: Color.colorPrimary, fontWeight: 'bold', marginLeft: 8 }}>Register</Text>
+                          </Pressable>
+                      </View>
+                  </View>
+              </LinearGradient>
+      
+          
+      </SafeAreaView>
+  )
 }

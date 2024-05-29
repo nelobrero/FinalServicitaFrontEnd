@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
 import Header_Category from './../../components/Header_Category';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Result from "./../../components/Result";

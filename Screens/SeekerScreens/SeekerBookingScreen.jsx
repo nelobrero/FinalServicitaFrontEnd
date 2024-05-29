@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Modal, TouchableOpacity, Image } from 'react-native';
 import { Color } from "./../../GlobalStyles";
 import BookingSeeker from "./../../components/BookingSeeker";
 import { Ionicons } from '@expo/vector-icons';
@@ -9,8 +9,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import firestore from '@react-native-firebase/firestore';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { sendPushNotification } from '../NotificationScreen';
 import { COLORS, FONTS } from "./../../constants/theme";
 
 

@@ -1,4 +1,4 @@
-import { View, Text, Dimensions, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Pressable, FlatList } from 'react-native'
+import { View, Text, Dimensions, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Pressable, FlatList, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useState, useEffect } from 'react'
 import { Color, errorText, FontFamily, FontSize } from '../../GlobalStyles'

@@ -53,7 +53,7 @@ import ProviderBookingPage from './Screens/ProviderScreens/ProviderBookingPage';
 import Chat from './Screens/Chat';
 import NotificationScreen from './Screens/NotificationScreen';
 import AIScreen from './Screens/AIScreen';
-// import Splash from './Screens/Splash';
+import Splash from './Screens/Splash';
 import { usePushNotifications, sendPushNotification } from './Screens/NotificationScreen';
 
 const LoginNav = () => {
@@ -76,8 +76,8 @@ const LoginNav = () => {
   };
 
     return (
-        <Stack.Navigator initialRouteName='Welcome' screenOptions={{ headerShown: false }}>
-            {/* <Stack.Screen name='Splash' component={Splash} /> */}
+        <Stack.Navigator initialRouteName='Splash' screenOptions={{ headerShown: false }}>
+            <Stack.Screen name='Splash' component={Splash} />
             <Stack.Screen name='UserRole' component={UserRoleScreen} />
             <Stack.Screen name='Login' component={LoginPage} />
             <Stack.Screen name='Register' component={RegisterPage} />
