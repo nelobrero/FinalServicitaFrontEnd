@@ -19,24 +19,26 @@ const ImageSlider = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1  }}>
     <Carousel
       ref={ref}
-      width={width}
-      height={width / 2}
+      width={width/ 1}
+      height={width / 1.6}
       data={sliderImages}
       onProgressChange={progress}
       renderItem={({ index }) => (
         <View
           style={{
             flex: 1,
-            borderWidth: 1,
+            // borderWidth: 1,
+            borderRadius: 20,
             justifyContent: "center",
+            margin: 14
           }}
         > 
           <Image
             source={sliderImages[index]}
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%", borderRadius:10}}
           />
         </View>
       )}
@@ -45,8 +47,8 @@ const ImageSlider = () => {
     <Pagination.Basic
       progress={progress}
       data={sliderImages}
-      dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
-      containerStyle={{ gap: 5, marginTop: 10 }}
+      dotStyle={{ backgroundColor: "rgba(0,0,0,0.1)", borderRadius: 30, height: 5, width: 5 }}
+      containerStyle={{ gap: 3, height: 1, marginBottom: 3}}
       onPress={onPressPagination}
     />
   </View>

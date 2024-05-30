@@ -5,11 +5,8 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import PopularServices from './PopularServices';
 import { useFocusEffect } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
-import { COLORS, FONTS } from "./../../constants/theme";
 
-const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
 export default HomePage = ({navigation, route}) => {
@@ -107,12 +104,12 @@ export default HomePage = ({navigation, route}) => {
           <Pressable onPress={() => navigation.navigate("Search", { userData: userData })} style={styles.searchTouchable}>
             <View style={styles.searchBar}>
               <AntDesign name="search1" size={24} color="#002D62" />
-              <TextInput placeholder="Search for services or more" style={styles.searchInput} editable={false} />
+              <TextInput placeholder="Search for Services" style={styles.searchInput} editable={false} />
             </View>
           </Pressable>
           {/* <View style={styles.notificationButton}> */}
             <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-              <Ionicons name="notifications" size={24} color="white" style={styles.notificationButton }/>
+            <Ionicons name="notifications" size={22} color="white" style={styles.notificationButton }/>
             </TouchableOpacity>
           {/* </View> */}
         </View>
@@ -129,7 +126,7 @@ export default HomePage = ({navigation, route}) => {
             
           
         {/* Categories */}
-        <View>
+        <View style={styles.containercategories}>
           <View style={styles.container1}>
             <View>
               <Text style={styles.categoriesText}>Services</Text>
@@ -153,8 +150,8 @@ export default HomePage = ({navigation, route}) => {
                 <Image 
                   source={require("./../../assets/Cleaning.png")}
                   style={{
-                    height: 100,
-                    width: 93,
+                    height: 80,
+                    width: 73,
                     resizeMode:'contain',
                     marginRight: 2,
                     marginLeft: 2
@@ -170,8 +167,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Manicure.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -187,8 +184,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Electric.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -204,8 +201,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Beauty.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -221,8 +218,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Catering.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -238,8 +235,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Septic.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -255,8 +252,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Massage.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -272,8 +269,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Plumbing.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -289,8 +286,8 @@ export default HomePage = ({navigation, route}) => {
               <Image
                 source={require("./../../assets/Tutoring.png")}
                 style={{
-                  height: 100,
-                  width: 93,
+                  height: 80,
+                  width: 73,
                   resizeMode:'contain',
                   marginRight: 2,
                   marginLeft: 2
@@ -308,7 +305,8 @@ export default HomePage = ({navigation, route}) => {
               marginLeft: 20,
               }}>
               <Text style={{color: 'black',
-              fontSize: 15,
+              marginTop: 10,
+              fontSize: 18,
               fontWeight:'bold',
               paddingTop:10
               }}>Popular Services</Text>
@@ -337,33 +335,39 @@ export default HomePage = ({navigation, route}) => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal:5,
+    marginBottom: 8,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     backgroundColor: '#07364B',
-    alignItems: 'center'
+    // alignItems: 'center'
   },
   searchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'stretch',
-    margin: 10,
+    margin: 9,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent:"center",
     borderWidth: 1,
-    paddingVertical: 8, // Adjust vertical padding to change height
+    paddingVertical: 6, // Adjust vertical padding to change height
     paddingHorizontal: 12,
     borderColor: '#002147',
     borderRadius: 20,
     backgroundColor: '#F0F0F0',
-    width: windowWidth * 0.8
+    width: windowWidth * 0.7
 
   },
 
   filter: {
     marginLeft:15
+  },
+
+  containercategories: {
+    // backgroundColor: 'white',
+    // height: 150
   },
 
   container1: {
@@ -385,7 +389,7 @@ const styles = StyleSheet.create({
 
   categoriesText: {
     color: 'black',
-    fontSize: 15,
+    fontSize: 18,
     fontWeight:"bold"
   },
   searchTouchable: {
@@ -406,10 +410,11 @@ const styles = StyleSheet.create({
   //   // your search bar styles
   // },
   searchImage: {
-    width: 35, // adjust the size as needed
-    height: 30, // adjust the size as needed
+    width: 30, // adjust the size as needed
+    height: 25, // adjust the size as needed
     // marginHorizotal: 18, // adjust the spacing as needed
-    // marginRight:8,
+    marginRight:15,
+    marginLeft: 5,
   },
   searchInput: {
     flex: 1,
@@ -418,8 +423,8 @@ const styles = StyleSheet.create({
   notificationButton: {
     position: "absolute",
     top: -10,
-    // right: 20,
-    // marginLeft:8,
+    // right: 1,
+    marginLeft:16,
     zIndex: 1,
     
     
