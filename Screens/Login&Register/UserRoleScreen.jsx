@@ -6,9 +6,8 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-nat
 import { useNotifications, createNotifications } from 'react-native-notificated';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from '@expo/vector-icons';
-import { COLORS } from "../../constants/theme";
 
-function UserRoleScreen({navigation, route, props}){
+function UserRoleScreen({navigation, route}){
   const { NotificationsProvider } = createNotifications({
     multiline : true,
   })
@@ -70,7 +69,7 @@ function UserRoleScreen({navigation, route, props}){
             onPress={() => navigation.goBack()}
             style={styles.arrowContainer}
         >
-            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.primary} />
+            <MaterialIcons name="arrow-back-ios" size={20} color={"#07374d"} />
             </TouchableOpacity>
 
       <Text style={[styles.signingUpAs, styles.continueTypo]}>
@@ -126,19 +125,19 @@ const styles = StyleSheet.create({
   },
   signingUpAs: {
     top: hp('15%'),
-    color: "#1f546d",
+    color: "#07374d",
     fontWeight: "700",
     fontSize: RFValue(30),
     textAlign: "center",
   },
   button: {
     width: wp('80%'),
-    height: hp('17%'),
+    height: hp('20%'),
     backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 0.8,
-    borderRadius: 3,
+    borderRadius: 15,
     borderColor: "gray",
     ...Platform.select({
       ios: {
@@ -153,12 +152,12 @@ const styles = StyleSheet.create({
     }),
   },
   buttonText: {
-    color: "#1f546d",
+    color: "#07374d",
     textAlign: "center",
     fontWeight: "700",
   },
   serviceText: {
-    color: "#1f546d",
+    color: "#07374d",
     textAlign: "center",
     fontWeight: "700",
   },
@@ -168,26 +167,27 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   selectedButton: {
-    backgroundColor: "#1f546d",
+    backgroundColor: "#07374d",
   },
   selectedButtonText: {
     color: "white",
   },
   serviceSeekerButton: {
     position: "absolute",
-    top: hp('32%'),
+    top: hp('30%'),
   },
   serviceProviderButton: {
     position: "absolute",
-    top: hp('52%'),
+    top: hp('53%'),
   },
   continueButton: {
     width: wp('80%'),
     height: hp('8%'),
-    borderRadius: 6,
+    borderRadius: 12,
     overflow: "hidden",
     position: "absolute",
-    top: hp('80%'),
+    bottom: hp('5%'),
+    
     ...Platform.select({
       ios: {
         shadowColor: "rgba(0, 0, 0, 0.1)",
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     height: "100%",
+    backgroundColor: "#07374d"
   },
   userroleChild: {
     top: hp('4%'),

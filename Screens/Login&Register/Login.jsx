@@ -444,8 +444,8 @@ export default function LoginPage ({ navigation }) {
     }
 
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorPrimary }}>
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
+
               <LinearGradient
                   style={{ flex: 1 }}
                   colors={[Color.colorWhite, Color.colorWhite]}
@@ -566,7 +566,6 @@ export default function LoginPage ({ navigation }) {
                       </View>
                   </View>
               </LinearGradient>
-          </ScrollView>
           
       </SafeAreaView>
   )
