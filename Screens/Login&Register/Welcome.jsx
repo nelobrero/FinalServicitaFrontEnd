@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect } from 'react' 
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from "expo-linear-gradient";
-import { Color } from "./../../GlobalStyles";
+import { Color, FontFamily } from "./../../GlobalStyles";
 import Button from '../../components/Button';
 import { createNotifications, useNotifications } from 'react-native-notificated';
 
@@ -66,9 +66,8 @@ export default function Welcome ({ navigation, route }) {
                                 style={{
                                     height: height * 0.25,
                                     width: width * 0.5 ,
-                                    borderRadius: 20,
                                     position: "absolute",
-                                    top: 0.2 * height,
+                                    top: 0.19 * height,
                                     alignSelf: 'center'
                                 }}
                             />
@@ -82,19 +81,21 @@ export default function Welcome ({ navigation, route }) {
                         }}>
 
                             <Text style={{
-                                fontSize: 0.065 * height,
+                                fontSize: 0.05 * height,
+                                fontFamily: FontFamily.quicksandBold,
                                 fontWeight: 'normal',
                                 fontStyle: 'normal',
                                 color: Color.colorWhite,
                                 textAlign: 'center',
-                                letterSpacing: 0.01 * height
-                            }}>Servicita</Text>
+                                letterSpacing: 0.01 * height,
+                                bottom: 0.05 * height
+                            }}>servicita</Text>
 
                             <Button
                                 title="Join Now"
                                 onPress={() => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}
                                 style={{
-                                    marginTop: height * 0.25,
+                                    marginTop: height * 0.3,
                                     width: "80%",
                                     alignSelf: 'center',
                                     borderWidth: 0,

@@ -444,8 +444,8 @@ export default function LoginPage ({ navigation }) {
     }
 
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>
-         
+      <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorPrimary }}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
               <LinearGradient
                   style={{ flex: 1 }}
                   colors={[Color.colorWhite, Color.colorWhite]}
@@ -467,7 +467,7 @@ export default function LoginPage ({ navigation }) {
                       <View style={{ marginBottom: height * 0.01 }}>
                           <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 5, color: Color.colorPrimary }}>Email Address</Text>
                           <View style={{ width: "100%", height: 48, borderColor:  email === null || email === '' ? Color.colorPrimary : emailVerify ? Color.colorPrimary : Color.colorCoralShade, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", paddingLeft: 22, flexDirection: 'row', paddingHorizontal: 55}}>
-                            <FontAwesome name="envelope" color = { email === null || email === '' ? Color.colorPrimary : emailVerify ? Color.colorPrimary : Color.colorCoralShade } style={{marginRight: 5, fontSize: 24}} />
+                            <FontAwesome name="envelope" color = { email === null || email === '' ? Color.colorPrimary : emailVerify ? Color.colorPrimary : Color.colorCoralShade } style={{marginRight: 8, fontSize: 19, marginLeft: 10 }} />
                               <TextInput 
                                   placeholder='Enter your email address' 
                                   placeholderTextColor={Color.colorPrimary} 
@@ -484,7 +484,7 @@ export default function LoginPage ({ navigation }) {
                               {email.length < 1 ? null : emailVerify ? (
                           <Feather name="check-circle" color={Color.colorPrimary} size={24} style={{ position: "absolute", right: 12 }}/>
                       ) : (
-                          <MaterialIcons name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
+                          <Error name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
                       )}
                           </View>
 
@@ -503,7 +503,7 @@ export default function LoginPage ({ navigation }) {
                       <View style={{ marginBottom: height * 0.01 }}>
                           <Text style={{ fontSize: 16, fontWeight: '400', marginVertical: 5, color: Color.colorPrimary }}>Password</Text>
                           <View style={{ width: "100%", height: 48, borderColor: password === null || password === '' ? Color.colorPrimary : passwordVerify ? Color.colorPrimary : Color.colorCoralShade, borderWidth: 1, borderRadius: 50, alignItems: "center", justifyContent: "center", flexDirection: 'row', paddingLeft: 22, paddingHorizontal: 51.5}}>
-                          <FontAwesome name="lock" color = {password === null || password === '' ? Color.colorPrimary : passwordVerify ? Color.colorPrimary : Color.colorCoralShade} style={{marginRight: 5, fontSize: 24}} />
+                          <FontAwesome name="lock" color = {password === null || password === '' ? Color.colorPrimary : passwordVerify ? Color.colorPrimary : Color.colorCoralShade} style={{marginRight: 8, fontSize: 24, marginLeft: 10}} />
                               <TextInput 
                                   placeholder='Enter your password' 
                                   placeholderTextColor={Color.colorPrimary} 
@@ -558,7 +558,7 @@ export default function LoginPage ({ navigation }) {
                         </View>
                       </View>
 
-                      <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: height * 0.1 }}>
+                      <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: height * 0.15 }}>
                           <Text style={{ fontSize: 16, color: Color.colorPrimary }}>Don't have an account?</Text>
                           <Pressable onPress={() => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}>
                               <Text style={{ fontSize: 16, color: Color.colorPrimary, fontWeight: 'bold', marginLeft: 8 }}>Register</Text>
@@ -566,7 +566,7 @@ export default function LoginPage ({ navigation }) {
                       </View>
                   </View>
               </LinearGradient>
-      
+          </ScrollView>
           
       </SafeAreaView>
   )
