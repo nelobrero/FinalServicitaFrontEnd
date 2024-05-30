@@ -484,7 +484,7 @@ export default function LoginPage ({ navigation }) {
                               {email.length < 1 ? null : emailVerify ? (
                           <Feather name="check-circle" color={Color.colorPrimary} size={24} style={{ position: "absolute", right: 12 }}/>
                       ) : (
-                          <Error name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
+                          <MaterialIcons name="error" color={Color.colorCoralShade} size={24} style={{ position: "absolute", right: 12 }}/>
                       )}
                           </View>
 
