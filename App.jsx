@@ -106,6 +106,12 @@ const AppNavigator = () => {
     const [userDataFetched, setUserDataFetched] = useState(false);
     const navigation = useNavigation();
     
+    // Wait for navigation to be available before fetching user data
+
+    if (navigation === null) {
+        return null;
+    }
+
     useEffect(() => {
       
       getUserData();
@@ -129,7 +135,7 @@ const AppNavigator = () => {
         await AsyncStorage.removeItem('userId');
         setUserRole('');
         setUserEmail('');
-        navigation.navigate('LoginNav');
+        
     } finally {
         setUserDataFetched(true);
     }
@@ -152,7 +158,7 @@ const AppNavigator = () => {
     console.log("App path: ", path);
   };
 
-    if (!userDataFetched || userRole === '' || userEmail === '' || navigation === null) {
+    if (!userDataFetched || userRole === '' || userEmail === '') {
         return null;
     }
 

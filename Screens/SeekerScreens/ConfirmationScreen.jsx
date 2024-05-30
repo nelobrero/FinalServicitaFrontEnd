@@ -58,7 +58,7 @@ async function getProviderData() {
           <Feather name="check-circle" size={120} color="white" />
         </View>
         <Text style={{ fontSize: 30, color: 'white', alignSelf: 'center', marginTop: 160 }}>Booking Confirmed</Text>
-        <Text style={{alignSelf:'center', marginTop: 1, color:'white'}}>Hold tight, service excellence is just around the corner!</Text>
+        <Text style={{alignSelf:'center', marginTop: 1, color:'white'}}>Your booking has been confirmed. You can view your booking details below.</Text>
       </View>
       <View style={styles.container2}>
 
