@@ -90,8 +90,6 @@ export default HomePage = ({navigation, route}) => {
     );
   }
   // style={{ paddingBottom: 10 }}
-
-  
   return (
     <View style={{ flex: 1, marginBottom: 70 }}>
    
@@ -109,12 +107,12 @@ export default HomePage = ({navigation, route}) => {
           <Pressable onPress={() => navigation.navigate("Search", { userData: userData })} style={styles.searchTouchable}>
             <View style={styles.searchBar}>
               <AntDesign name="search1" size={24} color="#002D62" />
-              <TextInput placeholder="Search for Services" style={styles.searchInput} editable={false} />
+              <TextInput placeholder="Search for services or more" style={styles.searchInput} editable={false} />
             </View>
           </Pressable>
           {/* <View style={styles.notificationButton}> */}
             <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-              <Ionicons name="notifications" size={22} color="white" style={styles.notificationButton }/>
+              <Ionicons name="notifications" size={24} color="white" style={styles.notificationButton }/>
             </TouchableOpacity>
           {/* </View> */}
         </View>
@@ -342,26 +340,25 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     backgroundColor: '#07364B',
-    // alignItems: 'center'
+    alignItems: 'center'
   },
   searchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'stretch',
-    margin: 8,
-    marginLeft: 9
+    margin: 10,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent:"center",
     borderWidth: 1,
-    paddingVertical: 6, // Adjust vertical padding to change height
+    paddingVertical: 8, // Adjust vertical padding to change height
     paddingHorizontal: 12,
     borderColor: '#002147',
     borderRadius: 20,
     backgroundColor: '#F0F0F0',
-    width: windowWidth * 0.5
+    width: windowWidth * 0.8
 
   },
 
@@ -409,10 +406,10 @@ const styles = StyleSheet.create({
   //   // your search bar styles
   // },
   searchImage: {
-    width: 30, // adjust the size as needed
-    height: 25, // adjust the size as needed
+    width: 35, // adjust the size as needed
+    height: 30, // adjust the size as needed
     // marginHorizotal: 18, // adjust the spacing as needed
-    marginRight:10,
+    // marginRight:8,
   },
   searchInput: {
     flex: 1,
@@ -421,8 +418,8 @@ const styles = StyleSheet.create({
   notificationButton: {
     position: "absolute",
     top: -10,
-    // right: 1,
-    marginLeft:95,
+    // right: 20,
+    // marginLeft:8,
     zIndex: 1,
     
     
