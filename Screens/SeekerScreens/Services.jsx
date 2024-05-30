@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, FlatList, Dimensions, Pressable, TextInp
 import { COLORS } from '../../constants/theme';
 import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Header_Category from './../../components/Header_Category';
 
 const screenWidth = Dimensions.get('screen').width;
     const screenHeight = Dimensions.get('screen').height;
@@ -75,34 +76,8 @@ const Services = ({navigation, route}) => {
     
     return (
         <SafeAreaView>
-            <View style={styles.container}>
-           
-                <View style={styles.container}>
-                    <View style={styles.searchContainer}>
-                    <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 20,
-                position: 'absolute',
-                zIndex: 1
-            }}
-        >
-            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
-        </TouchableOpacity>
-                        <View style={styles.searchBar}>
-                            
-                            <AntDesign name="search1" size={24} color="#002D62" />
-                            <TextInput placeholder="Search for services or more" style={styles.searchInput} />
-                        </View>
-
-                        <Pressable onPress={() => navigation.navigate("Filter")}>
-                            <Ionicons name="filter" size={24} color="white" style={styles.filter} />
-                        </Pressable>
-                    </View>
-                </View>
-            </View>
+            <Header_Category title="Categories" />
+            
             <FlatList
                 data={data}
                 numColumns={2} // Set number of columns to 2
@@ -126,6 +101,7 @@ const Services = ({navigation, route}) => {
                     </Pressable>
                 )}
                 keyExtractor={(item) => item.id.toString()} // Set unique key extractor
+                contentContainerStyle={styles.flatListContent}
             />
         </SafeAreaView>
     );
@@ -140,8 +116,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     container: {
-        paddingLeft: 10,
-        paddingRight: 10,
+        paddingHorizontal: 10,
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
         backgroundColor: '#07364B',
@@ -160,7 +135,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 1,
         paddingVertical: 8,
-        paddingHorizontal: 5,
+        paddingHorizontal: 12,
         borderColor: '#002147',
         borderRadius: 20,
         backgroundColor: '#F0F0F0',
@@ -172,7 +147,13 @@ const styles = StyleSheet.create({
     },
     filter: {
         marginLeft: 15
-    }
+    },
+    flatListContent: {
+    //alignItems: "center",
+    justifyContent: "center", 
+    flexGrow: 1, 
+    paddingBottom:80,
+  },
 });
 
 export default Services;
