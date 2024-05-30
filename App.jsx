@@ -123,10 +123,11 @@ const AppNavigator = () => {
         if (!token) {
             throw new Error('No token found');
         }
-        const response = await axios.post("http://192.168.1.7:5000/user/userData", { token: token });
+        const response = await axios.post("http://172.16.15.247:5000/user/userData", { token: token });
         setUserRole(response.data.data.data.role);
         setUserEmail(response.data.data.data.email);
         await AsyncStorage.setItem('userId', response.data.data.data._id);
+        await AsyncStorage.setItem('role', response.data.data.data.role);
     } catch (error) {
         console.error('Error fetching user data:', error);
         console.log('Logging out user');

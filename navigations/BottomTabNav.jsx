@@ -28,7 +28,7 @@ const screenOptions = {
 export default BottomTabNav = ({route}) => {
 
   const { userRole, userEmail } = route.params;
-
+  console.log("User Role: ", userRole);
   // console.log("User Email: ", userEmail);
 
   if (userRole === 'Provider') {

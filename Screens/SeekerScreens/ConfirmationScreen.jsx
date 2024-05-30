@@ -26,7 +26,7 @@ export default ConfirmationScreen = ({ navigation, route }) => {
 
 async function getUserData() {
     try{
-    const result = await axios.post("http://192.168.1.7:5000/user/getUserDetailsById", { id: bookingData.seekerId })
+    const result = await axios.post("http://172.16.15.247:5000/user/getUserDetailsById", { id: bookingData.seekerId })
     setUserRole(result.data.data.role);
     setUserEmail(result.data.data.email);
     getProviderData();
