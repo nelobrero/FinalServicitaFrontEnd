@@ -1,4 +1,4 @@
-import { View, Text, Dimensions, Image } from 'react-native'
+import { View, Dimensions, Image } from 'react-native'
 import * as React from "react";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, { Pagination } from "react-native-reanimated-carousel";

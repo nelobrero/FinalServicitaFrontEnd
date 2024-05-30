@@ -5,10 +5,9 @@ import { Color, FontFamily, FontSize } from "./../../GlobalStyles";
 import Button from './../../components/Button';
 import { ScrollView } from "react-native-gesture-handler";
 import CalendarPicker from "react-native-calendar-picker";
-import { FontAwesome5 } from '@expo/vector-icons';
-import {Dropdown} from 'react-native-element-dropdown';
+import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
 import firestore from '@react-native-firebase/firestore';
 
@@ -20,13 +19,10 @@ export default function BookingScreen ({navigation, route}) {
   const { data, userData } = route.params;
 
   const formatDefaultDate = (date) => {
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"];
-
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const month = monthNames[date.getMonth()];
     const day = date.getDate();
     const year = date.getFullYear();
-
     return `${month} ${day}, ${year}`;
   };
 
