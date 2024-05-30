@@ -281,6 +281,15 @@ const handleValuesChange = (values) => {
           services: firestore.FieldValue.arrayUnion(serviceId)
         });
 
+        const notification = {
+            userId: "66111acbea0491231d30d8a7",
+            message: `New service added: ${serviceName}`,
+            title: "New Service for Approval",
+            otherUserId: userId,
+          };
+        
+          await axios.post("http://192.168.1.7:5000/notifications/create", notification)
+
         alert('Service created successfully');
 
         setServiceName('');
