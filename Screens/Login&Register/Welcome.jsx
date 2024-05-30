@@ -81,7 +81,7 @@ export default function Welcome ({ navigation, route }) {
                         }}>
 
                             <Text style={{
-                                fontSize: 0.05 * height,
+                                fontSize: 0.02 * height,
                                 fontFamily: FontFamily.quicksandBold,
                                 fontWeight: 'normal',
                                 fontStyle: 'normal',
@@ -89,7 +89,7 @@ export default function Welcome ({ navigation, route }) {
                                 textAlign: 'center',
                                 letterSpacing: 0.01 * height,
                                 bottom: 0.05 * height
-                            }}>servicita</Text>
+                            }}>SERVICITA</Text>
 
                             <Button
                                 title="Join Now"
