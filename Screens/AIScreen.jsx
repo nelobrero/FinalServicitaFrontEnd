@@ -5,68 +5,65 @@ import {
   Image,
   TextInput,
   StyleSheet,
-  Dimensions,
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
-import { GiftedChat, Bubble  } from "react-native-gifted-chat";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, Feather, AntDesign } from "@expo/vector-icons";
+import { GiftedChat, Bubble } from "react-native-gifted-chat";
+import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import axios from "axios";
-import { COLORS, FONTS } from "./../constants/theme";
 
-const { width } = Dimensions.get("window");
-const { height } = Dimensions.get("window");
 
-const AIScreen = ({ navigation, route }) => {
+// Import images
+import userAvatar from "../assets/AIUSER.png";
+import botAvatar from "../assets/AI LOGO.png";
+
+const AIScreen = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [loadingMessage, setLoadingMessage] = useState(false);
 
   const { userRole } = route.params;
   console.log("User Role: ", userRole);
+
   const handleInputText = (text) => {
     setInputMessage(text);
   };
 
   const renderChatFooter = () => {
-    return <View style={{ height: 30 }} />;
-  }
+    return <View style={{ height: -100 }} />;
+  };
 
   const renderMessage = (props) => {
     const { currentMessage } = props;
-    const isReceived = currentMessage.user._id !== 1
+    const isReceived = currentMessage.user._id !== 1;
 
     return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          justifyContent: "flex-end",
-        }}
-      >
+      <View style={[styles.messageContainer, isReceived ? styles.receivedMessage : styles.sentMessage]}>
+        {isReceived && (
+          <Image
+            source={currentMessage.user.avatar}
+            style={styles.avatar}
+          />
+        )}
         <Bubble
           {...props}
-
           wrapperStyle={{
             right: {
-              backgroundColor: '#218aff',
+              backgroundColor: "#002F45",
               marginRight: 12,
-              marginBottom: 12,
+              marginBottom: 20,
             },
             left: {
-              backgroundColor: "#d8d8d8",
+              backgroundColor: "white",
               marginLeft: 12,
-              marginBottom: 12,
+              marginBottom: 30,
             },
-          
           }}
           containerStyle={{
             left: {
               marginLeft: isReceived ? 5 : 0,
             },
-          
           }}
           textStyle={{
             right: {
@@ -74,18 +71,25 @@ const AIScreen = ({ navigation, route }) => {
             },
           }}
         />
+        {!isReceived && (
+          <Image
+            source={currentMessage.user.avatar}
+            style={styles.avatar}
+          />
+        )}
       </View>
     );
   };
 
   const submitHandler = async () => {
-
-
     const message = {
-      _id: Math.random().toString(36).toString(7),
+      _id: Math.random().toString(36).substring(7),
       text: inputMessage,
       createdAt: new Date().getTime() + Math.floor(Math.random() * 1000),
-      user: { _id: 1 },
+      user: {
+        _id: 1,
+        avatar: userAvatar, // Use the imported local image
+      },
     };
 
     try {
@@ -93,13 +97,19 @@ const AIScreen = ({ navigation, route }) => {
       setMessages((previousMessages) => [message, ...previousMessages]);
       setInputMessage("");
 
-      const response = userRole === "Seeker" ? await axios.post("http://172.16.15.247:5000/ai/generateSeekerContent", { inputText: inputMessage }) : await axios.post("http://172.16.15.247:5000/ai/generateProviderContent", { inputText: inputMessage })
+      const response =
+        userRole === "Seeker"
+          ? await axios.post("http://192.168.1.9:5000/ai/generateSeekerContent", { inputText: inputMessage })
+          : await axios.post("http://192.168.1.9:5000/ai/generateProviderContent", { inputText: inputMessage });
       console.log(response);
       const botMessage = {
-        _id: Math.random().toString(36).toString(7),
+        _id: Math.random().toString(36).substring(7),
         text: response.data.outputText,
         createdAt: new Date().getTime() + Math.floor(Math.random() * 1000),
-        user: { _id: 2 },
+        user: {
+          _id: 2,
+          avatar: botAvatar, // Use the imported local image
+        },
       };
 
       setMessages((previousMessages) => [botMessage, ...previousMessages]);
@@ -107,56 +117,35 @@ const AIScreen = ({ navigation, route }) => {
     } catch (error) {
       console.log(error);
     }
-
   };
 
   return (
-    
-    
-         <LinearGradient
-        colors={["#3A6A80", "white"]}
-        style={{flex: 1,
-      }}
+    <LinearGradient colors={["#3A6A80", "white"]} style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0} // Adjust this value as needed
       >
-          
-<View style={{ flex: 1, flexDirection: "row", }}>
+        <View style={{ flex: 1, flexDirection: "row" }}>
+          <GiftedChat
+            messages={messages}
+            renderInputToolbar={(props) => {}}
+            user={{ _id: 1 }}
+            renderMessage={renderMessage}
+            renderChatFooter={renderChatFooter}
+            disabled={loadingMessage}
+          />
+        </View>
   
-
-
-          {/* <Image
-            source={require("../assets/AILogo.png")}
-            resizeMode="contain"
-            style={{
-              height: 100,
-              width: 100,    
-              position: "absolute",
-              top: 10, // Adjust the top position as needed
-              left: 170, // Adjust the left position as needed
-            }}
-          /> */}
-     
-        <GiftedChat
-          messages={messages}
-          renderInputToolbar={(props) => {
-          }}
-          user={{ _id: 1 }}
-          renderMessage={renderMessage}
-          renderChatFooter={renderChatFooter}
-          disabled={loadingMessage}
-        />
-
-        
-
-       
-      </View>
-
-      {loadingMessage ? (
-               
-               <View style={styles.loadingContainer}>
-               <Image source={require('../assets/loading.gif')} style={{width: 100, height: 100}} />
-           </View>
-             )  :
-             <View style={styles.inputContainer}>
+        {loadingMessage ? (
+          <View style={styles.loadingContainer}>
+            <Image
+              source={require("../assets/loading.gif")}
+              style={{ width: 100, height: 100 }}
+            />
+          </View>
+        ) : (
+          <View style={styles.inputContainer}>
             <View style={styles.inputMessageContainer}>
               <TextInput
                 style={styles.input}
@@ -164,52 +153,39 @@ const AIScreen = ({ navigation, route }) => {
                 value={inputMessage}
                 onChangeText={handleInputText}
               />
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                {/* <TouchableOpacity
-                  style={{ marginHorizontal: 8 }}
-                >
-                  <Ionicons name="images-outline" size={24} color="black" />
-                </TouchableOpacity> */}
-              </View>
-
-               
-
-              <TouchableOpacity onPress={submitHandler} disabled={!inputMessage || loadingMessage} styles={{ opacity: !inputMessage || loadingMessage ? 0.5 : 1 }}>
-                <Feather
-                  name="send"
-                  size={24}
-                  color="black"
-                  marginRight={10}
-                />
+              <View style={{ flexDirection: "row", alignItems: "center" }}></View>
+  
+              <TouchableOpacity
+                onPress={submitHandler}
+                disabled={!inputMessage || loadingMessage}
+                style={{ opacity: !inputMessage || loadingMessage ? 0.5 : 1 }}
+              >
+                <Feather name="send" size={24} color="black" marginRight={20} />
               </TouchableOpacity>
             </View>
           </View>
-    
-             
-             }
-
-      
-          
-      </LinearGradient>
-
-      
-      
+        )}
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
+  
 };
 
 const styles = StyleSheet.create({
   inputContainer: {
     alignItems: "center",
     justifyContent: "center",
-    bottom: height * 0.1,
     width: "100%",
+    top: 15,
+    marginTop: -80,
   },
   inputMessageContainer: {
     height: 50,
     flexDirection: "row",
-    justifyContent: "center",
+    width: 350,
+    marginBottom: 80,
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 50,
     alignItems: "center",
     borderColor: "black",
     backgroundColor: "white",
@@ -217,7 +193,7 @@ const styles = StyleSheet.create({
   input: {
     color: "black",
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
   },
   loadingContainer: {
     position: "absolute",
@@ -229,6 +205,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.5)",
   },
+  messageContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start", // Align items to the start (top)
+  },
+  receivedMessage: {
+    justifyContent: "flex-start",
+    marginLeft: 8, // Add some margin to the left of the message container
+  },
+  sentMessage: {
+    justifyContent: "flex-end",
+    marginRight: 8, // Add some margin to the right of the message container
+  },
+  avatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15, // Adjusted to match the width/height to make it a circle
+    marginHorizontal: 3,
+    alignSelf: 'flex-start', // Align the avatar to the top
+    marginTop: 5, // Adjust space above the avatar
+    marginRight: 5, // Adjust space between the avatar and the message container
+  },
 });
+
 
 export default AIScreen;

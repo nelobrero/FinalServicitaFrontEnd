@@ -241,7 +241,7 @@ const Chat = ({ navigation, route }) => {
         otherUserId: userId,
       };
     
-      await axios.post("http://172.16.15.247:5000/notifications/create", notification)
+      await axios.post("http://192.168.1.9:5000/notifications/create", notification)
     }
 
     } catch (error) {

@@ -29,9 +29,9 @@ const ReviewsWithNonEmptyImages = ({ serviceId }) => {
   useEffect(() => {
     const getReviews = async () => {
       try {
-        const response = await axios.post('http://172.16.15.247:5000/rating/getRatingsByService', { serviceId });
+        const response = await axios.post('http://192.168.1.9:5000/rating/getRatingsByService', { serviceId });
         setReviewsData(response.data.data);
-        const response2 = await axios.post('http://172.16.15.247:5000/post/getPostsById', { serviceId });
+        const response2 = await axios.post('http://192.168.1.9:5000/post/getPostsById', { serviceId });
         setPostsData(response2.data.data);
         setLoading(false); // Set loading to false when data is fetched
       } catch (error) {

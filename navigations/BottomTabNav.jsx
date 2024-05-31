@@ -1,4 +1,4 @@
-import { Image } from "react-native";
+import { Image, View } from "react-native";
 import React from "react";
 import { SimpleLineIcons, Feather, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -10,6 +10,7 @@ import AIScreen from "../Screens/AIScreen.jsx";
 
 const Tab = createBottomTabNavigator();
 
+
 const screenOptions = {
   tabBarShowLabel: false,
   headerShown: false,
@@ -20,7 +21,7 @@ const screenOptions = {
     right: 0,
     left: 0,
     elevation: 0,
-    height: 60,
+    height: 50,
     backgroundColor: COLORS.white,
   },
 };
@@ -44,11 +45,21 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{
+        
+        backgroundColor: focused ? COLORS.primary : COLORS.white,
+            borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+            padding: 10, // Adjust the padding to control the background size
+            paddingBottom: 12
+        
+                }}>
                 <SimpleLineIcons
                   name="home"
-                  size={24}
-                  color={focused ? COLORS.primary : COLORS.black}
+                  size={20}
+                  backgroundColor={focused ? COLORS.primary : COLORS.white}
+                  color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
                 />
+                </View>
               );
             },
           }}
@@ -61,11 +72,19 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{
+                  backgroundColor: focused ? COLORS.primary : COLORS.white,
+    borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+    padding: 10, // Adjust the padding to control the background size
+    paddingBottom: 12
+                }}>
                 <Entypo
                   name="calendar"
-                  size={24}
-                  color={focused ? COLORS.primary : COLORS.black}
+                  size={20}
+                  backgroundColor={focused ? COLORS.primary : COLORS.white}
+          color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
                 />
+                </View>
               );
             },
           }}
@@ -78,14 +97,23 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{
+                  backgroundColor: focused ? COLORS.primary : COLORS.white,
+    borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+    padding: 10, // Adjust the padding to control the background size
+    paddingBottom: 12
+                }}>
                 <Image
-                source={require("./../assets/AI LOGO.png")}
-                style={{
-                  width: 24,
-                  height: 24,
-                  tintColor: focused ? COLORS.primary : COLORS.black,
-                }}
-              />
+                  source={require("./../assets/AI LOGO.png")}
+                  style={{
+                    width: 34,
+                    height: 28,
+                    // borderRadius: 20,
+                    // backgroundColor: Colors.,
+                    tintColor: focused ? COLORS.white : COLORS.secondary,
+                  }}
+                />
+                </View>
               );
             },
           }}
@@ -98,10 +126,18 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{
+                  backgroundColor: focused ? COLORS.primary : COLORS.white,
+    borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+    padding: 10, // Adjust the padding to control the background size
+    paddingBottom: 12
+                }}>
                   <Feather name="message-square" 
-                  size={24} 
-                  color={focused ? COLORS.primary : COLORS.black}
+                  size={20} 
+                  backgroundColor={focused ? COLORS.primary : COLORS.white}
+          color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
                   />
+                  </View>
               );
             },
           }}
@@ -114,11 +150,17 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{backgroundColor: focused ? COLORS.primary : COLORS.white,
+                  borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+                  padding: 10, // Adjust the padding to control the background size
+                  paddingBottom: 12}}> 
                 <MaterialCommunityIcons
                   name="account"
-                  size={24}
-                  color={focused ? COLORS.primary : COLORS.black}
+                  size={20}
+                  backgroundColor={focused ? COLORS.primary : COLORS.white}
+          color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
                 />
+                </View>
               );
             },
           }}
@@ -132,33 +174,52 @@ export default BottomTabNav = ({route}) => {
       <SafeAreaView style={{flex: 1, backgroundColor: COLORS.white}}>
       <Tab.Navigator screenOptions={screenOptions}>
 
-        <Tab.Screen
-          name="Home"
-          component={HomePage}
-          options={{
-            tabBarIcon: ({ focused }) => {
-              return (
-                <SimpleLineIcons
-                  name="home"
-                  size={24}
-                  color={focused ? COLORS.primary : COLORS.black}
-                />
-              );
-            },
-          }}
-          initialParams={{userEmail: userEmail}}
+      <Tab.Screen
+  name="Home"
+  component={HomePage}
+  options={{
+    tabBarIcon: ({ focused }) => {
+      return (
+        <View style={{
+
+backgroundColor: focused ? COLORS.primary : COLORS.white,
+    borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+    padding: 10, // Adjust the padding to control the background size
+    paddingBottom: 12
+
+        }}>
+        <SimpleLineIcons
+          name="home"
+          size={20}
+          backgroundColor={focused ? COLORS.primary : COLORS.white}
+          color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
         />
+        </View>
+      );
+    },
+  }}
+  initialParams={{ userEmail: userEmail }}
+/>
+
         <Tab.Screen
           name="Booking"
           component={BookingPage}
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{
+                  backgroundColor: focused ? COLORS.primary : COLORS.white,
+    borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+    padding: 10, // Adjust the padding to control the background size
+    paddingBottom: 12
+                }}>
                 <Entypo
                   name="calendar"
-                  size={24}
-                  color={focused ? COLORS.primary : COLORS.black}
+                  size={20}
+                  backgroundColor={focused ? COLORS.primary : COLORS.white}
+          color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
                 />
+                </View>
               );
             },
           }}
@@ -171,14 +232,23 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{
+                  backgroundColor: focused ? COLORS.primary : COLORS.white,
+    borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+    padding: 10, // Adjust the padding to control the background size
+    paddingBottom: 12
+                }}>
                 <Image
                   source={require("./../assets/AI LOGO.png")}
                   style={{
-                    width: 24,
-                    height: 24,
-                    tintColor: focused ? COLORS.primary : COLORS.black,
+                    width: 34,
+                    height: 28,
+                    // borderRadius: 20,
+                    // backgroundColor: Colors.,
+                    tintColor: focused ? COLORS.white : COLORS.secondary,
                   }}
                 />
+                </View>
               );
             },
           }}
@@ -191,10 +261,18 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{
+                  backgroundColor: focused ? COLORS.primary : COLORS.white,
+    borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+    padding: 10, // Adjust the padding to control the background size
+    paddingBottom: 12
+                }}>
                   <Feather name="message-square" 
-                  size={24} 
-                  color={focused ? COLORS.primary : COLORS.black}
+                  size={20} 
+                  backgroundColor={focused ? COLORS.primary : COLORS.white}
+          color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
                   />
+                  </View>
               );
             },
           }}
@@ -207,11 +285,17 @@ export default BottomTabNav = ({route}) => {
           options={{
             tabBarIcon: ({ focused }) => {
               return (
+                <View style={{backgroundColor: focused ? COLORS.primary : COLORS.white,
+                  borderRadius: 5, // Adjust the borderRadius to match the shape of the icon
+                  padding: 10, // Adjust the padding to control the background size
+                  paddingBottom: 12}}> 
                 <MaterialCommunityIcons
                   name="account"
-                  size={24}
-                  color={focused ? COLORS.primary : COLORS.black}
+                  size={20}
+                  backgroundColor={focused ? COLORS.primary : COLORS.white}
+          color={focused ? COLORS.white : COLORS.primary}  // Update the colors here
                 />
+                </View>
               );
             },
           }}
