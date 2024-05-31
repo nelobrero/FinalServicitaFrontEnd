@@ -1,13 +1,13 @@
+//Service Top
 
 import * as React from "react";
 import { Text, StyleSheet, View, Image, Dimensions, TouchableOpacity } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Color, FontFamily, FontSize, Border } from "../GlobalStyles";
 import  { useState } from "react";
-import { SwiperFlatList } from "react-native-swiper-flatlist";
 import ServiceImage from './ServiceImage'; 
 import RatingStars from './RatingStars';
 import firestore from '@react-native-firebase/firestore';
+import { Entypo, Ionicons  } from '@expo/vector-icons';
 
 
 
@@ -78,7 +78,10 @@ const ServiceTop= ({data, navigation, userData, messagesData}) => {
       <View style={styles.serviceImageContainer}>
         <ServiceImage imageData = {data} />
       </View>
-
+      
+      <Text style={[styles.service]}>
+        {serviceName}
+      </Text>
 
       <View style={styles.positioncontainer}>
 
@@ -87,53 +90,30 @@ const ServiceTop= ({data, navigation, userData, messagesData}) => {
             <Text style={styles.Price}>{price}</Text>
         </Text>
 
-        <Text style={[styles.service]}>
-          {serviceName}
-        </Text>
+        
         <View style={styles.ratingContainer}>
           <RatingStars rating={rating} />
         </View>
 
       </View>
 
-      
-      <View style={[styles.book, styles.bookPosition]}>
-      <TouchableOpacity onPress={() => navigation.navigate('Booking', {data: data, userData: userData})}>
-        <View style={[styles.bookChild, styles.childShadowBox]} />
-        
-        
-        <View style={[styles.bookicon, styles.bookiconLayout]}>
-          <View style={[styles.rectangleParent, styles.bookiconLayout]}>
-            <LinearGradient
-              style={[styles.groupChild, styles.bookiconLayout]}
-              locations={[0.1, 1]}
-              colors={["#78bddd", "#3c5b6a"]}
-            />
-            <View style={[styles.groupItem, styles.groupItemLayout]} />
-            <View style={[styles.groupInner, styles.groupPosition]} />
-            <View style={[styles.rectangleView, styles.groupItemLayout]} />
-            <View style={[styles.groupChild1, styles.groupPosition]} />
-            <View style={[styles.groupChild2, styles.groupChildPosition]} />
-            <View style={styles.groupChild3} />
-            <View style={[styles.groupChild4, styles.groupChildPosition]} />
-          </View>
-        </View>
-
-        <Text style={[styles.bookNow]}>Book</Text>
-        </TouchableOpacity>
-      </View>
-      
-
       <TouchableOpacity onPress={messageProvider}>
-      <View style={[styles.message, styles.bookPosition2]}>
-        <View style={[styles.messageChild, styles.childShadowBox]} />
-        <Text style={[styles.message1, styles.message1Position]}>Message</Text>
-        <Image
-          style={[styles.messageicon, styles.message1Position]}
-          contentFit="cover"
-          source={require("../assets/messageicon.png")}
-        />
-      </View>
+        <View style={[styles.message, styles.bookPosition2]}>
+          <View style={[styles.messageChild, styles.childShadowBox]} />
+          <Entypo name="message" size={20} color="#07374d" style={styles.messageicon} />
+          <Text style={[styles.message1, styles.message1Position]}>Message</Text>
+        </View>
+      </TouchableOpacity>
+
+
+      <TouchableOpacity onPress={() => navigation.navigate('Booking', {data: data, userData: userData})}>
+        <View style={[styles.book, styles.bookPosition]}>
+          <View style={[styles.bookChild, styles.childShadowBox]}/>
+            
+              <Ionicons name="calendar-clear-sharp" size={18} color= "#07374D" style={[styles.bookicon, styles.bookiconLayout]} />
+            
+            <Text style={[styles.bookNow]}>Book</Text>
+        </View>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={toggleFavorite}>
@@ -165,14 +145,15 @@ const styles = StyleSheet.create({
   },
   bookPosition: {
     top: windowHeight * 0.52,
-    left: windowWidth * 0.45,
+    left: windowWidth * 0.48,
+    right: windowWidth * - 0.65,
     height: 30,
     position: "absolute",
     
   },
   bookPosition2: {
     top: windowHeight * 0.52,
-    left: windowWidth * 0.42,
+    left: windowWidth * 0.45,
     height: 30,
     position: "absolute",
     
@@ -233,12 +214,15 @@ const styles = StyleSheet.create({
   },
   Price: {
     fontFamily: FontFamily.questrialRegular,
-    width: "100%"
+    width: "100%",
+    fontWeight: '500'
+
   },
 
   price: {
-    top: windowHeight * 0.11,
+    // bottom: windowHeight * -0.05,
     fontSize: windowHeight * 0.032,
+    fontWeight: '900',
     letterSpacing: 1.6,
     lineHeight: 35,
     color: "#266f92",
@@ -262,9 +246,12 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.quicksandRegular,
     textAlign: "left",
     position: "absolute",
+    top: windowHeight * 0.57,
+    left: 25,
   },
   positioncontainer: {
-    top: windowHeight * 0.52,
+    // top: windowHeight * 0.52,
+    bottom: windowHeight * -0.04,
     left: 25,
     width: 380,
     height: 85,
@@ -315,13 +302,13 @@ const styles = StyleSheet.create({
     left: 0,
   },
   bookicon: {
-    left: 94,
+    left: 98,
     height: 18,
     top: windowHeight * 0.006,
   },
   bookNow: {
     top: 8,
-    left: windowWidth * 0.16,
+    left: windowWidth * 0.14,
     textAlign: "center",
     fontSize: FontSize.size_xs,
     fontFamily: FontFamily.quicksandRegular,
@@ -350,14 +337,16 @@ const styles = StyleSheet.create({
   },
   messageicon: {
     left: windowWidth * 0.014,
-    width: windowWidth * 0.058, 
-    height: windowHeight * 0.018,
+    top: windowHeight * 0.005, 
+    
+    
   },
   message: {
     left: windowWidth * 0.5,
     top: windowHeight * 0.74, 
     width: 93,
     top: 450,
+    
   },
   addToFavorites: {
     
@@ -415,9 +404,9 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-   // marginTop: 40,
-   top: windowHeight * 0.12,
-   left: windowWidth * 0.65,
+    // marginTop: 40,
+    bottom: windowHeight * -0.015,
+    right: windowWidth * - 0.65,
   },
 });
 

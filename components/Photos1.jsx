@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import Swiper from 'react-native-swiper';
 import { Video } from 'expo-av';
-import { COLORS, FONTS } from "./../constants/theme";
+import { COLORS } from "./../constants/theme";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;

@@ -13,19 +13,18 @@ import {
   Pressable,
   Linking,
 } from "react-native";
-import { Video, Audio } from "expo-av";
+import { Video } from "expo-av";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons, FontAwesome6 } from "@expo/vector-icons";
 import firestore from "@react-native-firebase/firestore";
 import { formatDayStamps, formatTimeStamps2, askForCameraPermission, askForLibraryPermission } from "../helper/helperFunction";
 import * as ImagePicker from 'expo-image-picker';
 import storage from '@react-native-firebase/storage';
 import Swiper from 'react-native-swiper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendPushNotification } from './NotificationScreen'
-import { COLORS, FONTS } from "./../constants/theme";
+import { COLORS } from "./../constants/theme";
 import axios from 'axios';
 
 const windowHeight = Dimensions.get("window").height;
@@ -184,7 +183,7 @@ const Chat = ({ navigation, route }) => {
 
             wrapperStyle={{
               right: {
-                backgroundColor: '#218aff',
+                backgroundColor: '#002F45',
                 marginRight: 12,
           
               },
@@ -291,7 +290,7 @@ const Chat = ({ navigation, route }) => {
             onPress={() => navigation.goBack()}
             style={{ marginHorizontal: 12 }}
           >
-            <Ionicons name="arrow-back" size={24} color="black" />
+            <FontAwesome6 name="chevron-left" size={24} color="black" />
           </TouchableOpacity>
           <View>
             <View
@@ -302,7 +301,7 @@ const Chat = ({ navigation, route }) => {
                 width: 10,
                 height: 10, // Corrected the spelling of "height"
                 borderRadius: 5,
-                backgroundColor: "blue",
+                backgroundColor: "#3EEA01",
                 zIndex: 999,
                 borderWidth: 2, // Corrected the repeated declaration
                 borderColor: "white",
@@ -331,7 +330,7 @@ const Chat = ({ navigation, route }) => {
               style={{
                 fontSize: 12,
                 // fontFamily: "regular",
-                color: "blue",
+                color: "#3EEA01",
               }}
             >
               {otherUserStatus ? "Online" : "Offline"}
@@ -383,11 +382,11 @@ const Chat = ({ navigation, route }) => {
               }}
               onPress={() => setModalOptionsVisible(true)}
             >
-              <Ionicons name="images-outline" size={24} color="black" />
+              <Ionicons name="images-outline" size={22} color="black" marginRight={5} />
             </TouchableOpacity>
           
           <TouchableOpacity onPress={() => submitHandler([{ text: inputMessage, createdAt: new Date(), user: { _id: userId }, _id: `${chatId}_${new Date().getTime()}_${userId}` }])} disabled={inputMessage.length === 0} style={{ opacity: inputMessage.length === 0 ? 0.5 : 1 }}>
-            <Feather name="send" size={24} color="black" marginRight={10} />
+            <Feather name="send" size={22} color="black" marginRight={15} />
           </TouchableOpacity>
           </View>
         </View>
@@ -569,6 +568,7 @@ const Chat = ({ navigation, route }) => {
         // isLoadingEarlier={true}
         // infiniteScroll={true}
       />
+      
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View
           style={{
@@ -671,15 +671,15 @@ const styles = StyleSheet.create({
     bottom: windowHeight * 0.02,
   },
   inputMessageContainer: {
-    height: 54,
-    width: 380,
+    height: 45,
+    width: 330,
     flexDirection: "row",
     justifyContent: "center",
     borderWidth: 1,
     // backgroundColor: "blue",
-    borderRadius: 16,
+    borderRadius: 30,
     alignItems: "center",
-    borderColor: "blue",
+    borderColor: COLORS.primary,
     marginBottom: 130,
   },
   input: {

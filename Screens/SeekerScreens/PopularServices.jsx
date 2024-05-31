@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import { Color } from "./../../GlobalStyles";
+import { COLORS } from "./../../constants/theme";
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -21,7 +22,7 @@ export default function PopularServices({ navigation, serviceData, userData }) {
     bookings: item.data.bookings,
   })).slice(0, 5);
 
-  if (!serviceData || serviceData.length === 0 || !data) {
+  if (!serviceData || !data) {
     return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
             <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
@@ -57,6 +58,11 @@ export default function PopularServices({ navigation, serviceData, userData }) {
       keyboardShouldPersistTaps={"always"}
     //   style={{ maxHeight: windowHeight * 0.50 }}
       scrollEnabled={false}
+      ListEmptyComponent={
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 10, color: 'black', marginTop: 100 }}>No Services Available</Text>
+        </View>
+      }
     />
   );
 }

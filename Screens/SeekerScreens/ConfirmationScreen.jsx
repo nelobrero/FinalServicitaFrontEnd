@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Button, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
-import { COLORS, FONTS } from "./../../constants/theme";
+import { COLORS } from "./../../constants/theme";
 
 const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 export default ConfirmationScreen = ({ navigation, route }) => {
 
   const { bookingData, bookingId } = route.params;
@@ -16,7 +14,6 @@ export default ConfirmationScreen = ({ navigation, route }) => {
   const [userRole, setUserRole] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userDataFetched, setUserDataFetched] = useState(false);
-  const [button1Color, setButton1Color] = useState('#07374D');
   const [button2Color, setButton2Color] = useState('#07374D');
   
   useEffect(() => {
@@ -58,7 +55,7 @@ async function getProviderData() {
           <Feather name="check-circle" size={120} color="white" />
         </View>
         <Text style={{ fontSize: 30, color: 'white', alignSelf: 'center', marginTop: 160 }}>Booking Confirmed</Text>
-        <Text style={{alignSelf:'center', marginTop: 1, color:'white'}}>Your booking has been confirmed. You can view your booking details below.</Text>
+        <Text style={{alignSelf:'center', marginTop: 1, color:'white'}}>You can view your booking details below.</Text>
       </View>
       <View style={styles.container2}>
 

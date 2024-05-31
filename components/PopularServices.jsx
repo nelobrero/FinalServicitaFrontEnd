@@ -1,7 +1,5 @@
-import { View, Text, StyleSheet, SafeAreaView, Image, FlatList, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, SafeAreaView, Image, FlatList, TouchableOpacity } from 'react-native'
 import React from 'react'
-
-
 
 const PopularServices = () => {
     //Data

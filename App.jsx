@@ -108,39 +108,39 @@ const AppNavigator = () => {
     
     // Wait for navigation to be available before fetching user data
 
-    if (navigation === null) {
+    if (!navigation) {
         return null;
     }
 
     useEffect(() => {
-      
       getUserData();
   }, [userDataFetched]);
 
   const getUserData = async () => {
-    try {
-        const token = await AsyncStorage.getItem('token');
-        if (!token) {
-            throw new Error('No token found');
-        }
-        const response = await axios.post("http://192.168.1.9:5000/user/userData", { token: token });
-        setUserRole(response.data.data.data.role);
-        setUserEmail(response.data.data.data.email);
-        await AsyncStorage.setItem('userId', response.data.data.data._id);
-        await AsyncStorage.setItem('role', response.data.data.data.role);
-    } catch (error) {
-        console.error('Error fetching user data:', error);
-        console.log('Logging out user');
-        await AsyncStorage.removeItem('token');
-        await AsyncStorage.removeItem('isLoggedIn');
-        await AsyncStorage.removeItem('userId');
-        setUserRole('');
-        setUserEmail('');
-        
-    } finally {
-        setUserDataFetched(true);
-    }
-};
+      try {
+          const token = await AsyncStorage.getItem('token');
+          if (!token) {
+              navigation?.navigate('LoginNav');
+              return;
+          }
+
+          const response = await axios.post("http://192.168.1.9:5000/user/userData", { token: token });
+          setUserRole(response.data.data.data.role);
+          setUserEmail(response.data.data.data.email);
+          await AsyncStorage.setItem('userId', response.data.data.data._id);
+          await AsyncStorage.setItem('role', response.data.data.data.role);
+      } catch (error) {
+          console.error('Error fetching user data:', error);
+          console.log('Logging out user');
+          await AsyncStorage.removeItem('token');
+          await AsyncStorage.removeItem('isLoggedIn');
+          await AsyncStorage.removeItem('userId');
+          setUserRole('');
+          setUserEmail('');
+      } finally {
+          setUserDataFetched(true);
+      }
+  };
 
 
     useEffect(() => {

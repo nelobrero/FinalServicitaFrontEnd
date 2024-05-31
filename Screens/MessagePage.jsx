@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, TextInput, FlatList, Image, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image, Dimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatTimeStamps, generateMessageId, sortConversationsByLastMessageTime } from '../helper/helperFunction';
-import { COLORS, FONTS } from "./../constants/theme";
+import { formatTimeStamps, sortConversationsByLastMessageTime } from '../helper/helperFunction';
+import { COLORS } from "./../constants/theme";
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -105,7 +105,7 @@ const MessagePage = ({ navigation, route }) => {
   const filteredData = sortedData.filter((user) => user.admin === true ? user.usersFullName.admin.toLowerCase().includes(searchQuery.toLowerCase()) : userRole === 'Provider' ? user.usersFullName.seeker.toLowerCase().includes(searchQuery.toLowerCase()) : user.usersFullName.provider.toLowerCase().includes(searchQuery.toLowerCase()));
 
 
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({ item }) => (
 
     <TouchableOpacity
       onPress={() => navigation.navigate("Chat", { userId: userData._id, userName: userName, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin, otherUserTokens: item.admin === true ? '' : item.otherUserTokens })} 
@@ -154,17 +154,6 @@ const MessagePage = ({ navigation, route }) => {
     <View>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
   <Text style={{ fontSize: 30, fontWeight: "bold", color: "#07364B" }}>Message...</Text>
-  <TouchableOpacity>
-    
-    <Image 
-      source={require("../assets/ailogo.png")}
-      resizeMode="contain"
-      style={{
-        height: 48,
-        width: 70,
-      }}
-    />
-  </TouchableOpacity>
 </View>
 
       <View style={styles.searchBar}>
@@ -173,7 +162,7 @@ const MessagePage = ({ navigation, route }) => {
         </TouchableOpacity>
         <TextInput
           style={styles.searchInput}
-          placeholder='Search....'
+          placeholder='Search...'
           value={searchQuery}
           onChangeText={text => setSearchQuery(text)}
         />
@@ -227,10 +216,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     width: width * 0.91,
-    height: height * 0.07,
+    height: height * 0.06,
     marginVertical: 22,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: 30,
     borderWidth: 1
   },
   searchInput: {
@@ -242,7 +231,8 @@ const styles = StyleSheet.create({
   userContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 1
   },
   
   userImageContainer: {
@@ -255,13 +245,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderWidth:3,
     borderColor: "white", 
-    top: 50,
+    top: 40,
     zIndex: 999,
     right: 0,
   },
   userImage: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 40,
   },
   userInfoContainer: {
@@ -275,6 +265,7 @@ const styles = StyleSheet.create({
   },
   lastMessageTime: {
     color: '#999',
+    fontSize: 10
   }
 });
 

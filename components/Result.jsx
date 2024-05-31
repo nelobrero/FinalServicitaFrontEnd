@@ -128,19 +128,20 @@ export default Result = ({navigation, searchQuery, filterQuery, serviceData, use
             <View style={styles.hays}>
               <Text style={styles.Service}>{item.service}</Text>
               {/* Render RatingStars component with item.ratingStar */}
-              <RatingService  rating={item.ratingStar} />
               <View style={styles.locationContainer}>
-               
-                <Text style={styles.location}>{item.category}</Text>
-              </View>
-            </View>
-            <Text style={styles.price}>₱{item.minprice} - ₱{item.maxprice}</Text>
-            <Image
+                <Image
                   style={styles.seeDetailsIcon}
                   contentFit="cover"
                   source={item.locationIcon}
                 />
-            <Text style={styles.seeDetails}>{item.barangay}, {item.city}</Text>
+                <Text style={styles.location}>{item.barangay}, {item.city}</Text>
+              </View>
+              <RatingService  rating={item.ratingStar} />
+              
+            </View>
+            <Text style={styles.price}>₱{item.minprice} - ₱{item.maxprice}</Text>
+            
+            <Text style={styles.seeDetails}>{item.category}</Text>
           </View>
         </Pressable>
       )}
@@ -178,10 +179,10 @@ const styles = StyleSheet.create({
   location: {
     alignItems: "center",
     display: "flex",
-    textAlign: "left",
+    // textAlign: "left",
     color: Color.colorBlack,
     fontFamily: FontFamily.quicksandRegular,
-    marginLeft: 1.85,
+    marginLeft: 10,
     fontSize: 10,
     letterSpacing: 0.3,
     lineHeight: 10,
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   price: {
-    top: screenHeight * 0.143,
+    bottom: screenHeight * 0.02,
     right: 10,
     color: "#0e638a",
     letterSpacing: 0.9,
@@ -206,9 +207,9 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   seeDetails: {
-    top: 115,
-    left: 135,
-    fontSize: screenWidth * 0.02,
+    bottom: screenHeight * 0.02,
+    left:125,
+    fontSize: screenWidth * 0.021,
     letterSpacing: 0.5,
     color: '#696969',
     textAlign: "right",
@@ -218,8 +219,8 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   seeDetailsIcon: {
-    top: screenHeight * 0.1600,
-    left: 125,
+    // top: screenHeight * 0.1600,
+    // left: 125,
     width: 8,
     height: 10,
     position: "absolute",
@@ -275,6 +276,8 @@ const styles = StyleSheet.create({
     height: 9,
     marginTop:4,
     position:  "relative",
+    marginBottom: 3,
+    textAlign: "left",
   },
   hays: {
     marginLeft: 125,

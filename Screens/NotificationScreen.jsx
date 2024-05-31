@@ -284,7 +284,9 @@ const NotificationScreen = ({navigation}) => {
         {notifications.thisWeekend && notifications.thisWeekend.length > 0 && renderNotifications('This Weekend', notifications.thisWeekend)}
       </>
     ) : (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}} >
       <Text>No notifications available.</Text>
+    </View>
     )}
   </>
 )}
