@@ -14,6 +14,7 @@ import firestore from '@react-native-firebase/firestore';
 import axios from 'axios';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export default ServiceViewScreen = ({navigation, route}) => {
 
@@ -43,7 +44,8 @@ export default ServiceViewScreen = ({navigation, route}) => {
     setActiveTab(tabName);
   };
 
-  if (loading || !messagesData) {
+  
+  if (!messagesData) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
           <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />

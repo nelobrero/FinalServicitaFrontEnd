@@ -32,7 +32,7 @@ const windowWidth = Dimensions.get("window").width;
 
 
 const Chat = ({ navigation, route }) => {
-  const { userId, userName, chatId, otherUserName, otherUserImage, role, otherUserMobile, admin, otherUserTokens } = route.params;
+  const { userId, userName, chatId, otherUserName, otherUserImage, role, otherUserMobile, admin, otherUserTokens, otherUserId } = route.params;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [messages, setMessages] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -232,6 +232,15 @@ const Chat = ({ navigation, route }) => {
       for (const token of otherUserTokens) {
         sendPushNotification(token, 'New Message', `${userName} has sent you a message.`, userId);
       } 
+
+      const notification = {
+        userId: otherUserId,
+        message: `You have a new message from ${userName}.`,
+        title: "Message Sent",
+        otherUserId: userId,
+      };
+
+      await axios.post("http://192.168.1.9:5000/notifications/create", notification)
     } else {
       const notification = {
         userId: "66111acbea0491231d30d8a7",

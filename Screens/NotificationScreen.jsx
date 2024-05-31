@@ -8,7 +8,7 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
-import { COLORS, FONTS } from "./../constants/theme";
+import { COLORS } from "./../constants/theme";
 
 export const usePushNotifications = () => {
   Notifications.setNotificationHandler({

@@ -169,10 +169,10 @@ function ProviderBookingStatusScreen({ navigation, route }) {
           for (const token of data.seekerExpoTokens) {
             sendPushNotification(token, 'New Conversation', `${data.providerName} has started a conversation with you.`, data.providerId);
           }
-          navigation.navigate('Chat', { userId: data.providerId, userName: data.providerName, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
+          navigation.navigate('Chat', { userId: data.providerId, userName: data.providerName, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens, otherUserId: data.seekerId });
         } else {
           querySnapshot.forEach((doc) => {
-            navigation.navigate('Chat', { userId: data.providerId, userName: data.providerName, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens });
+            navigation.navigate('Chat', { userId: data.providerId, userName: data.providerName, chatId: doc.id, otherUserName: data.seekerName, otherUserImage: data.seekerImage, role: 'Provider', otherUserMobile: data.seekerMobile, admin: false, otherUserTokens: data.seekerExpoTokens, otherUserId: data.seekerId });
           });
         }
       }

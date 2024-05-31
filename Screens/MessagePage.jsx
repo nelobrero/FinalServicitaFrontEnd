@@ -108,7 +108,7 @@ const MessagePage = ({ navigation, route }) => {
   const renderItem = ({ item }) => (
 
     <TouchableOpacity
-      onPress={() => navigation.navigate("Chat", { userId: userData._id, userName: userName, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin, otherUserTokens: item.admin === true ? '' : item.otherUserTokens })} 
+      onPress={() => navigation.navigate("Chat", { userId: userData._id, userName: userName, chatId: item.id, otherUserName: item.admin === true ? item.usersFullName.admin : userRole === 'Provider' ? item.usersFullName.seeker : item.usersFullName.provider, otherUserImage: item.admin === true ? item.usersImage.admin : userRole === 'Provider' ? item.usersImage.seeker : item.usersImage.provider, role: userRole, otherUserMobile: item.admin === true ? '' : userRole === 'Provider' ? item.usersNumbers.seeker : item.usersNumbers.provider, admin: item.admin, otherUserTokens: item.admin === true ? '' : item.otherUserTokens, otherUserId: item.admin === true ? '' : item.users.find(id => id !== userData._id) })}
       style={[
         styles.userContainer,
       ]}

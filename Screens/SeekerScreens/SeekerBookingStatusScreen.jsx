@@ -228,10 +228,10 @@ const messageProvider = () => {
         for (const token of data.providerExpoTokens) {
           sendPushNotification(token, 'New Conversation', `${data.seekerName} has started a conversation with you.`, data.seekerId);
         }
-        navigation.navigate('Chat', { userId: data.seekerId, userName: data.seekerName, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens });
+        navigation.navigate('Chat', { userId: data.seekerId, userName: data.seekerName, chatId: `${data.seekerId}_${data.providerId}`, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens, otherUserId: data.providerId });
       } else {
         querySnapshot.forEach((doc) => {
-          navigation.navigate('Chat', { userId: data.seekerId, userName: data.seekerName, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens });
+          navigation.navigate('Chat', { userId: data.seekerId, userName: data.seekerName, chatId: doc.id, otherUserName: data.providerName, otherUserImage: data.providerImage, role: 'Seeker', otherUserMobile: data.providerMobile, admin: false, otherUserTokens: data.providerExpoTokens, otherUserId: data.providerId });
         });
       }
     }
