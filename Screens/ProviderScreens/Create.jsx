@@ -1,4 +1,4 @@
-import { View, Text, Dimensions, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Pressable, FlatList, Image } from 'react-native'
+import { View, Text, Dimensions, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Pressable, FlatList, Image, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useState, useEffect } from 'react'
 import { Color, errorText, FontFamily, FontSize } from '../../GlobalStyles'
@@ -25,7 +25,7 @@ const Create = ({route, navigation}) => {
   const [selectedValue, setSelectedValue] = useState(null);
   const [showSelectList, setShowSelectList] = useState(false);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
-
+const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [serviceName, setServiceName] = useState('');
@@ -250,6 +250,7 @@ const handleValuesChange = (values) => {
 
     const handleSubmit = async () => {
       try {
+        setLoading(true);
         const serviceId = generateServiceId();
         await firestore().collection('services').doc(serviceId).set({
             providerId: userId,  
@@ -290,7 +291,7 @@ const handleValuesChange = (values) => {
         
           await axios.post("http://3.107.4.155:5001/notifications/create", notification)
 
-        alert('Service created successfully');
+        Alert.alert('Service submitted for approval', 'Your service has been submitted for approval.', [ { text: 'OK', onPress: () => navigation.goBack() } ]);
 
         setServiceName('');
         setServiceNameVerify(false);
@@ -310,12 +311,13 @@ const handleValuesChange = (values) => {
       ]);
         setSelectedValue(null);
         setShowSelectList(false);
+        setLoading(false);
       } catch (error) {
         console.error('Error creating service:', error);
       }
     }
 
-    if ( userId === null || !userDataFetched || !data || submittedServiceTypes === null) {
+    if ( userId === null || !userDataFetched || !data || submittedServiceTypes === null || loading) {
         return (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
                 <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />

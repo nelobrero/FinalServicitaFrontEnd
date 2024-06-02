@@ -129,7 +129,7 @@ const Splash = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.content}>
         <Animated.Image
-          source={require('../assets/animation.gif')}
+          source={require('../assets/loading.gif')}
           style={[styles.gif, animatedStyle]}
         />
       </View>
