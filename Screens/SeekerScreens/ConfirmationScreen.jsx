@@ -29,8 +29,8 @@ async function getUserData() {
     setUserRole(result.data.data.role);
     setUserEmail(result.data.data.email);
     getSeekerData();
-    getProviderData();
-    sendReceiptEmail();
+    const providerName = await getProviderData();
+    sendReceiptEmail(providerName);
     } catch (error) {
       console.error('Error getting user data from MongoDB:', error);
     }
@@ -42,19 +42,19 @@ async function getSeekerData() {
   setUserName(seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName);
 }
 
-async function getProviderData() {
+const getProviderData = async () => {
   const providerData = await firestore().collection('providers').doc(bookingData.providerId).get();
   setProviderData(providerData.data());
-  
+  return providerData.name.firstName + ' ' + providerData.name.lastName;
 }
 
-async function sendReceiptEmail() {
+async function sendReceiptEmail(providerName) {
   try {
     const receiptData = {
       email: userEmail,
       name: userName,
       bookingId: bookingId,
-      providerName: providerData.name.firstName + ' ' + providerData.name.lastName,
+      providerName: providerName,
       location: bookingData.location.address,
       date: bookingData.bookedDate,
       time: bookingData.startTime + ' - ' + bookingData.endTime,
