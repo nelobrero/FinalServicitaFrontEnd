@@ -45,7 +45,7 @@ async function getSeekerData() {
 async function getProviderData() {
   const providerData = await firestore().collection('providers').doc(bookingData.providerId).get();
   setProviderData(providerData.data());
-  setUserDataFetched(true);
+  
 }
 
 async function sendReceiptEmail() {
@@ -69,6 +69,7 @@ async function sendReceiptEmail() {
 
     if (response.data.status === 'SUCCESS') {
       setReceiptEmailSent(true);
+      setUserDataFetched(true);
     } else {
       console.error('Error sending receipt email:', response.data.message);
     }
@@ -78,7 +79,7 @@ async function sendReceiptEmail() {
 }
 
 
-  if (!userDataFetched || userRole === '' || userEmail === '', receiptEmailSent === false) {
+  if (!userDataFetched || userRole === '' || userEmail === '' || receiptEmailSent === false) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
           <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />

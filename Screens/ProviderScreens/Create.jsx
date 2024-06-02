@@ -9,7 +9,7 @@ import axios from 'axios'
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import firestore from '@react-native-firebase/firestore'
 import Button from '../../components/Button';
-import { COLORS, FONTS } from "../../constants/theme";
+import { COLORS } from "../../constants/theme";
 
 
 const { width: windowWidth, height: windowHeight} = Dimensions.get('window')
@@ -91,7 +91,6 @@ const [selectedDayIndex, setSelectedDayIndex] = useState(null);
     try {
       const result = await axios.post("http://3.107.4.155:5001/user/getUserDetailsByEmail", { email: userEmail })
       setUserId(result.data.data._id);
-      
       const snapshot = await firestore().collection('providers').doc(result.data.data._id).get();
       setUserData(snapshot.data());
       const userServices = snapshot.data().services;
