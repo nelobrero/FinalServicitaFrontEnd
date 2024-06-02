@@ -11,10 +11,12 @@ export default ConfirmationScreen = ({ navigation, route }) => {
 
   const { bookingData, bookingId } = route.params;
   const [providerData, setProviderData] = useState({});
+  const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userDataFetched, setUserDataFetched] = useState(false);
   const [button2Color, setButton2Color] = useState('#07374D');
+  const [receiptEmailSent, setReceiptEmailSent] = useState(false);
   
   useEffect(() => {
     getUserData();
@@ -23,14 +25,21 @@ export default ConfirmationScreen = ({ navigation, route }) => {
 
 async function getUserData() {
     try{
-    const result = await axios.post("http://192.168.1.9:5000/user/getUserDetailsById", { id: bookingData.seekerId })
+    const result = await axios.post("http://3.107.4.155:5001/user/getUserDetailsById", { id: bookingData.seekerId })
     setUserRole(result.data.data.role);
     setUserEmail(result.data.data.email);
+    getSeekerData();
     getProviderData();
+    sendReceiptEmail();
     } catch (error) {
       console.error('Error getting user data from MongoDB:', error);
     }
    
+}
+
+async function getSeekerData() {
+  const seekerData = await firestore().collection('seekers').doc(bookingData.seekerId).get();
+  setUserName(seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName);
 }
 
 async function getProviderData() {
@@ -39,7 +48,37 @@ async function getProviderData() {
   setUserDataFetched(true);
 }
 
-  if (!userDataFetched || userRole === '' || userEmail === '') {
+async function sendReceiptEmail() {
+  try {
+    const receiptData = {
+      email: userEmail,
+      name: userName,
+      bookingId: bookingId,
+      providerName: providerData.name.firstName + ' ' + providerData.name.lastName,
+      location: bookingData.location.address,
+      date: bookingData.bookedDate,
+      time: bookingData.startTime + ' - ' + bookingData.endTime,
+      transactionId: bookingData.paymentId,
+      createdAt: bookingData.createdAt.toDate().toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }),
+      expiresAt: bookingData.expiresAt.toDate().toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }),
+      paymentMethod: bookingData.paymentMethod === 'gcash' ? 'GCash' : bookingData.paymentMethod === 'grab_pay' ? 'GrabPay' : 'Paymaya',
+      amount: bookingData.price,
+    };
+
+    const response = await axios.post("http://3.107.4.155:5001/email_verification_otp/sendReceipt", receiptData);
+
+    if (response.data.status === 'SUCCESS') {
+      setReceiptEmailSent(true);
+    } else {
+      console.error('Error sending receipt email:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Error sending receipt email:', error);
+  }
+}
+
+
+  if (!userDataFetched || userRole === '' || userEmail === '', receiptEmailSent === false) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
           <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />

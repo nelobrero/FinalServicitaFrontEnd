@@ -124,7 +124,7 @@ const AppNavigator = () => {
               return;
           }
 
-          const response = await axios.post("http://192.168.1.9:5000/user/userData", { token: token });
+          const response = await axios.post("http://3.107.4.155:5001/user/userData", { token: token });
           setUserRole(response.data.data.data.role);
           setUserEmail(response.data.data.data.email);
           await AsyncStorage.setItem('userId', response.data.data.data._id);

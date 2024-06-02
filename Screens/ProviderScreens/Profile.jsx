@@ -20,7 +20,7 @@ export default Profile = ({ navigation, route }) => {
   const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DEPOLTIMEJ.jpg?alt=media&token=720651f9-4b46-4b9d-8131-ec4d8951a81b";
 
   async function getUserData() {
-    await axios.post("http://192.168.1.9:5000/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
+    await axios.post("http://3.107.4.155:5001/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
         setUserData(response.data.data);
       const storedId = response.data.data._id;
       getStoreData(storedId);

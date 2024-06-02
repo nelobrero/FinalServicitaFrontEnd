@@ -65,7 +65,7 @@ export default function AddressForm ({navigation, route, props}) {
 
     const fetchCities = async () => {
         try {
-            const response = await axios.get('http://192.168.1.9:5000/location/getCities');
+            const response = await axios.get('http://3.107.4.155:5001/location/getCities');
             setCities(response.data.data);
         } catch (error) {
             console.error('Error fetching services:', error);
@@ -169,7 +169,7 @@ export default function AddressForm ({navigation, route, props}) {
             const userData = {
                 email: email,
             }
-            const res = await axios.post("http://192.168.1.9:5000/user/getUserDetailsByEmail", userData);
+            const res = await axios.post("http://3.107.4.155:5001/user/getUserDetailsByEmail", userData);
             if (res.data.status === 'SUCCESS') {
                 return true;
             }
