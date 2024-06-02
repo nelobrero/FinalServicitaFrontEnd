@@ -70,9 +70,6 @@ export default ProfilePage = ({ navigation, route }) => {
     console.log("Security function");
   };
 
-  const navigateToNotifications = () => {
-    console.log("Notifications function");
-  };
 
   const navigateToPrivacy = () => {
     console.log("Privacy function");
@@ -129,15 +126,14 @@ export default ProfilePage = ({ navigation, route }) => {
       action: navigateToEditProfile,
     },
 
-    { icon: "security", text: "Security", action: navigateToSecurity },
-
-    {
-      icon: "notifications-none",
-      text: "Notifications",
-      action: navigateToNotifications,
+    { icon: "security", 
+      text: "Security",
+      action: navigateToSecurity 
     },
 
-    { icon: "lock-outline", text: "Privacy", action: navigateToPrivacy },
+    
+
+    { icon: "lock-outline", text: "Privacy"},
   ];
 
   const supportItems = [
@@ -163,7 +159,7 @@ export default ProfilePage = ({ navigation, route }) => {
 
   const actionsItems = [
     {icon: "outlined-flag", text: "Report a problem", action: navigateToReportProblem},
-    { icon: "people-outline", text: "Add Account", action: addAccount },
+    { icon: "people-outline", text: "Switch as Provider", action: addAccount },
     {icon: "logout", text: "Log out", action: logout},
   ]
 
@@ -175,8 +171,10 @@ export default ProfilePage = ({ navigation, route }) => {
         alignItems: "center",
         paddingVertical: 8,
         paddingLeft: 12,
-        backgroundColor: COLORS.white
+        backgroundColor: COLORS.white,
+        opacity: text !== "My Account" && text !== "Report a problem" && text !== "Log out" ? 0.2 : 1
       }}
+      disabled={text === "Security" || text === "Notifications" || text === "Privacy" || text === "My Subscription" || text === "Help & Support"|| text === "Terms and Policies" || text === "Free up space"  || text === "Date saver" ||  text === "Add Account" }
     >
       <MaterialIcons name={icon} size={24} color="black" />
       <Text

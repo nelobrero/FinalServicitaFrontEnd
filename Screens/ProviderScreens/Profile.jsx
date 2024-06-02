@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import React, { useState } from "react";
 import { useFocusEffect } from '@react-navigation/native'
-import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, FONTS } from "./../../constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -181,7 +180,7 @@ export default Profile = ({ navigation, route }) => {
 
   const actionsItems = [
     {icon: "outlined-flag", text: "Report a problem", action: navigateToReportProblem},
-    { icon: "people-outline", text: "Add Account", action: addAccount },
+    { icon: "people-outline", text: "Switch as Seeker", action: addAccount },
     {icon: "logout", text: "Log out", action: logout},
   ]
 
@@ -193,8 +192,10 @@ export default Profile = ({ navigation, route }) => {
         alignItems: "center",
         paddingVertical: 8,
         paddingLeft: 12,
-        backgroundColor: COLORS.white
+        backgroundColor: COLORS.white,
+        opacity: text !== "My Account" && text !== "Report a problem" && text !== "Log out" ? 0.2 : 1
       }}
+      disabled={text === "Security" || text === "Notifications" || text === "Privacy" || text === "My Subscription" || text === "Help & Support"|| text === "Terms and Policies" || text === "Free up space"  || text === "Date saver" ||  text === "Add Account" }
     >
       <MaterialIcons name={icon} size={24} color="black" />
       <Text
