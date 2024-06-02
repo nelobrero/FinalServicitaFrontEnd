@@ -1,6 +1,6 @@
 import { Button, NativeBaseProvider } from "native-base";
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, Text, Image, ScrollView, TextInput } from "react-native";
+import { View, StyleSheet, Dimensions, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialIcons } from '@expo/vector-icons';
@@ -14,51 +14,30 @@ export default PaymentScreen = ({navigation, route}) => {
   
   const { bookingData } = route.params;
   const [gcashClicked, setGcashClicked] = useState(false);
-  const [paymayaClicked, setPaymayaClicked] = useState(false);
   const [grabpayClicked, setGrabPayClicked] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
 
   const handleGcashClick = () => {
     setGcashClicked(!gcashClicked);
-    setPaymayaClicked(false);
     setGrabPayClicked(false);
   };
 
-  const handlePaymayaClick = () => {
-    setPaymayaClicked(!paymayaClicked);
-    setGcashClicked(false);
-    setGrabPayClicked(false);
-  };
 
   const handleGrabPayClick = () => {
     setGrabPayClicked(!grabpayClicked);
     setGcashClicked(false);
-    setPaymayaClicked(false);
-
   };
 
   useEffect(() => {
     if (gcashClicked) {
       setPaymentMethod("gcash");
-    } else if (paymayaClicked) {
-      setPaymentMethod("paymaya");
     } else if (grabpayClicked) {
       setPaymentMethod("grab_pay");
     } else {
       setPaymentMethod("");
     }
     
-  }, [gcashClicked, paymayaClicked, grabpayClicked]);
-
- 
-
-
-  // const _openWebBrowserAsync = async () => {
-  //   let result = await WebBrowser.openBrowserAsync('https://www.google.com');
-  //   console.log(result);
-  // };
-
-
+  }, [gcashClicked, grabpayClicked]);
 
     const handleContinue = async () => {
     
@@ -134,19 +113,6 @@ export default PaymentScreen = ({navigation, route}) => {
 
             <Button
               style={[
-                styles.button3,
-                paymayaClicked && styles.button3Clicked,
-              ]}
-              onPress={handlePaymayaClick}
-            >
-              <Image 
-                source={require("./../../assets/maya.png")}
-                style={styles.buttonImageMaya}
-              />
-            </Button>
-
-            <Button
-              style={[
                 styles.button4,
                 grabpayClicked && styles.button4Clicked,
               ]}
@@ -169,8 +135,8 @@ export default PaymentScreen = ({navigation, route}) => {
         <Button 
         onPress={()=>handleContinue()}
         style={styles.button}
-        opacity={!(gcashClicked ^ paymayaClicked ^ grabpayClicked) ? 0.5 : 1}
-        disabled={!(gcashClicked ^ paymayaClicked ^ grabpayClicked)}
+        opacity={!(gcashClicked ^ grabpayClicked) ? 0.5 : 1}
+        disabled={!(gcashClicked ^ grabpayClicked)}
         >
           <Text style={styles.buttonText}>Confirm Booking</Text>
         </Button>
