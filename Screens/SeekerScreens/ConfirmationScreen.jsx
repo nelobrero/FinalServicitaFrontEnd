@@ -31,7 +31,7 @@ async function getUserData() {
     
     const seekerName = await getSeekerData();
     const providerName = await getProviderData();
-    sendReceiptEmail(seekerName, result.data.data.email, providerName);
+    // sendReceiptEmail(seekerName, result.data.data.email, providerName);
     } catch (error) {
       console.error('Error getting user data from MongoDB:', error);
     }
@@ -47,6 +47,7 @@ const getSeekerData = async () => {
 const getProviderData = async () => {
   const providerData = await firestore().collection('providers').doc(bookingData.providerId).get();
   setProviderData(providerData.data());
+  setUserDataFetched(true);
   return providerData.data().name.firstName + ' ' + providerData.data().name.lastName;
 }
 
@@ -81,7 +82,7 @@ async function sendReceiptEmail(seekerName, email, providerName) {
 }
 
 
-  if (!userDataFetched || userRole === '' || userEmail === '' || receiptEmailSent === false) {
+  if (!userDataFetched || userRole === '' || userEmail === '') {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
           <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
@@ -176,6 +177,7 @@ async function sendReceiptEmail(seekerName, email, providerName) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: 'white',
   },
   container1: {
     position: 'absolute',

@@ -1,5 +1,3 @@
-//Service Top
-
 import * as React from "react";
 import { Text, StyleSheet, View, Image, Dimensions, TouchableOpacity } from "react-native";
 import { Color, FontFamily, FontSize, Border } from "../GlobalStyles";

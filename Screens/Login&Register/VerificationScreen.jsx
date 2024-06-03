@@ -32,9 +32,9 @@ export default function VerificationScreen({ navigation, route, props }) {
     const [equal, setEqual] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DEPOLTIMEJ.jpg?alt=media&token=720651f9-4b46-4b9d-8131-ec4d8951a81b";
-    const DEFAULT_IMAGE_URL_SEEKER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DPULTO.jpg?alt=media&token=7c029ca7-8b0c-4182-8d35-951b55281a15";
-    const DEFAULT_IMAGE_SERVICE_PROFILE = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/COVERPAGE.jpg?alt=media&token=ff9d0b7b-3bc9-4d63-8aeb-2e4149583941";
+    const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/ProviderDefault.png?alt=media&token=627a6ccc-3aa9-46a6-836f-0c9e4cefa3b3";
+    const DEFAULT_IMAGE_URL_SEEKER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/SeekerDefault.png?alt=media&token=27e3cc96-abc7-4087-a749-25b48541a3dc";
+    const DEFAULT_IMAGE_SERVICE_PROFILE = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/ImageDefault.png?alt=media&token=9b842879-5baf-48dc-a3a8-d763d0e08cde";
                                 
     useEffect(() => {
         fetchTempData();
@@ -107,9 +107,9 @@ export default function VerificationScreen({ navigation, route, props }) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }

@@ -61,9 +61,9 @@ export default function MobileLogin({navigation}) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }

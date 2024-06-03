@@ -86,9 +86,9 @@ export default function LoginPage ({ navigation }) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -135,9 +135,9 @@ export default function LoginPage ({ navigation }) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -221,9 +221,9 @@ export default function LoginPage ({ navigation }) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -266,9 +266,9 @@ export default function LoginPage ({ navigation }) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -369,9 +369,9 @@ export default function LoginPage ({ navigation }) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (res.data.role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(res.data.userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }
@@ -412,9 +412,9 @@ export default function LoginPage ({ navigation }) {
                                                 } else {
                                                     user.expoPushTokens.push(expoToken.data);
                                                     if (role === "Seeker") {
-                                                        await firestore().collection('seekers').doc(userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('seekers').doc(userId).update({ expoPushTokens: user.expoPushTokens });
                                                     } else {
-                                                        await firestore().collection('providers').doc(userId).update({ expoTokens: user.expoPushTokens });
+                                                        await firestore().collection('providers').doc(userId).update({ expoPushTokens: user.expoPushTokens });
                                                     }
                                                     console.log('ExpoToken added');
                                                 }

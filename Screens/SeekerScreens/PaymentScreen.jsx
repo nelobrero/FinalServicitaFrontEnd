@@ -58,6 +58,7 @@ export default PaymentScreen = ({navigation, route}) => {
           setTimeout(() => {
             navigation.navigate('SplashScreen', {bookingData: bookingData, paymentMethod: paymentMethod, paymentId: paymentId});
           }, 1000);
+          setLoading(false);
         }
 
   

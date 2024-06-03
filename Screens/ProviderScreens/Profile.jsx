@@ -16,7 +16,7 @@ export default Profile = ({ navigation, route }) => {
   const [storeData, setStoreData] = useState({});
   const [serviceData, setServiceData] = useState({});
   const [userDataFetched, setUserDataFetched] = useState(false);
-  const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/DEPOLTIMEJ.jpg?alt=media&token=720651f9-4b46-4b9d-8131-ec4d8951a81b";
+  const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/ProviderDefault.png?alt=media&token=627a6ccc-3aa9-46a6-836f-0c9e4cefa3b3";
 
   async function getUserData() {
     await axios.post("http://192.168.1.6:5001/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {

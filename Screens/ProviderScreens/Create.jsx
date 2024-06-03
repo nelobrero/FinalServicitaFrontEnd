@@ -16,7 +16,7 @@ const { width: windowWidth, height: windowHeight} = Dimensions.get('window')
 
 const Create = ({route, navigation}) => {
   
-  const DEFAULT_IMAGE_SERVICE_PROFILE = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/COVERPAGE.jpg?alt=media&token=ff9d0b7b-3bc9-4d63-8aeb-2e4149583941";
+  const DEFAULT_IMAGE_SERVICE_PROFILE = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/ImageDefault.png?alt=media&token=9b842879-5baf-48dc-a3a8-d763d0e08cde";
   const { userEmail } = route.params;
   const [userId, setUserId] = useState(null);
   const [userData, setUserData] = useState(null);
