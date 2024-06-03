@@ -113,7 +113,7 @@ export const sendPushNotification = async (expoPushToken, title, body, userId, o
     otherUserId: otherUserId
   };
 
-  const result = await axios.post("http://3.107.4.155:5001/notifications/create", notification)
+  const result = await axios.post("http://192.168.254.163:5001/notifications/create", notification)
   return result;
 };
 
@@ -144,7 +144,7 @@ const NotificationScreen = ({navigation}) => {
 
     const deleteNotification = async (notificationId) => {
       try {
-        await axios.delete(`http://3.107.4.155:5001/notifications/deleteNotification`, { notificationId });
+        await axios.delete(`http://192.168.254.163:5001/notifications/deleteNotification`, { notificationId });
         setNotifications((prevNotifications) => {
           const updatedNotifications = { ...prevNotifications };
           Object.keys(updatedNotifications).forEach((key) => {
@@ -185,7 +185,7 @@ const NotificationScreen = ({navigation}) => {
             return;
           }
     
-          const response = await axios.get(`http://3.107.4.155:5001/notifications/getNotifications/${userId}`);
+          const response = await axios.get(`http://192.168.254.163:5001/notifications/getNotifications/${userId}`);
     
           // Ensure response.data is an array
           const notifications = Array.isArray(response.data) ? response.data : [];

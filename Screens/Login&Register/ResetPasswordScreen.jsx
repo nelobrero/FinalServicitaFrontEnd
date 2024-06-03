@@ -30,7 +30,7 @@ export default function ResetPasswordScreen({navigation, route, params}) {
             email: email,
             newPassword: password,
           }
-          axios.patch("http://3.107.4.155:5001/forgot_password_otp/actualReset", userData).then((res) => {
+          axios.patch("http://192.168.254.163:5001/forgot_password_otp/actualReset", userData).then((res) => {
             if (res.data.status === 'SUCCESS') {
                 Alert.alert('Success', 'Password Reset Successful. Please Login Again', [{ text: 'OK', onPress: () => navigation.navigate('Login') }]);
               } else {

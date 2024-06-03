@@ -25,14 +25,13 @@ export default ConfirmationScreen = ({ navigation, route }) => {
 
 async function getUserData() {
     try{
-    const result = await axios.post("http://3.107.4.155:5001/user/getUserDetailsById", { id: bookingData.seekerId })
+    const result = await axios.post("http://192.168.254.163:5001/user/getUserDetailsById", { id: bookingData.seekerId })
     setUserRole(result.data.data.role);
     setUserEmail(result.data.data.email);
     
-    const seekerData = await getSeekerData();
-
+    const seekerName = await getSeekerData();
     const providerName = await getProviderData();
-    sendReceiptEmail(seekerData, providerName);
+    sendReceiptEmail(seekerName, result.data.data.email, providerName);
     } catch (error) {
       console.error('Error getting user data from MongoDB:', error);
     }
@@ -42,7 +41,7 @@ async function getUserData() {
 const getSeekerData = async () => {
   const seekerData = await firestore().collection('seekers').doc(bookingData.seekerId).get();
   setUserName(seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName);
-  return {name: seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName, email: seekerData.data().email};
+  return seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName;
 }
 
 const getProviderData = async () => {
@@ -51,11 +50,11 @@ const getProviderData = async () => {
   return providerData.data().name.firstName + ' ' + providerData.data().name.lastName;
 }
 
-async function sendReceiptEmail(seekerData, providerName) {
+async function sendReceiptEmail(seekerName, email, providerName) {
   try {
     const receiptData = {
-      email: seekerData.email,
-      name: seekerData.name,
+      email: email,
+      name: seekerName,
       bookingId: bookingId,
       providerName: providerName,
       location: bookingData.location.address,
@@ -68,7 +67,7 @@ async function sendReceiptEmail(seekerData, providerName) {
       amount: bookingData.price,
     };
 
-    const response = await axios.post("http://3.107.4.155:5001/email_verification_otp/sendReceipt", receiptData);
+    const response = await axios.post("http://192.168.254.163:5001/email_verification_otp/sendReceipt", receiptData);
 
     if (response.data.status === 'SUCCESS') {
       setReceiptEmailSent(true);

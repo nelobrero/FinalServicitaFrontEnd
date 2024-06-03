@@ -100,7 +100,7 @@ export default function CategoryFilter({navigation, route}) {
 
     const fetchCities = async () => {
         try {
-            const response = await axios.get('http://3.107.4.155:5001/location/getCities');
+            const response = await axios.get('http://192.168.254.163:5001/location/getCities');
             setCities(response.data.data);
         } catch (error) {
             console.error('Error fetching cities:', error);
