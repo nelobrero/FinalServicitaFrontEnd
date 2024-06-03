@@ -25,7 +25,7 @@ export default ConfirmationScreen = ({ navigation, route }) => {
 
 async function getUserData() {
     try{
-    const result = await axios.post("http://192.168.1.6:5001/user/getUserDetailsById", { id: bookingData.seekerId })
+    const result = await axios.post("http://3.26.59.191:5001/user/getUserDetailsById", { id: bookingData.seekerId })
     setUserRole(result.data.data.role);
     setUserEmail(result.data.data.email);
     
@@ -68,7 +68,7 @@ async function sendReceiptEmail(seekerName, email, providerName) {
       amount: bookingData.price,
     };
 
-    const response = await axios.post("http://192.168.1.6:5001/email_verification_otp/sendReceipt", receiptData);
+    const response = await axios.post("http://3.26.59.191:5001/email_verification_otp/sendReceipt", receiptData);
 
     if (response.data.status === 'SUCCESS') {
       setReceiptEmailSent(true);

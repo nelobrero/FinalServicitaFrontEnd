@@ -22,7 +22,7 @@ export default Home = ({ navigation, route }) => {
   const DEFAULT_IMAGE_URL_PROVIDER = "https://firebasestorage.googleapis.com/v0/b/servicita-signin-fa66f.appspot.com/o/ProviderDefault.png?alt=media&token=627a6ccc-3aa9-46a6-836f-0c9e4cefa3b3";
 
   async function getUserData() {
-    await axios.post("http://192.168.1.6:5001/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
+    await axios.post("http://3.26.59.191:5001/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
       setUserData(response.data.data);
       const roleText = response.data.data.role === 'Seeker' ? 'seekers' : 'providers';
       const storedId = response.data.data._id;

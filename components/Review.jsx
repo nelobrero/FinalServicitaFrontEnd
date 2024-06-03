@@ -12,7 +12,7 @@ const Reviews = ({ serviceId }) => {
   useEffect(() => {
     const getReviews = async () => {
       try {
-        const response = await axios.post('http://192.168.1.6:5001/rating/getRatingsByService', { serviceId });
+        const response = await axios.post('http://3.26.59.191:5001/rating/getRatingsByService', { serviceId });
         setReviewsData(response.data.data);
         setLoading(false);
       } catch (error) {

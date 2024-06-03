@@ -76,20 +76,20 @@ export default function VerificationScreen({ navigation, route, props }) {
         }
         try {
             await confirm.confirm(code.join(''));
-            await axios.post(`http://192.168.1.6:5001/user/signup`, userData).then(async (res) => {
+            await axios.post(`http://3.26.59.191:5001/user/signup`, userData).then(async (res) => {
                 if (res.status === 200) {
                     console.log("User created successfully");
                     await saveDetails(res.data.data._id);
                 }
             })
-            await axios.post("http://192.168.1.6:5001/user/login", {email: email, password: storeData.data.password}).then(async (res) => {
+            await axios.post("http://3.26.59.191:5001/user/login", {email: email, password: storeData.data.password}).then(async (res) => {
             console.log(res.data)
             if (res.data.status === 'SUCCESS') {
                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
                 console.log("Email: ", email);
                 console.log("Name: ", `${storeData.data.name.firstName} ${storeData.data.name.lastName}`);
                 console.log("Role: ", storeData.data.role);
-                await axios.post("http://192.168.1.6:5001/email_verification_otp/sendConfirmationEmail", {email: email, name: `${storeData.data.name.firstName} ${storeData.data.name.lastName}`, role: storeData.data.role});
+                await axios.post("http://3.26.59.191:5001/email_verification_otp/sendConfirmationEmail", {email: email, name: `${storeData.data.name.firstName} ${storeData.data.name.lastName}`, role: storeData.data.role});
                 await AsyncStorage.setItem('token', res.data.data);
                 await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
                 await AsyncStorage.setItem('userId', res.data.userId);
@@ -136,7 +136,7 @@ export default function VerificationScreen({ navigation, route, props }) {
 
     const fetchTempData = async () => {
         try {
-            await axios.post(`http://192.168.1.6:5001/user/getTempDetails`, {email : email}).then((res) => {
+            await axios.post(`http://3.26.59.191:5001/user/getTempDetails`, {email : email}).then((res) => {
                 setStoreData(res.data);
                 setBirthDate(res.data.data.birthDate);
                 setFinalMobile(res.data.data.mobile);
@@ -218,7 +218,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                         otherUserId: userId,
                       };
                     
-                      await axios.post("http://192.168.1.6:5001/notifications/create", notification)
+                      await axios.post("http://3.26.59.191:5001/notifications/create", notification)
                 }
             }
 
@@ -259,7 +259,7 @@ export default function VerificationScreen({ navigation, route, props }) {
 
     const verifyChangedNumber = async () => {
         try {
-            await axios.post(`http://192.168.1.6:5001/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
+            await axios.post(`http://3.26.59.191:5001/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
                 if (res.status === 200) {
                     setModalVisible(false);
                     setFinalMobile(mobile);
@@ -269,7 +269,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                         Alert.alert("Error", "The mobile number you entered is already in use.", [{ text: "OK"}]);
                     }
                 })
-            await axios.patch(`http://192.168.1.6:5001/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
+            await axios.patch(`http://3.26.59.191:5001/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
                     if (res.status === 200) {
                         Alert.alert("Success", "Mobile number changed successfully.", [{ text: "OK"}]);
                     }
