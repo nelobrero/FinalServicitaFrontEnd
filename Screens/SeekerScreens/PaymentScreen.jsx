@@ -45,12 +45,12 @@ export default PaymentScreen = ({navigation, route}) => {
         type: paymentMethod,
         amount: bookingData.price,
         redirect: {
-          success: "http://192.168.254.163:5001/payment/success",
-          failed: "http://192.168.254.163:5001/payment/failed",
+          success: "http://192.168.1.6:5001/payment/success",
+          failed: "http://192.168.1.6:5001/payment/failed",
         }
       }
       try {
-        const response = await axios.post('http://192.168.254.163:5001/payment/initiatePayment', paymentData);
+        const response = await axios.post('http://192.168.1.6:5001/payment/initiatePayment', paymentData);
         const paymentId = response.data.data.id;
         const result = await WebBrowser.openAuthSessionAsync(response.data.data.redirect.checkout_url);
         if (result.type === 'dismiss') {

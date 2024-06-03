@@ -113,8 +113,11 @@ const AppNavigator = () => {
     }
 
     useEffect(() => {
-      getUserData();
-  }, [userDataFetched]);
+      if (navigation) {
+        getUserData();
+      }
+
+  }, [userDataFetched, navigation]);
 
   const getUserData = async () => {
       try {
@@ -124,7 +127,7 @@ const AppNavigator = () => {
               return;
           }
 
-          const response = await axios.post("http://192.168.254.163:5001/user/userData", { token: token });
+          const response = await axios.post("http://192.168.1.6:5001/user/userData", { token: token });
           setUserRole(response.data.data.data.role);
           setUserEmail(response.data.data.data.email);
           await AsyncStorage.setItem('userId', response.data.data.data._id);

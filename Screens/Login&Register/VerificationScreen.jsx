@@ -11,6 +11,7 @@ import auth from '@react-native-firebase/auth';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { set } from "date-fns";
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -54,15 +55,18 @@ export default function VerificationScreen({ navigation, route, props }) {
 
     const signInWithPhoneNumber = async () => {
         try {
+            setIsLoading(true);
             const confirmation = await auth().signInWithPhoneNumber(finalMobile);
             setConfirm(confirmation);
             Alert.alert("Success", "Code sent successfully.", [{ text: "OK"}]);
+            setIsLoading(false);
         } catch (error) {
             console.log(error);
         }
     }
 
     const confirmCode = async () => {
+        setIsLoading(true);
         const userData = {
             email: email,
             mobile: finalMobile,
@@ -72,17 +76,20 @@ export default function VerificationScreen({ navigation, route, props }) {
         }
         try {
             await confirm.confirm(code.join(''));
-            await axios.post(`http://192.168.254.163:5001/user/signup`, userData).then(async (res) => {
+            await axios.post(`http://192.168.1.6:5001/user/signup`, userData).then(async (res) => {
                 if (res.status === 200) {
                     console.log("User created successfully");
                     await saveDetails(res.data.data._id);
                 }
             })
-            await axios.post("http://192.168.254.163:5001/user/login", {email: email, password: storeData.data.password}).then(async (res) => {
+            await axios.post("http://192.168.1.6:5001/user/login", {email: email, password: storeData.data.password}).then(async (res) => {
             console.log(res.data)
             if (res.data.status === 'SUCCESS') {
                 Alert.alert('Success', 'You have successfully logged in.', [{ text: 'OK' }]);
-                await axios.post("http://192.168.254.163:5001/email_verification_otp/sendConfirmationEmail"), {email: email, name: `${storeData.data.name.firstName} ${storeData.data.name.lastName}`, role: storeData.data.role};
+                console.log("Email: ", email);
+                console.log("Name: ", `${storeData.data.name.firstName} ${storeData.data.name.lastName}`);
+                console.log("Role: ", storeData.data.role);
+                await axios.post("http://192.168.1.6:5001/email_verification_otp/sendConfirmationEmail", {email: email, name: `${storeData.data.name.firstName} ${storeData.data.name.lastName}`, role: storeData.data.role});
                 await AsyncStorage.setItem('token', res.data.data);
                 await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
                 await AsyncStorage.setItem('userId', res.data.userId);
@@ -121,12 +128,15 @@ export default function VerificationScreen({ navigation, route, props }) {
                 Alert.alert("Error", "An error occurred while verifying the code.", [{ text: "OK"}]);
                 console.error('Error:', error.message);
             }
+        } finally {
+            setIsLoading(false);
         }
+        
     };
 
     const fetchTempData = async () => {
         try {
-            await axios.post(`http://192.168.254.163:5001/user/getTempDetails`, {email : email}).then((res) => {
+            await axios.post(`http://192.168.1.6:5001/user/getTempDetails`, {email : email}).then((res) => {
                 setStoreData(res.data);
                 setBirthDate(res.data.data.birthDate);
                 setFinalMobile(res.data.data.mobile);
@@ -138,7 +148,7 @@ export default function VerificationScreen({ navigation, route, props }) {
     };
 
     const saveDetails = async (userId) => {
-        setIsLoading(true);
+        
         try {
             const userData = {
                 name: {
@@ -208,7 +218,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                         otherUserId: userId,
                       };
                     
-                      await axios.post("http://192.168.254.163:5001/notifications/create", notification)
+                      await axios.post("http://192.168.1.6:5001/notifications/create", notification)
                 }
             }
 
@@ -220,10 +230,7 @@ export default function VerificationScreen({ navigation, route, props }) {
 
             console.log('User details saved to Firestore!');
         } catch (error) {
-            console.error('Error saving or deleting details in Firestore:', error);
-            
-        } finally {
-            setIsLoading(false);
+            console.error('Error saving or deleting details in Firestore:', error);   
         }
     }   
 
@@ -252,7 +259,7 @@ export default function VerificationScreen({ navigation, route, props }) {
 
     const verifyChangedNumber = async () => {
         try {
-            await axios.post(`http://192.168.254.163:5001/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
+            await axios.post(`http://192.168.1.6:5001/user/getUserDetailsByMobile`, {mobile : mobile}).then(async (res) => {
                 if (res.status === 200) {
                     setModalVisible(false);
                     setFinalMobile(mobile);
@@ -262,7 +269,7 @@ export default function VerificationScreen({ navigation, route, props }) {
                         Alert.alert("Error", "The mobile number you entered is already in use.", [{ text: "OK"}]);
                     }
                 })
-            await axios.patch(`http://192.168.254.163:5001/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
+            await axios.patch(`http://192.168.1.6:5001/user/updateTempNumber`, {email : email, mobile : mobile}).then((res) => {
                     if (res.status === 200) {
                         Alert.alert("Success", "Mobile number changed successfully.", [{ text: "OK"}]);
                     }
@@ -276,7 +283,7 @@ export default function VerificationScreen({ navigation, route, props }) {
     if (isLoading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color={Color.colorBlue} />
+                <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
             </View>
         );
     }

@@ -194,7 +194,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       reason: complaint,
       status: 'PENDING',
     }
-    await axios.post("http://192.168.254.163:5001/report/createReport", reportData);
+    await axios.post("http://192.168.1.6:5001/report/createReport", reportData);
     const seekerRef = firestore().collection('seekers').doc(data.seekerId);
     const seekerDoc = await seekerRef.get();
     const reportsReceived = seekerDoc.data().reportsReceived + 1;
@@ -208,7 +208,7 @@ function ProviderBookingStatusScreen({ navigation, route }) {
       title: "New Report to Review",
       otherUserId: data.providerId,
     };
-    await axios.post("http://192.168.254.163:5001/notifications/create", notification)
+    await axios.post("http://192.168.1.6:5001/notifications/create", notification)
     setModalVisible(false);
     
     navigation.goBack();
@@ -244,7 +244,7 @@ const handleArrivedPress = async () => {
 
 useEffect(() => {
   const checkForReport = async () => {
-    const response = await axios.post("http://192.168.254.163:5001/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.providerId });
+    const response = await axios.post("http://192.168.1.6:5001/report/getReportByBookingId", { bookingId: data.bookingId, reporterId: data.providerId });
     setHasReported(response.data);
 }
 checkForReport();

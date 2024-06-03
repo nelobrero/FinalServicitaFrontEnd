@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, Pressable, Dimensions, ScrollView, Alert, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Image, Pressable, Dimensions, ScrollView, Alert, StyleSheet, Modal } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Color, errorText, Border } from '../../GlobalStyles';
@@ -34,7 +34,7 @@ export default function RegisterPage ({navigation, route, props}) {
     const [code, setCode] = useState(['', '', '', '']);
     const inputRefs = useRef([]);
     const [modalVisible, setModalVisible] = useState(false);
-    
+    const [isLoading, setIsLoading] = useState(false);
     const today = new Date();
     const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
     const formattedBirthday = birthday ? 
@@ -191,7 +191,7 @@ export default function RegisterPage ({navigation, route, props}) {
             const userData = {
                 email: email,
             }
-            const res = await axios.post("http://192.168.254.163:5001/user/getUserDetailsByEmail", userData);
+            const res = await axios.post("http://192.168.1.6:5001/user/getUserDetailsByEmail", userData);
             if (res.data.status === 'SUCCESS') {
                 return true;
             }
@@ -214,12 +214,12 @@ export default function RegisterPage ({navigation, route, props}) {
     }
 
     const handleContinuePress = () => {
-        
+        setIsLoading(true);
         const userData = {
             email: email,
             name: `${firstName} ${lastName}`,
           }
-        axios.post("http://192.168.254.163:5001/email_verification_otp/sendEmail", userData).then((res) => {
+        axios.post("http://192.168.1.6:5001/email_verification_otp/sendEmail", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'PENDING') {
             setModalVisible(true);
@@ -233,6 +233,8 @@ export default function RegisterPage ({navigation, route, props}) {
               Alert.alert('Error', 'Email has recently been verified but has not finished the registration process yet. Please login using the option you used to proceed to the mobile verification screen', [{ text: 'OK' }, { text: ' Go to Login', onPress: () => navigation.navigate('Login') }]);
             }
             console.log(err);
+          }) .finally(() => {
+            setIsLoading(false);
           });
     }
 
@@ -250,11 +252,12 @@ export default function RegisterPage ({navigation, route, props}) {
     };
 
     const handleVerifyPress = () => {
+        setIsLoading(true);
         const userData = {
             email: email,
             otp: code.join(''),
         }
-          axios.post("http://192.168.254.163:5001/email_verification_otp/verifyOTP", userData).then((res) => {
+          axios.post("http://192.168.1.6:5001/email_verification_otp/verifyOTP", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'SUCCESS') {
             setModalVisible(false);
@@ -268,7 +271,10 @@ export default function RegisterPage ({navigation, route, props}) {
               Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
               console.log(err.response.data.message);
             }
-          });
+          }).finally(() => {
+            setIsLoading(false);
+          }
+            );
     };
 
     const handleSendAgainPress = () => {
@@ -277,7 +283,7 @@ export default function RegisterPage ({navigation, route, props}) {
             email: email,
             name: `${firstName} ${lastName}`,
           }
-        axios.post("http://192.168.254.163:5001/email_verification_otp/sendEmail", userData).then((res) => {
+        axios.post("http://192.168.1.6:5001/email_verification_otp/sendEmail", userData).then((res) => {
           console.log(res.data);
           if (res.data.status === 'PENDING') {
             fetchServerTime();
@@ -293,7 +299,7 @@ export default function RegisterPage ({navigation, route, props}) {
     const fetchServerTime = async () => {
         try {
             console.log('Fetching server time...');
-            const response = await axios.get(`http://192.168.254.163:5001/email_verification_otp/getRemainingCurrentTime/${email}`);
+            const response = await axios.get(`http://192.168.1.6:5001/email_verification_otp/getRemainingCurrentTime/${email}`);
             const remainingTime = Math.floor(response.data.remainingTime / 1000);
             if (remainingTime <= 0) {
                 setTimer(0);
@@ -306,6 +312,14 @@ export default function RegisterPage ({navigation, route, props}) {
             console.log('Error fetching server time:', error);
         }
     };
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+            </View>
+        );
+    }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Color.colorWhite }}>

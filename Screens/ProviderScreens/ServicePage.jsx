@@ -331,7 +331,7 @@ const handleSubmitPost = async () => {
 
   await Promise.all(imageUploadPromises);
 
-  await axios.post('http://192.168.254.163:5001/post/createPost', { serviceId: service.id, images: submitImages, postText: reviewText });
+  await axios.post('http://192.168.1.6:5001/post/createPost', { serviceId: service.id, images: submitImages, postText: reviewText });
   setIsLoading(false);
   alert('Post submitted successfully!');
   setImages(null);
