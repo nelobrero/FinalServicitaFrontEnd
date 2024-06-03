@@ -28,9 +28,11 @@ async function getUserData() {
     const result = await axios.post("http://3.107.4.155:5001/user/getUserDetailsById", { id: bookingData.seekerId })
     setUserRole(result.data.data.role);
     setUserEmail(result.data.data.email);
-    const seekerName = await getSeekerData();
+    
+    const seekerData = await getSeekerData();
+
     const providerName = await getProviderData();
-    sendReceiptEmail(seekerName, providerName);
+    sendReceiptEmail(seekerData, providerName);
     } catch (error) {
       console.error('Error getting user data from MongoDB:', error);
     }
@@ -40,7 +42,7 @@ async function getUserData() {
 const getSeekerData = async () => {
   const seekerData = await firestore().collection('seekers').doc(bookingData.seekerId).get();
   setUserName(seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName);
-  return seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName;
+  return {name: seekerData.data().name.firstName + ' ' + seekerData.data().name.lastName, email: seekerData.data().email};
 }
 
 const getProviderData = async () => {
@@ -49,11 +51,11 @@ const getProviderData = async () => {
   return providerData.data().name.firstName + ' ' + providerData.data().name.lastName;
 }
 
-async function sendReceiptEmail(seekerName, providerName) {
+async function sendReceiptEmail(seekerData, providerName) {
   try {
     const receiptData = {
-      email: userEmail,
-      name: seekerName,
+      email: seekerData.email,
+      name: seekerData.name,
       bookingId: bookingId,
       providerName: providerName,
       location: bookingData.location.address,
