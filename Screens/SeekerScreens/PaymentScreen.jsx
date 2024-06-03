@@ -16,6 +16,7 @@ export default PaymentScreen = ({navigation, route}) => {
   const [gcashClicked, setGcashClicked] = useState(false);
   const [grabpayClicked, setGrabPayClicked] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleGcashClick = () => {
     setGcashClicked(!gcashClicked);
@@ -40,7 +41,7 @@ export default PaymentScreen = ({navigation, route}) => {
   }, [gcashClicked, grabpayClicked]);
 
     const handleContinue = async () => {
-    
+      setLoading(true);
       const paymentData = {
         type: paymentMethod,
         amount: bookingData.price,
@@ -64,6 +65,8 @@ export default PaymentScreen = ({navigation, route}) => {
         console.error("Payment initiation failed:", error);
 
         alert("Payment initiation failed. Please try again later.");
+      } finally {
+        setLoading(false);
       }
   }
 
@@ -135,8 +138,8 @@ export default PaymentScreen = ({navigation, route}) => {
         <Button 
         onPress={()=>handleContinue()}
         style={styles.button}
-        opacity={!(gcashClicked ^ grabpayClicked) ? 0.5 : 1}
-        disabled={!(gcashClicked ^ grabpayClicked)}
+        opacity={!(gcashClicked ^ grabpayClicked)  || loading ? 0.5 : 1}
+        disabled={!(gcashClicked ^ grabpayClicked) || loading}
         >
           <Text style={styles.buttonText}>Confirm Booking</Text>
         </Button>
