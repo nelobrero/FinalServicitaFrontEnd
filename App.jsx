@@ -115,7 +115,7 @@ const AppNavigator = () => {
     useEffect(() => {
       const timeout = setTimeout(() => {
         getUserData();
-    }, 2000); // Adjust the timeout value as needed
+    }, 3000); // Adjust the timeout value as needed
 
     return () => clearTimeout(timeout);
   }, [userDataFetched, navigation]);

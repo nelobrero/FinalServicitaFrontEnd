@@ -205,7 +205,7 @@ export const PostItem = ({ item }) => {
             postImages: item.images,
             postText: item.postText,
             date: convertCreatedAtToDateMonthYear(item.createdAt),
-            time: convertCreatedAtToTime12HourFormat(item.createdAt)
+            time: convertCreatedAtToTime12HourFormat(item.createdAt),
           }}
         />
       )}
