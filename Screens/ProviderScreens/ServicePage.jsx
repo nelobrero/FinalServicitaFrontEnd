@@ -13,6 +13,7 @@ import axios from "axios";
 import Button from './../../components/Button';
 import { Video } from "expo-av";
 import { askForCameraPermission, askForLibraryPermission } from "./../../helper/helperFunction";
+import { PostItem } from "../../components/Post";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -52,7 +53,8 @@ if (!service || !storeData || !userData) {
     const [images, setImages] = useState(null);
     const [modalOptionsVisible, setModalOptionsVisible] = useState(false);
     const [modalOptionssVisible, setModalOptionssVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [postsData, setPostsData] = useState([]);
 
     const validateName = (name, setName, setNameVerify, limit) => {
       setName(name);
@@ -171,6 +173,43 @@ const handleChangeEndTime = (value) => {
 }
 
 useEffect(() => {
+  const getPosts = async () => {
+    try {
+      const response = await axios.post('http://3.26.59.191:5001/post/getPostsById', { serviceId: service.id });
+      setPostsData(response.data.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  getPosts();
+}, [service.id]);
+
+const convertCreatedAtToDateMonthYear = (createdAt) => {
+  const date = new Date(createdAt);
+  return `${date.getDate()} ${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+};
+
+const convertCreatedAtToTime12HourFormat = (createdAt) => {
+  const date = new Date(createdAt);
+  return date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+};
+
+const deletePost = async (postId) => {
+  try {
+    setIsLoading(true);
+    await axios.post('http://3.26.59.191:5001/post/deletePost', { postId });
+    const newPostsData = postsData.filter((post) => post._id !== postId);
+    setPostsData(newPostsData);
+  } catch (error) {
+    console.error('Error deleting post:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+useEffect(() => {
   setPriceVerify(minPrice > 0 && maxPrice - minPrice >= priceGap);
 }, [minPrice, maxPrice]);
 
@@ -210,7 +249,6 @@ const openPostModal = () => {
 
 const appeal = async () => {
   try {
-    // Reset service status to pending
     await firestore().collection('services').doc(service.id).set({
       status: 'Pending',
     }, { merge: true });
@@ -390,23 +428,23 @@ useEffect(() => {
   if (service.data.status === "Active") {
     accountItems = [
       {
-        text: "Edit Service",
-        action: openServiceModal,
-      },
-      {
         text: "Add Post",
         action: openPostModal,
+      },
+      {
+        text: "Edit Service",
+        action: openServiceModal,
       }
     ];
   } else if (service.data.status === "Rejected") {
     accountItems = [
       {
-        text: "Edit Service",
-        action: openServiceModal,
-      },
-      {
         text: "Appeal",
         action: appeal,
+      },
+      {
+        text: "Edit Service",
+        action: openServiceModal,
       }
     ];
   } else {
@@ -429,11 +467,11 @@ useEffect(() => {
         backgroundColor: COLORS.primary,
         borderRadius: 8,
         marginVertical: windowHeight * 0.007,
-        marginRight: windowWidth * 0.25
+        marginRight: windowWidth * 0.19
       }}
     >
       <Feather
-        name="edit-2"
+        name = {text === "Add Post" ? "plus" : text === "Edit Service" ? "edit-2" : "alert-circle"}
         size={15}
         color="white"
         style={{ marginRight: 8 }}
@@ -483,14 +521,14 @@ if (isLoading) {
             }}
         >
           {/* arrow with circle */}
-            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.primary} />
+            <MaterialIcons name="arrow-back-ios" size={25} color={COLORS.white} />
         </TouchableOpacity>
         
           <Image
             source={{ uri: service.data.coverImage}}
             resizeMode="cover"
             style={{
-              height: 228,
+              height: 250,
               width: "100%",
             }}
           />
@@ -502,7 +540,7 @@ if (isLoading) {
             style={{
               fontSize: 30,
               color: COLORS.primary,
-              marginTop: 30,
+              marginTop: 20,
             }}
           > {service.data.name}
           </Text>
@@ -512,7 +550,7 @@ if (isLoading) {
           style={{
             flexDirection: "row",
             justifyContent: "center",
-            paddingHorizontal: 60,
+            paddingHorizontal: 50,
           }}
         >
           {/* Background shape */}
@@ -528,13 +566,13 @@ if (isLoading) {
           </View>
           <View
             style={{
-              backgroundColor: COLORS.gray,
-              borderRadius: 20,
+              backgroundColor: service.data.status === "Active" ? "#5efa21" : '#ffdddd',
+              borderRadius: 50,
               padding: 8,
               marginLeft: 5,
             }}
           >
-            <Text style={{ color: COLORS.primary }}>{service.data.status}</Text>
+            <Text style={{ color: service.data.status === "Active" ? "#1a5c0b" : '#500000' }}>{service.data.status}</Text>
           </View>
         </View>
 
@@ -562,7 +600,7 @@ if (isLoading) {
           <View  
             style={{
               flexDirection: "row",
-              borderRadius: 12,
+              borderRadius: 30,
             }}
           >
             {accountItems.map((item, index) => (
@@ -571,6 +609,7 @@ if (isLoading) {
               </React.Fragment>
             ))}
           </View>
+
         </View>
       </View>
       </View>
@@ -645,7 +684,7 @@ if (isLoading) {
       <View
         style={{
           marginLeft: 20,
-          marginTop: 25,
+          marginTop: 5,
         }}
       >
         <Text
@@ -682,69 +721,156 @@ if (isLoading) {
         </Text>
       </View>
           
-          <View style = {{marginBottom: 20}}>
-          <View style={{flexDirection: "row", marginTop: 10, justifyContent: "space-between", marginHorizontal: windowWidth * 0.15, paddingHorizontal: windowWidth * 0.10}}>
-          <Text style={{fontSize: 15, fontWeight: '500'}}>Monday </Text>
-          <Text style={{fontSize: 15, fontWeight: '500'}}>Tuesday</Text>
-          </View>
-      <View style={{flexDirection: "row", marginTop: 10, justifyContent: "space-evenly", paddingHorizontal: 50}}>
-        <Text style={styles.container1}>
-        {service.data.availability[0].startTime && service.data.availability[0].endTime ? `${service.data.availability[0].startTime} - ${service.data.availability[0].endTime}` : "Unavailable"}
-        </Text>
-        <Text style={styles.container1}>
-        {service.data.availability[1].startTime && service.data.availability[1].endTime ? `${service.data.availability[1].startTime} - ${service.data.availability[1].endTime}` : "Unavailable"}
-        </Text>
-        </View>
+      <View style={{ marginBottom: 20 }}>
+      
+      <View style={{ flex: 1}}>
+  <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: "space-between", alignItems: "center" }}>
+    <Text style={{ fontSize: 15, textAlign: 'center' , marginLeft: 30, fontWeight: 'bold', color: service.data.availability[0].flagAvailable ? COLORS.primaries : COLORS.secondary}}>
+      MONDAY
+    </Text>
+    <Text style={[styles.container1, { color: service.data.availability[0].flagAvailable ? COLORS.primaries : COLORS.secondary }]}>
+      {service.data.availability[0].startTime && service.data.availability[0].endTime ? `${service.data.availability[0].startTime} - ${service.data.availability[0].endTime}` : "Unavailable"}
+    </Text>
+  </View>
+</View>
 
-        <View style={{flexDirection: "row", marginTop: 10, justifyContent: "space-between", marginHorizontal: windowWidth * 0.13, paddingHorizontal: windowWidth * 0.10}}>
-        <Text style={{fontSize: 15, fontWeight: '500'}}>Wednesday</Text>
-        <Text style={{fontSize: 15, fontWeight: '500'}}> Thursday</Text>
-        </View>
-        <View style={{flexDirection: "row", marginTop: 10, justifyContent: "space-evenly", paddingHorizontal: 50}}>
-        <Text style={styles.container1}>
-        {service.data.availability[2].startTime && service.data.availability[2].endTime ? `${service.data.availability[2].startTime} - ${service.data.availability[2].endTime}` : "Unavailable"}
+
+<View style={{ flex: 1}}>
+  <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={{ fontSize: 15, textAlign: 'center' , marginLeft: 30, fontWeight: 'bold', color: service.data.availability[1].flagAvailable ? COLORS.primaries : COLORS.secondary}}>
+      TUESDAY
+    </Text>      
+      <Text style={[styles.container1, { color: service.data.availability[1].flagAvailable ? COLORS.primaries : COLORS.secondary }]}>
+          {service.data.availability[1].startTime && service.data.availability[1].endTime ? `${service.data.availability[1].startTime} - ${service.data.availability[1].endTime}` : "Unavailable"}
         </Text>
-        <Text style={styles.container1}>
-        {service.data.availability[3].startTime && service.data.availability[3].endTime ? `${service.data.availability[3].startTime} - ${service.data.availability[3].endTime}` : "Unavailable"}
+      </View>
+      </View>
+
+      <View style={{ flex: 1}}>
+  <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={{ fontSize: 15, textAlign: 'center' , marginLeft: 30, fontWeight: 'bold', color: service.data.availability[2].flagAvailable ? COLORS.primaries : COLORS.secondary}}>
+WEDNESDAY</Text>
+        <Text style={[styles.container1, { color: service.data.availability[2].flagAvailable ? COLORS.primaries : COLORS.secondary }]}>
+          {service.data.availability[2].startTime && service.data.availability[2].endTime ? `${service.data.availability[2].startTime} - ${service.data.availability[2].endTime}` : "Unavailable"}
         </Text>
-        </View>
+      </View>
+      </View>
 
-        <View style={{flexDirection: "row", marginTop: 10, justifyContent: "space-between", marginHorizontal: windowWidth * 0.15, paddingHorizontal: windowWidth * 0.10}}>
-        <Text style={{fontSize: 15, fontWeight: '500'}}>Friday  </Text>
-        <Text style={{fontSize: 15, fontWeight: '500'}}>Saturday</Text>
-        </View>
-        <View style={{flexDirection: "row", marginTop: 10, justifyContent: "space-evenly", paddingHorizontal: 50}}>
-       <Text style={styles.container1}>
-        {service.data.availability[4].startTime && service.data.availability[4].endTime ? `${service.data.availability[4].startTime} - ${service.data.availability[4].endTime}` : "Unavailable"}
-       </Text>
-       <Text style={styles.container1}>
-        {service.data.availability[5].startTime && service.data.availability[5].endTime ? `${service.data.availability[5].startTime} - ${service.data.availability[5].endTime}` : "Unavailable"}
-       </Text>
-       </View>
+      <View style={{ flex: 1}}>
+  <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={{ fontSize: 15, textAlign: 'center' , marginLeft: 30, fontWeight: 'bold', color: service.data.availability[3].flagAvailable ? COLORS.primaries : COLORS.secondary}}>
+    THURSDAY</Text>
+        <Text style={[styles.container1, { color: service.data.availability[3].flagAvailable ? COLORS.primaries : COLORS.secondary }]}>
+          {service.data.availability[3].startTime && service.data.availability[3].endTime ? `${service.data.availability[3].startTime} - ${service.data.availability[3].endTime}` : "Unavailable"}
+        </Text>
+      </View>
+      </View>
 
-          
-       <View style={{ marginTop: 10, alignItems: 'center' }}>
-         <Text style={{ fontSize: 15, fontWeight: '500', marginBottom: 10 }}>Sunday</Text>
-       <Text style={styles.container1}>
-        {service.data.availability[6].startTime && service.data.availability[6].endTime ? `${service.data.availability[6].startTime} - ${service.data.availability[6].endTime}` : "Unavailable"}
-       </Text>
-       </View>
-        </View>
+      <View style={{ flex: 1}}>
+  <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={{ fontSize: 15, textAlign: 'center' , marginLeft: 30, fontWeight: 'bold', color: service.data.availability[4].flagAvailable ? COLORS.primaries : COLORS.secondary}}>
+    FRIDAY</Text>
+        <Text style={[styles.container1, { color: service.data.availability[4].flagAvailable ? COLORS.primaries : COLORS.secondary }]}>
+          {service.data.availability[4].startTime && service.data.availability[4].endTime ? `${service.data.availability[4].startTime} - ${service.data.availability[4].endTime}` : "Unavailable"}
+        </Text>
+      </View>
+      </View>
 
-        <Modal animationType="slide" transparent={true} visible={showServiceModal} onRequestClose={closeServiceModal}>
+      <View style={{ flex: 1}}>
+  <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={{ fontSize: 15, textAlign: 'center' , marginLeft: 30, fontWeight: 'bold', color: service.data.availability[5].flagAvailable ? COLORS.primaries : COLORS.secondary}}>
+    SATURDAY</Text>
+        <Text style={[styles.container1, { color: service.data.availability[5].flagAvailable ? COLORS.primaries : COLORS.secondary }]}>
+          {service.data.availability[5].startTime && service.data.availability[5].endTime ? `${service.data.availability[5].startTime} - ${service.data.availability[5].endTime}` : "Unavailable"}
+        </Text>
+      </View>
+      </View>
+
+      <View style={{ flex: 1 }}>
+  <View style={{ flexDirection: "row", marginTop: 10, marginHorizontal: 20, justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={{ fontSize: 15, textAlign: 'center' , marginLeft: 30, fontWeight: 'bold', color: service.data.availability[6].flagAvailable ? COLORS.primaries : COLORS.secondary}}>
+    SUNDAY</Text>
+        <Text style={[styles.container1, { color: service.data.availability[6].flagAvailable ? COLORS.primaries : COLORS.secondary }]}>
+          {service.data.availability[6].startTime && service.data.availability[6].endTime ? `${service.data.availability[6].startTime} - ${service.data.availability[6].endTime}` : "Unavailable"}
+        </Text>
+      </View>
+    </View>
+    </View>
+
+    <View>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "bold",
+            marginTop: 15,
+            marginLeft: 20,
+
+          }}
+        >
+        Posts
+        </Text>
+      </View>
+
+      <View style={{ marginBottom: 0 }}>    
+      <FlatList
+      data={postsData}
+      renderItem={({ item }) => (
+        <>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+          <PostItem
+            item={{
+              id: item._id,
+              userImage: service.data.coverImage,
+              userName: serviceName,
+              postImages: item.images,
+              postText: item.postText,
+              date: convertCreatedAtToDateMonthYear(item.createdAt),
+              time: convertCreatedAtToTime12HourFormat(item.createdAt)
+            }}
+          />
+          {/* Delete Post */}
+          <TouchableOpacity
+            onPress={() => deletePost(item._id)}
+            style={{
+              backgroundColor: COLORS.primary,
+              padding: 5,
+              borderRadius: 5,
+              marginRight: 10,
+              position: 'absolute',
+              right: 0,
+              top: windowHeight * 0.05
+            }}
+          >
+            <MaterialIcons name="delete" size={15} color={COLORS.white} />
+          </TouchableOpacity>
+        </View>
+        </>
+      )}
+      
+      keyExtractor={(item) => item._id.toString()}
+      ListEmptyComponent={() => (
+        <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, marginTop: 20, marginBottom: 20 }}>
+          <Text>No posts available</Text>
+        </View>
+      )}
+      scrollEnabled={false}
+    />
+    </View>
+
+    <Modal animationType="slide" transparent={true} visible={showServiceModal} onRequestClose={closeServiceModal}>
                         
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                             
-                        <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
+                        <View style={{ backgroundColor: 'white', width: '90%', height: '90%', borderRadius: 10, }}>
                         <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
-                            <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>   
+                            <View flexDirection='row' style={{ alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>   
                             <Text style={{
-                                    fontSize: windowWidth * 0.06,
-                                    fontWeight: '400',
+                                    fontSize: windowWidth * 0.05,
+                                    fontWeight: 'bold',
                                     marginVertical: windowHeight * 0.01,
-                                    color: Color.colorBlue,
+                                    color: Color.colorPrimary,
                                     marginLeft: windowWidth * 0.05 
-                                }}>Service Details</Text>
+                                }}> Edit Service Details</Text>
                             <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => closeServiceModal()} />
                             </View>
 
@@ -754,7 +880,7 @@ if (isLoading) {
                                     height: windowHeight * 0.2,
                                     width: windowHeight * 0.2,
                                     borderRadius: windowHeight * 0.1,
-                                    borderColor: Color.colorBlue1,
+                                    borderColor: Color.colorPrimary,
                                     borderWidth: 1,
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -773,7 +899,7 @@ if (isLoading) {
                 style={{
                   position: "absolute",
                   bottom: 0,
-                  right: 10,
+                  right: -1,
                   zIndex: 9999,
                 }}
               >
@@ -788,11 +914,11 @@ if (isLoading) {
                             </View>
 
 
-                            <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
+                           <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01, marginTop: windowHeight * 0.04 }}>
                                 
                                 <View style={{
                                     height: windowHeight * 0.06,
-                                    borderColor: serviceName === null || serviceName === '' ? Color.colorBlue1 : serviceNameVerify ? Color.colorGreen : Color.colorRed,
+                                    borderColor: serviceName === null || serviceName === '' ? Color.colorPrimary : serviceNameVerify ? Color.colorGreen : Color.colorRed,
                                     borderWidth: 1,
                                     borderRadius: windowHeight * 0.015,
                                     alignItems: 'center',
@@ -802,7 +928,7 @@ if (isLoading) {
                                     flexDirection: 'row',
                                     marginTop: windowHeight * 0.01
                                 }}>
-                                    <FontAwesome name="bell-o" color = {serviceName === null || serviceName === '' ? Color.colorBlue1 : serviceNameVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
+                                    <MaterialIcons name="cleaning-services" color = {serviceName === null || serviceName === '' ? Color.colorPrimary : serviceNameVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 20}}/>
                                     <TextInput
                                         placeholder='Service Name'
                                         placeholderTextColor={Color.colorBlue}
@@ -831,7 +957,7 @@ if (isLoading) {
                                 <View style={{
                                    
                                     height: inputHeight,
-                                    borderColor: serviceDescription === null || serviceDescription === '' ? Color.colorBlue1 : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed,
+                                    borderColor: serviceDescription === null || serviceDescription === '' ? Color.colorPrimary : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed,
                                     borderWidth: 1,
                                     borderRadius: windowHeight * 0.015,
                                     alignItems: 'center',
@@ -841,7 +967,7 @@ if (isLoading) {
                                     flexDirection: 'row',
                                     marginTop: windowHeight * 0.01
                                 }}>
-                                    <Entypo name="text" color = {serviceDescription === null || serviceDescription === '' ? Color.colorBlue1 : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
+                                    <Entypo name="text" color = {serviceDescription === null || serviceDescription === '' ? Color.colorPrimary : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
                                     <TextInput
                                         ref={input => { this.textInput = input }}
                                         multiline={true}
@@ -876,7 +1002,7 @@ if (isLoading) {
                                         
                                 <View style={{
                                     height: windowHeight * 0.06,
-                                    borderColor: minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed,
+                                    borderColor: minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed,
                                     borderWidth: 1,
                                     borderRadius: windowHeight * 0.015,
                                     alignItems: 'center',
@@ -886,14 +1012,14 @@ if (isLoading) {
                                     flexDirection: 'row',
                                     marginTop: windowHeight * 0.01
                                 }}>
-                                    <FontAwesome name="money" color = {minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}}/>
+                                    <Ionicons name="pricetag" color = {minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 20}}/>
                                     <TextInput
                                         placeholder='Select price range...'
                                         placeholderTextColor={Color.colorBlue}
                                         value={minPrice > 0 ? `₱ ${minPrice.toString()} - ₱ ${maxPrice.toString()}` : ''}
                                         editable={false}
                                         style={{ flex: 1 }}
-                                        color={minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorBlack : Color.colorRed}
+                                        color={minPrice === 0 ? Color.colorGreen : priceVerify ? Color.colorBlack : Color.colorRed}
                                     />
                                     {minPrice === 0 ? null : priceVerify ? (
                                     <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
@@ -916,7 +1042,7 @@ if (isLoading) {
                                 <View style={{
                                     height: windowHeight * 0.06,
                                     
-                                    borderColor: areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorBlue1 : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed,
+                                    borderColor: areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorPrimary : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed,
                                     borderWidth: 1,
                                     borderRadius: windowHeight * 0.015,
                                     alignItems: 'center',
@@ -926,7 +1052,7 @@ if (isLoading) {
                                     flexDirection: 'row',
                                     marginTop: windowHeight * 0.01
                                 }}>
-                                    <FontAwesome name="clock-o" color = {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorBlue1 : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}}/>
+                                    <AntDesign name="clockcircleo" color = {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorPrimary : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 20}}/>
                                     <TextInput
                                         placeholder='Set service availability...'
                                         placeholderTextColor={Color.colorBlue}
@@ -951,11 +1077,11 @@ if (isLoading) {
             style={{
               backgroundColor: COLORS.primary,
               height: 44,
-              borderRadius: 6,
+              borderRadius:20,
               alignItems: "center",
               justifyContent: "center",
               opacity: serviceNameVerify && serviceDescriptionVerify && priceVerify && !areArraysEqual(serviceAvailability, defaultServiceAvailability) && validateAvailabilityValues() && isChanged ? 1 : 0.5,
-              marginVertical: windowHeight * 0.03,
+              marginVertical: windowHeight * 0.06,
               marginHorizontal: windowWidth * 0.05,
             }}
             onPress={saveChanges}
@@ -965,6 +1091,7 @@ if (isLoading) {
               style={{
                 ...FONTS.body3,
                 color: COLORS.white,
+                fontSize: 16
               }}
             >
               Save Changes
@@ -1005,11 +1132,11 @@ if (isLoading) {
                                             borderWidth: 1,
                                             borderRadius: windowHeight * 0.015,
                                             paddingHorizontal: 10,
-                                            borderColor: minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed,
+                                            borderColor: minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed,
                                         }}
                                         keyboardType='numeric'
                                         value={`₱ ${minPrice.toString()}`}
-                                        color={minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed}
+                                        color={minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed}
                                         onChangeText={(text) => {
                                             if (text === '₱ ' || text === '₱') {
                                                 setMinPrice(0);
@@ -1035,11 +1162,11 @@ if (isLoading) {
                                             borderWidth: 1,
                                             borderRadius: windowHeight * 0.015,
                                             paddingHorizontal: 10,
-                                            borderColor: minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed,
+                                            borderColor: minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed,
                                         }}
                                         keyboardType='numeric'
                                         value={`₱ ${maxPrice.toString()}`}
-                                        color={minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed}
+                                        color={minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed}
                                         onChangeText={(text) => {
                                             if (text === '₱ ' || text === '₱') {
                                                 setMaxPrice(0);
@@ -1080,15 +1207,15 @@ if (isLoading) {
                         <Modal animationType="slide" transparent={true} visible={showAvailabilityModal} onRequestClose={() => setShowAvailabilityModal(false)}>
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                             <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-                            <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginTop: windowHeight * 0.01 }}>
+                            <View flexDirection='row' style={{alignItems: 'center', justifyContent: 'space-between', marginTop: windowHeight * 0.01 }}>
                             <Text style={{
                                     fontSize: windowWidth * 0.06,
-                                    fontWeight: '400',
+                                    fontWeight: 'bold',
                                     marginVertical: windowHeight * 0.01,
-                                    color: Color.colorBlue,
+                                    color: Color.colorPrimary,
                                     marginLeft: windowWidth * 0.05 
                                 }}>Service Availability</Text>
-                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowAvailabilityModal(false)} />
+                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorPrimary} onPress={() => setShowAvailabilityModal(false)} />
                             </View>
                             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
                            
@@ -1096,9 +1223,9 @@ if (isLoading) {
                                 
                             
                             {serviceAvailability.map((day, index) => (
-                                <View key={index} style={{flexDirection: 'row', padding: 10, alignItems: 'center', borderBottomWidth: index === serviceAvailability.length - 1 ? 0 : 0.5, borderBottomColor: Color.colorBlue, paddingBottom: 30}}>
+                                <View key={index} style={{flexDirection: 'row', padding: 10, alignItems: 'center', paddingBottom: 30}}>
                                     
-                                    <Text style={{marginLeft: windowWidth * 0.02, color: day.flagAvailable ? Color.colorBlue : Color.colorGray}}>{day.day}</Text>
+                                    <Text style={{marginLeft: windowWidth * 0.02, color: day.flagAvailable ? Color.colorPrimary : Color.colorGray}}>{day.day}</Text>
                                         
                                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}> 
                                     
@@ -1117,12 +1244,13 @@ if (isLoading) {
                                                 placeholder='Start Time'
                                                 value={day.startTime}
                                                 style={{
+                                                  alignItems: 'center',
                                                     width: windowWidth * 0.22,
                                                     height: windowHeight * 0.055,
                                                     borderWidth: 1,
                                                     borderRadius: windowHeight * 0.015,
                                                     paddingHorizontal: windowWidth * 0.02,
-                                                    borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen,
+                                                    borderColor: day.startTime === '' && day.endTime === '' ? Color.colorPrimary : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen,
                                                 }}
                                                 editable={false}
                                                 color={Color.colorBlue}
@@ -1137,7 +1265,7 @@ if (isLoading) {
                                                                     fontSize: windowWidth * 0.06,
                                                                     fontWeight: '400',
                                                                     marginVertical: windowHeight * 0.01,
-                                                                    color: Color.colorBlue,
+                                                                    color: Color.colorPrimary,
                                                                     marginLeft: windowWidth * 0.05 
                                                                 }}>Start Time</Text>
                                                             <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerStart(false)} />
@@ -1176,7 +1304,7 @@ if (isLoading) {
                         borderWidth: 1,
                         borderRadius: windowHeight * 0.015,
                         paddingHorizontal: windowWidth * 0.02,
-                        borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen ? Color.colorGreen : Color.colorRed,
+                        borderColor: day.startTime === '' && day.endTime === '' ? Color.colorPrimary : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen ? Color.colorGreen : Color.colorRed,
                     }}
                     editable={false}
                     color={Color.colorBlue}
@@ -1191,7 +1319,7 @@ if (isLoading) {
                                             fontSize: windowWidth * 0.06,
                                             fontWeight: '400',
                                             marginVertical: windowHeight * 0.01,
-                                            color: Color.colorBlue,
+                                            color: Color.colorPrimary,
                                             marginLeft: windowWidth * 0.05 
                                         }}>End Time</Text>
                                     <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerEnd(false)} />
@@ -1228,7 +1356,7 @@ if (isLoading) {
                                         setServiceAvailability(updatedAvailability);
                                         
                                     }}>
-                                        <FontAwesome name={day.flagAvailable ? 'check-square' : 'square-o'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.03 }}/>
+                                        <Feather name={day.flagAvailable ? 'check-square' : 'square'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.03 }}/>
                                     </Pressable>
                                     <View style={{ position:'absolute', top: windowHeight * 0.06, right: windowWidth * 0.145 }}>
                                         {renderErrorTextPerDay(day)}
@@ -1253,227 +1381,236 @@ if (isLoading) {
      
 
                 </Modal>
-
-                <Modal
-    visible={showPostModal}
-    animationType="slide"
-    transparent={true}
->
-<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-    <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
-            
-    <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.02 }}>
-                                    <Text style={{
-                                            fontSize: windowWidth * 0.06,
-                                            fontWeight: '400',
-                                            marginVertical: windowHeight * 0.01,
-                                            color: Color.colorBlue,
-                                            marginLeft: windowWidth * 0.05 
-                                        }}>Create a Post</Text>
-                                    <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={closePostModal} />
-                                </View>
-            <View>
-           
-                <TextInput
-                    style={styles.input}
-                    multiline
-                    placeholder="Write your post..."
-                    textAlignVertical="top"
-                    onChangeText={(text) => setReviewText(text)}
-                    value={reviewText}
-                />
-                <TouchableOpacity style={{opacity : images && images.length === 3 ? 0.2 : 1, left: windowWidth * 0.77, bottom: windowHeight * 0.04}} onPress={ () => setModalOptionssVisible(true)} disabled={images && images.length === 3}>
-                    <AntDesign name="camerao" size={24} color="gray" />
-                </TouchableOpacity>    
-            </View>
-            
-
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-            {images && images.map((image, index) => (
-                <View key={index} style={{ position: 'relative' }}>
-                     {image.includes('.mp4') ? <Video
-                    source={{ uri: image }}
-                    rate={1.0}
-                    volume={1.0}
-                    isMuted={true}
-                    shouldPlay
-                    isLooping
-                    style={styles.image}
-                />
-                : <Image source={{ uri: image }} style={styles.image} />}
-                    <TouchableOpacity style={styles.closeIcon} onPress={() => removeImage(index)}>
-                        <AntDesign name="closecircle" size={12} color="red" />
-                    </TouchableOpacity>
+    
+                    <Modal
+        visible={showPostModal}
+        animationType="slide"
+        transparent={true}
+    >
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '100%', borderRadius: 10, }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
+                
+        <View flexDirection='row' style={{ alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.02 }}>
+                                        <Text style={{
+                                                fontSize: windowWidth * 0.045,
+                                                fontWeight: '400',
+                                                marginVertical: windowHeight * 0.001,
+                                                color: Color.colorPrimary,
+                                                marginLeft: windowWidth * 0.05,
+                                                fontWeight: 'bold'
+                                            }}>Create post</Text>
+                                        <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={closePostModal} />
+                                    </View>
+                <View>
+               
+                    <TextInput
+                        style={styles.input}
+                        multiline
+                        placeholder="Share your service..."
+                        textAlignVertical="top"
+                        onChangeText={(text) => setReviewText(text)}
+                        value={reviewText}
+                    />
+                    <TouchableOpacity style={{flexDirection:'row', alignItems: 'center',opacity : images && images.length === 3 ? 0.2 : 1, left: windowWidth * 0.07, bottom: windowHeight * 0.001}} onPress={ () => setModalOptionssVisible(true)} disabled={images && images.length === 3}>
+                      
+                        <AntDesign name="camerao" size={24} color="#023a55" marginRight={10} />
+                        <Text>Add Photos</Text>
+                    </TouchableOpacity>    
                 </View>
-            ))}
+                
+    
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {images && images.map((image, index) => (
+                    <View key={index} style={{ position: 'relative' }}>
+                         {image.includes('.mp4') ? <Video
+                        source={{ uri: image }}
+                        rate={1.0}
+                        volume={1.0}
+                        isMuted={true}
+                        shouldPlay
+                        isLooping
+                        style={styles.image}
+                    />
+                    : <Image source={{ uri: image }} style={styles.image} />}
+                        <TouchableOpacity style={styles.closeIcon} onPress={() => removeImage(index)}>
+                            <AntDesign name="closecircle" size={12} color="red" />
+                        </TouchableOpacity>
+                    </View>
+                ))}
+            </View>
+                <Button
+                    title="Post"
+                    onPress={handleSubmitPost}
+                    filled
+                    Color={Color.colorWhite}
+                    
+                    style={styles.submitButton}
+                    disabled={reviewText === ''}
+                />
+            </ScrollView>
+            </View>
         </View>
-            <Button
-                title="Submit"
-                onPress={handleSubmitPost}
-                filled
-                Color={Color.colorWhite}
-                style={styles.submitButton}
-                disabled={reviewText === ''}
-            />
+    </Modal>
+    <Modal animationType="slide" transparent={true} visible={modalOptionsVisible}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "rgba(0,0,0,0.5)",
+              }}
+            >
+              <Pressable style={styles.closeButtons} onPress={() => setModalOptionsVisible(false)}>
+                <Ionicons name="close-circle" size={36} color="white" />
+              </Pressable>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  width: "80%",
+                  padding: 16,
+                  borderRadius: 16,
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    padding: 16,
+                  }}
+                  onPress={handleCamera}
+                >
+                  <Text>Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    padding: 16,
+                  }}
+                  onPress={handleImageSelection}
+                >
+                  <Text>Photo Library</Text>
+                </TouchableOpacity>
+                
+              </View>
+            </View>
+          </Modal>
+          <Modal animationType="slide" transparent={true} visible={modalOptionssVisible}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "rgba(0,0,0,0.5)",
+              }}
+            >
+              <Pressable style={styles.closeButtons} onPress={() => setModalOptionssVisible(false)}>
+                <Ionicons name="close-circle" size={36} color="white" />
+              </Pressable>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  width: "80%",
+                  padding: 16,
+                  borderRadius: 16,
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    padding: 16,
+                  }}
+                  onPress={handleCameraPicker}
+                >
+                  <Text>Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    padding: 16,
+                  }}
+                  onPress={handleImagePicker}
+                >
+                  <Text>Photo Library</Text>
+                </TouchableOpacity>
+                
+              </View>
+            </View>
+          </Modal>
+        </SafeAreaView>
         </ScrollView>
-        </View>
-    </View>
-</Modal>
-<Modal animationType="slide" transparent={true} visible={modalOptionsVisible}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.5)",
-          }}
-        >
-          <Pressable style={styles.closeButtons} onPress={() => setModalOptionsVisible(false)}>
-            <Ionicons name="close-circle" size={36} color="white" />
-          </Pressable>
-          <View
-            style={{
-              backgroundColor: "white",
-              width: "80%",
-              padding: 16,
-              borderRadius: 16,
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                padding: 16,
-              }}
-              onPress={handleCamera}
-            >
-              <Text>Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                padding: 16,
-              }}
-              onPress={handleImageSelection}
-            >
-              <Text>Photo Library</Text>
-            </TouchableOpacity>
-            
-          </View>
-        </View>
-      </Modal>
-      <Modal animationType="slide" transparent={true} visible={modalOptionssVisible}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.5)",
-          }}
-        >
-          <Pressable style={styles.closeButtons} onPress={() => setModalOptionssVisible(false)}>
-            <Ionicons name="close-circle" size={36} color="white" />
-          </Pressable>
-          <View
-            style={{
-              backgroundColor: "white",
-              width: "80%",
-              padding: 16,
-              borderRadius: 16,
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                padding: 16,
-              }}
-              onPress={handleCameraPicker}
-            >
-              <Text>Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                padding: 16,
-              }}
-              onPress={handleImagePicker}
-            >
-              <Text>Photo Library</Text>
-            </TouchableOpacity>
-            
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
-    </ScrollView>
-  );
-};
-
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#ffffff", // Change this to your desired background color
-    shadowColor: "#000",
-    paddingBottom: 20,
-    shadowOffset: {
-      width: 0,
-      height: 2,
+      );
+    };
+    
+    
+    const styles = StyleSheet.create({
+      container: {
+        backgroundColor: "#ffffff", // Change this to your desired background color
+        shadowColor: "#000",
+        paddingBottom: 20,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 4,
+        shadowRadius: 3.84,
+        elevation: 5,
+      },
+    
+      container1: {
+        width: 160, 
+        height: 40, 
+        borderWidth: 2, 
+        borderRadius: 100,
+        alignItems: "center",
+        textAlignVertical: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        marginRight: 20
+      },
+      button: {
+        alignSelf: 'center',
+        marginVertical: windowHeight * 0.02,
+        width: windowWidth * 0.06,
+        height: windowHeight * 0.07,
     },
-    shadowOpacity: 4,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-
-  container1: {
-    width: 136, 
-    height: 40, 
-    borderWidth: 2, 
-    borderColor: COLORS.primary,
-    alignItems:"center",
-    textAlignVertical:"center",
-    justifyContent:"center",
-    textAlign:"center"
-  },
-  button: {
-    alignSelf: 'center',
-    marginVertical: windowHeight * 0.02,
-    width: windowWidth * 0.8,
-    height: windowHeight * 0.07,
-},
-input: {
-  borderWidth: 1,
-  borderColor: 'gray',
-  borderRadius: 5,
-  padding: 10,
-  height:200,
-  maxHeight: 200,
-  width: windowWidth * 0.8,
-  alignSelf: 'center',
-  // minHeight: 200,
-},
-cameraIconContainer: {
-  position: 'absolute',
-},
-image: {
-  width: 97,
-  height: 97,
-  resizeMode: 'cover',
-  margin: 10,
-  borderRadius: 10, // Add border radius for rounded corners
-  borderWidth: 1, // Add border width for a border around the image
-  borderColor: '#ddd', // Set border color
-},
-submitButton: {
-  margin: 10,
-},
-closeIcon: {
-  position: 'absolute',
-  top: 5,
-  right: 5,
-},cameraIconContainer: {
-  position: 'absolute',
-  bottom: 30,
-  right: 15,
-},
-closeButtons: {
-  position: 'absolute',
-  top: windowHeight * 0.02,
-  right: 20,
-},
-});
+    input: {
+      // borderWidth: 1,
+      // borderColor: 'gray',
+      borderRadius: 5,
+      padding: 10,
+      height:300,
+      maxHeight: 300,
+      width: windowWidth * 0.8,
+      alignSelf: 'center',
+      // minHeight: 200,
+    },
+    cameraIconContainer: {
+      position: 'absolute',
+    },
+    image: {
+      width: windowWidth * 0.244,
+      height: windowWidth * 0.244,
+      resizeMode: 'cover',
+      margin: 10,
+      borderRadius: 10, // Add border radius for rounded corners
+      borderWidth: 1, // Add border width for a border around the image
+      borderColor: '#ddd', // Set border color
+    },
+    submitButton: {
+      margin: 20,
+      width: 200,
+      height: 50,
+      justifyContent: 'center',
+      alignSelf: 'center'
+    },
+    closeIcon: {
+      position: 'absolute',
+      top: 5,
+      right: 5,
+    },cameraIconContainer: {
+      position: 'absolute',
+      bottom: 30,
+      right: 15,
+    },
+    closeButtons: {
+      position: 'absolute',
+      top: windowHeight * 0.02,
+      right: 20,
+    },
+    });

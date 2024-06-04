@@ -113,10 +113,11 @@ const AppNavigator = () => {
     }
 
     useEffect(() => {
-      if (navigation) {
+      const timeout = setTimeout(() => {
         getUserData();
-      }
+    }, 2000); // Adjust the timeout value as needed
 
+    return () => clearTimeout(timeout);
   }, [userDataFetched, navigation]);
 
   const getUserData = async () => {
@@ -140,6 +141,7 @@ const AppNavigator = () => {
           await AsyncStorage.removeItem('userId');
           setUserRole('');
           setUserEmail('');
+          setNavigationFetched(false);
       } finally {
           setUserDataFetched(true);
       }

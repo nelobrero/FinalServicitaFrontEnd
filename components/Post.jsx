@@ -9,7 +9,7 @@ import { COLORS, FONTS } from "./../constants/theme";
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const PostItem = ({ item }) => {
+export const PostItem = ({ item }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const videoRef = React.useRef(null);
@@ -26,6 +26,7 @@ const PostItem = ({ item }) => {
   
     return (
       <View style={styles.postItemContainer}>
+        
         <Image source={{ uri: item.userImage }} style={styles.userImage} />
         <View style={styles.postContent}>
           <Text style={styles.userName}>{item.userName}</Text>

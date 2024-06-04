@@ -2,8 +2,7 @@ import { View, Text, Dimensions, StyleSheet, TextInput, TouchableOpacity, Scroll
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useState, useEffect } from 'react'
 import { Color, errorText, FontFamily, FontSize } from '../../GlobalStyles'
-import { Feather, FontAwesome, FontAwesome5, Entypo, AntDesign } from '@expo/vector-icons'
-import Error from '@expo/vector-icons/MaterialIcons';
+import { Feather, FontAwesome, Entypo, AntDesign, MaterialIcons, Ionicons } from '@expo/vector-icons'
 import { useFocusEffect } from '@react-navigation/native'
 import axios from 'axios'
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
@@ -324,594 +323,595 @@ const handleValuesChange = (values) => {
           );
     }
 
-  return (
-    <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
-
-
-
-       <View style={{ flexDirection: 'column', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.02 }}>
-                            <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
-                                            <Image
-                                            style={styles.userroleChild}
-                                            contentFit="cover"
-                                            source={require("./../../assets/arrow-1.png")}
-                                            />
-                            </Pressable>
-                            <View style={{ marginVertical: windowHeight * 0.02 }}>
-                    <Text style={{
-                        fontSize: windowWidth * 0.12,
-                        fontWeight: 'bold',
-                        color: Color.colorBlue,
-                    }}>
-                        Create A New Service
-                    </Text>
-                </View>
+    return (
+        <SafeAreaView style={{flex: 1, backgroundColor: Color.colorWhite}}>
+    
+    
+    
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.002 }}>
+       
+        <View style={{ flex: 1, alignItems: 'flex-end', marginVertical: windowHeight * 0.03 }}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.arrowContainer}>
+            <Entypo name="chevron-thin-left" size={24} color="black" marginTop={30}/>
+        </Pressable>
+            <Text style={{
+                fontSize: windowWidth * 0.12,
+                fontWeight: 'bold',
+                color: Color.colorPrimary,
+                textAlign: 'right'
+            }}>
+                Create New Service
+            </Text>
         </View>
-
-    <View style={{ flexDirection: 'column', marginTop: windowHeight * 0.03 }}>
-
-    <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
-                    
+    </View>
+    
+    
+    
+    
+        <View style={{ flexDirection: 'column', marginTop: windowHeight * 0.003 }}>
+    
+        <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
                         
-                            <TouchableOpacity onPress={() => setShowSelectList(true)}>
-
-                                
-                        <View style={{
-                            height: windowHeight * 0.06,
-                            borderColor: !selectedValue ? Color.colorBlue1 : Color.colorGreen,
-                            borderWidth: 1,
-                            borderRadius: windowHeight * 0.015,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            paddingLeft: windowWidth * 0.025,
-                            paddingHorizontal: windowWidth * 0.14,
-                            flexDirection: 'row',
-                            marginTop: windowHeight * 0.01,
-        
-                        }}>
-                            <FontAwesome name="bell" color = {selectedValue === null || selectedValue === '' ? Color.colorBlue1 : Color.colorGreen} style={{marginRight: 5, fontSize: 24}}/>
-                            <TextInput
-                                placeholder='Select service type...'
-                                placeholderTextColor={Color.colorBlue}
-                                value={selectedValue ? selectedValue.name : ''}
-                                editable={false}
-                                style={{ flex: 1 }}
-                                color={!selectedValue ? Color.colorBlue: Color.colorBlack}  
-                            />
-                            {selectedValue ? (
-                                <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                            ) : null}
-                        </View>
+                            
+                                <TouchableOpacity onPress={() => setShowSelectList(true)}>
+    
                                     
-                    </TouchableOpacity>
-                    </View>
-
-      <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
-                                
-                        <View style={{
-                            height: windowHeight * 0.06,
-                            borderColor: serviceName === null || serviceName === '' ? Color.colorBlue1 : serviceNameVerify ? Color.colorGreen : Color.colorRed,
-                            borderWidth: 1,
-                            borderRadius: windowHeight * 0.015,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            paddingLeft: windowWidth * 0.025,
-                            paddingHorizontal: windowWidth * 0.17,
-                            flexDirection: 'row',
-                            marginTop: windowHeight * 0.01
-                        }}>
-                            <FontAwesome name="bell-o" color = {serviceName === null || serviceName === '' ? Color.colorBlue1 : serviceNameVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
-                            <TextInput
-                                placeholder='Service Name'
-                                placeholderTextColor={Color.colorBlue}
-                                style={{
-                                    width: '100%',
-                                    marginLeft: windowWidth * 0.01,
-                                }}
-                                value={serviceName}
-                                onChangeText={(text) => validateName(text, setServiceName, setServiceNameVerify, 25)}
-                            />
-                            {serviceName.length < 1 ? null : serviceNameVerify ? (
-                            <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : (
-                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
-                        )}
-                        </View>
-                        {serviceName.length < 1 ? null : serviceNameVerify? null : (
-                        <Text style={errorText}>Service name must not exceed more than 25 characters</Text>
-                        )}
-
-          
-
-                        
-                    </View>
-                    <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
-                                
-                                <View style={{
-                                   
-                                    height: inputHeight,
-                                    borderColor: serviceDescription === null || serviceDescription === '' ? Color.colorBlue1 : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed,
-                                    borderWidth: 1,
-                                    borderRadius: windowHeight * 0.015,
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    paddingLeft: windowWidth * 0.025,
-                                    paddingHorizontal: windowWidth * 0.17,
-                                    flexDirection: 'row',
-                                    marginTop: windowHeight * 0.01
-                                }}>
-                                    <Entypo name="text" color = {serviceDescription === null || serviceDescription === '' ? Color.colorBlue1 : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
-                                    <TextInput
-                                        ref={input => { this.textInput = input }}
-                                        multiline={true}
-                                        placeholder='Description'
-                                        placeholderTextColor={Color.colorBlue}
-                                        style={{
-                                            width: '100%',
-                                            height: inputHeight,
-                                            marginLeft: windowWidth * 0.01,
-                                        }}
-                                        value={serviceDescription}
-                                        onChange={(e) => validateName(e.nativeEvent.text, setServiceDescription, setServiceDescriptionVerify, 100)}
-                                        onContentSizeChange={(e) => {
-                                            setInputHeight(Math.max(windowHeight * 0.06, e.nativeEvent.contentSize.height));
-                                        }}
-                                    />
-                                    {serviceDescription.length < 1 ? null : serviceDescriptionVerify ? (
-                                    <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                                ) : (
-                                    <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
-                                )}
-                                </View>
-                                {serviceDescription.length < 1 ? null : serviceDescriptionVerify? null : (
-                                <Text style={errorText}>Description must not exceed more than 100 characters.</Text>
-                                )}
-        
-                            </View>
-
-                            <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
                             <View style={{
-                            height: windowHeight * 0.06,
-                            borderColor: minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed,
-                            borderWidth: 1,
-                            borderRadius: windowHeight * 0.015,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            paddingLeft: windowWidth * 0.025,
-                            paddingHorizontal: windowWidth * 0.14,
-                            flexDirection: 'row',
-                            marginTop: windowHeight * 0.01
-                        }}>
-                            <FontAwesome name="money" color = {minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}}/>
-                            <TextInput
-                                placeholder='Price range...'
-                                placeholderTextColor={Color.colorBlue}
-                                value={minPrice > 0 ? `₱ ${minPrice.toString()} - ₱ ${maxPrice.toString()}` : ''}
-                                editable={false}
-                                style={{ flex: 1 }}
-                                color={minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorBlack : Color.colorRed}
-                            />
-                            {minPrice === 0 ? null : priceVerify ? (
-                            <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : (                                                                     
-                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
-                        )}
-                        </View>
-                        {minPrice === 0 ? null : priceVerify ? null : (
-                                <Text style={errorText}>Price range must be at least ₱300</Text>
-                            )}
-                                    
-                                    
-                    </View>
-                    <View style={{ marginHorizontal: windowWidth * 0.05 }}>
-            
-                        <View style={{
-                                height: windowHeight * 0.06,    
+                                height: windowHeight * 0.06,
+                                borderColor: !selectedValue ? Color.colorPrimary : Color.colorGreen,
+                                borderWidth: 1,
+                                borderRadius: windowHeight * 0.015,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingLeft: windowWidth * 0.025,
+                                paddingHorizontal: windowWidth * 0.14,
                                 flexDirection: 'row',
-                                marginTop: windowHeight * 0.01,
-                                alignItems: 'center', 
-                                justifyContent: 'space-between', 
-                                width: '100%', 
+                                marginTop: windowHeight * 0.04,
+            
                             }}>
-                                
-                            <Text style = {{ fontSize: 13, color: Color.colorBlue }}>Min:</Text>    
-                            <TextInput
-
-                                        style={{
-                                            width: '30%',
-                                            height: windowHeight * 0.06,
-                                            borderWidth: 1,
-                                            borderRadius: windowHeight * 0.015,
-                                            paddingHorizontal: 10,
-                                            borderColor: minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed,
-                                        }}
-                                        keyboardType='numeric'
-                                        value={`₱ ${minPrice.toString()}`}
-                                        color={minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed}
-                                        onChangeText={(text) => {
-                                            if (text === '₱ ' || text === '₱') {
-                                                setMinPrice(0);
-                                            } else if (text.length >= 3) { 
-                                                setMinPrice(parseInt(text.replace('₱ ', '')));
-                                                const numericPart = parseInt(text.replace('₱ ', ''));
-                                                if (!isNaN(numericPart)) {
-                                                    if (numericPart > 1000) {
-                                                        setMinPrice(0);
-                                                    } else {
-                                                        setMinPrice(numericPart);
-                                                    }
-                                            } 
-                                            }
-                                        }}
-                                    />
-                                    <Text style={{ fontSize: 20, color: Color.colorBlue }}>-</Text>
-                                    <Text style = {{ fontSize: 13, color: Color.colorBlue }}>Max:</Text>    
-                                    <TextInput
-                                        style={{
-                                            width: '30%',
-                                            height: windowHeight * 0.06,
-                                            borderWidth: 1,
-                                            borderRadius: windowHeight * 0.015,
-                                            paddingHorizontal: 10,
-                                            borderColor: minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed,
-                                        }}
-                                        keyboardType='numeric'
-                                        value={`₱ ${maxPrice.toString()}`}
-                                        color={minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed}
-                                        onChangeText={(text) => {
-                                            if (text === '₱ ' || text === '₱') {
-                                                setMaxPrice(0);
-                                            } else if (text.length >= 3) {
-                                                setMaxPrice(parseInt(text.replace('₱ ', '')));
-                                                const numericPart = parseInt(text.replace('₱ ', ''));
-                                                if (!isNaN(numericPart)) {
-                                                    if (numericPart > 1000) {
-                                                        setMaxPrice(1000);
-                                                    } else {
-                                                        setMaxPrice(numericPart);
-                                                    }
-                                            } 
-                                            }
-                                        }}
-                                    />
+                                <MaterialIcons name="cleaning-services" color = {selectedValue === null || selectedValue === '' ? Color.colorPrimary : Color.colorGreen} style={{marginRight: 5, fontSize: 24}}/>
+                                <TextInput
+                                    placeholder='Select service type...'
+                                    placeholderTextColor={Color.colorBlue}
+                                    value={selectedValue ? selectedValue.name : ''}
+                                    editable={false}
+                                    style={{ flex: 1 }}
+                                    color={!selectedValue ? Color.colorBlue: Color.colorBlack}  
+                                />
+                                {selectedValue ? (
+                                    <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                                ) : null}
+                            </View>
+                                        
+                        </TouchableOpacity>
+                        </View>
+    
+          <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
                                     
+                            <View style={{
+                                height: windowHeight * 0.06,
+                                borderColor: serviceName === null || serviceName === '' ? Color.colorPrimary : serviceNameVerify ? Color.colorGreen : Color.colorRed,
+                                borderWidth: 1,
+                                borderRadius: windowHeight * 0.015,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingLeft: windowWidth * 0.025,
+                                paddingHorizontal: windowWidth * 0.17,
+                                flexDirection: 'row',
+                                marginTop: windowHeight * 0.01
+                            }}>
+                                <MaterialIcons name="drive-file-rename-outline" color = {serviceName === null || serviceName === '' ? Color.colorPrimary : serviceNameVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
+                                <TextInput
+                                    placeholder='Service Name'
+                                    placeholderTextColor={Color.colorBlue}
+                                    style={{
+                                        width: '100%',
+                                        marginLeft: windowWidth * 0.01,
+                                    }}
+                                    value={serviceName}
+                                    onChangeText={(text) => validateName(text, setServiceName, setServiceNameVerify, 25)}
+                                />
+                                {serviceName.length < 1 ? null : serviceNameVerify ? (
+                                <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                            ) : (
+                                <MaterialIcons name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
+                            )}
                             </View>
-                            <View style={{ marginHorizontal: windowWidth * 0.05  }}>
-                            <MultiSlider
-      
-                            values={[minPrice, maxPrice]}
-                            min={0}
-                            max={1000}
-                            step={1}
-                            sliderLength={windowWidth * 0.8}
-                            onValuesChange={handleValuesChange}
-                            allowOverlap={false}
-                            minMarkerOverlapDistance={dynamicMinMarkerOverlapDistance}
-                            selectedStyle={{ backgroundColor: Color.colorBlue }}
-                            />
-                            </View>
-
-                           
+                            {serviceName.length < 1 ? null : serviceNameVerify? null : (
+                            <Text style={errorText}>Service name must not exceed more than 25 characters</Text>
+                            )}
+    
+              
+    
+                            
                         </View>
                         <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
-                          <TouchableOpacity onPress={() => setShowAvailabilityModal(true)}>
-                        <View style={{
-                            height: windowHeight * 0.06,
+                                    
+                                    <View style={{
+                                       
+                                        height: inputHeight,
+                                        borderColor: serviceDescription === null || serviceDescription === '' ? Color.colorPrimary : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed,
+                                        borderWidth: 1,
+                                        borderRadius: windowHeight * 0.015,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        paddingLeft: windowWidth * 0.025,
+                                        paddingHorizontal: windowWidth * 0.17,
+                                        flexDirection: 'row',
+                                        marginTop: windowHeight * 0.01
+                                    }}>
+                                        <Entypo name="text" color = {serviceDescription === null || serviceDescription === '' ? Color.colorPrimary : serviceDescriptionVerify ? Color.colorGreen : Color.colorRed} style={{ marginLeft: windowWidth * 0.07,fontSize: 24}}/>
+                                        <TextInput
+                                            ref={input => { this.textInput = input }}
+                                            multiline={true}
+                                            placeholder='Description'
+                                            placeholderTextColor={Color.colorBlue}
+                                            style={{
+                                                width: '100%',
+                                                height: inputHeight,
+                                                marginLeft: windowWidth * 0.01,
+                                            }}
+                                            value={serviceDescription}
+                                            onChange={(e) => validateName(e.nativeEvent.text, setServiceDescription, setServiceDescriptionVerify, 100)}
+                                            onContentSizeChange={(e) => {
+                                                setInputHeight(Math.max(windowHeight * 0.06, e.nativeEvent.contentSize.height));
+                                            }}
+                                        />
+                                        {serviceDescription.length < 1 ? null : serviceDescriptionVerify ? (
+                                        <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                                    ) : (
+                                        <MaterialIcons name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
+                                    )}
+                                    </View>
+                                    {serviceDescription.length < 1 ? null : serviceDescriptionVerify? null : (
+                                    <Text style={errorText}>Description must not exceed more than 100 characters.</Text>
+                                    )}
+            
+                                </View>
+    
+                                <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
+                                <View style={{
+                                height: windowHeight * 0.06,
+                                borderColor: minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorGreen : Color.colorRed,
+                                // borderWidth: 1,
+                                borderRadius: windowHeight * 0.015,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingLeft: windowWidth * 0.025,
+                                paddingHorizontal: windowWidth * 0.14,
+                                flexDirection: 'row',
+                                marginTop: windowHeight * 0.01
+                            }}>
+                                <Ionicons name="pricetag" color = {minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}}/>
+                                <TextInput
+                                    placeholder='Price range...'
+                                    placeholderTextColor={Color.colorBlue}
+                                    value={minPrice > 0 ? `₱ ${minPrice.toString()} - ₱ ${maxPrice.toString()}` : ''}
+                                    editable={false}
+                                    style={{ flex: 1 }}
+                                    color={minPrice === 0 ? Color.colorBlue1 : priceVerify ? Color.colorBlack : Color.colorRed}
+                                />
+                                {minPrice === 0 ? null : priceVerify ? (
+                                <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                            ) : (                                                                     
+                                <MaterialIcons name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
+                            )}
+                            </View>
+                            {minPrice === 0 ? null : priceVerify ? null : (
+                                    <Text style={errorText}>Price range must be at least ₱300</Text>
+                                )}
+                                        
+                                        
+                        </View>
+                        <View style={{ marginHorizontal: windowWidth * 0.05 }}>
+                
+                            <View style={{
+                                    height: windowHeight * 0.06,    
+                                    flexDirection: 'row',
+                                    marginTop: windowHeight * 0.01,
+                                    alignItems: 'center', 
+                                    justifyContent: 'space-between', 
+                                    width: '100%', 
+                                }}>
+                                    
+                                <Text style = {{ fontSize: 13, color: Color.colorPrimary }}>Min:</Text>    
+                                <TextInput
+    
+                                            style={{
+                                                width: '30%',
+                                                height: windowHeight * 0.06,
+                                                borderWidth: 1,
+                                                borderRadius: windowHeight * 0.015,
+                                                paddingHorizontal: 10,
+                                                borderColor: minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed,
+                                            }}
+                                            keyboardType='numeric'
+                                            value={`₱ ${minPrice.toString()}`}
+                                            color={minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed}
+                                            onChangeText={(text) => {
+                                                if (text === '₱ ' || text === '₱') {
+                                                    setMinPrice(0);
+                                                } else if (text.length >= 3) { 
+                                                    setMinPrice(parseInt(text.replace('₱ ', '')));
+                                                    const numericPart = parseInt(text.replace('₱ ', ''));
+                                                    if (!isNaN(numericPart)) {
+                                                        if (numericPart > 1000) {
+                                                            setMinPrice(0);
+                                                        } else {
+                                                            setMinPrice(numericPart);
+                                                        }
+                                                } 
+                                                }
+                                            }}
+                                        />
+                                        <Text style={{ fontSize: 20, color: Color.colorPrimary }}>-</Text>
+                                        <Text style = {{ fontSize: 13, color: Color.colorPrimary }}>Max:</Text>    
+                                        <TextInput
+                                            style={{
+                                                width: '30%',
+                                                height: windowHeight * 0.06,
+                                                borderWidth: 1,
+                                                borderRadius: windowHeight * 0.015,
+                                                paddingHorizontal: 10,
+                                                borderColor: minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed,
+                                            }}
+                                            keyboardType='numeric'
+                                            value={`₱ ${maxPrice.toString()}`}
+                                            color={minPrice === 0 ? Color.colorPrimary : priceVerify ? Color.colorGreen : Color.colorRed}
+                                            onChangeText={(text) => {
+                                                if (text === '₱ ' || text === '₱') {
+                                                    setMaxPrice(0);
+                                                } else if (text.length >= 3) {
+                                                    setMaxPrice(parseInt(text.replace('₱ ', '')));
+                                                    const numericPart = parseInt(text.replace('₱ ', ''));
+                                                    if (!isNaN(numericPart)) {
+                                                        if (numericPart > 1000) {
+                                                            setMaxPrice(1000);
+                                                        } else {
+                                                            setMaxPrice(numericPart);
+                                                        }
+                                                } 
+                                                }
+                                            }}
+                                        />
+                                        
+                                </View>
+                                <View style={{ marginHorizontal: windowWidth * 0.05  }}>
+                                <MultiSlider
+          
+                                values={[minPrice, maxPrice]}
+                                min={0}
+                                max={1000}
+                                step={1}
+                                sliderLength={windowWidth * 0.8}
+                                onValuesChange={handleValuesChange}
+                                allowOverlap={false}
+                                minMarkerOverlapDistance={dynamicMinMarkerOverlapDistance}
+                                selectedStyle={{ backgroundColor: Color.colorBlue }}
+                                />
+                                </View>
+    
+                               
+                            </View>
+                            <View style={{ marginHorizontal: windowWidth * 0.05, marginBottom: windowHeight * 0.01 }}>
+                              <TouchableOpacity onPress={() => setShowAvailabilityModal(true)}>
+                            <View style={{
+                                height: windowHeight * 0.06,
+                                
+                                borderColor: areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorPrimary : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed,
+                                borderWidth: 1,
+                                borderRadius: windowHeight * 0.015,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingLeft: windowWidth * 0.025,
+                                paddingHorizontal: windowWidth * 0.14,
+                                flexDirection: 'row',
+                                marginTop: windowHeight * 0.01
+                            }}>
+                                <Feather name="clock" color = {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorPrimary : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}}/>
+                                <TextInput
+                                    placeholder='Set service availability...'
+                                    placeholderTextColor={Color.colorBlue}
+                                    value={areArraysEqual(serviceAvailability, defaultServiceAvailability) ? '' : 'Configure availability...'}
+                                    editable={false}
+                                    style={{ flex: 1 }}
+                                    color={Color.colorBlack}
+                                />
+                                {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? null : validateAvailabilityValues() ? (
+                                <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
+                            ) : (
+                                <MaterialIcons name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
+                            )}
+                            </View>
+                            {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? null : validateAvailabilityValues() ? null : (
+                                <Text style={errorText}>You have missing/incorrect details in your schedule</Text>
+                            )}
+                  
+                  </TouchableOpacity>
+                            </View>
                             
-                            borderColor: areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorBlue1 : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed,
+                        </View>
+                
+                        <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={showSelectList}
+                        onRequestClose={() => setShowSelectList(false)}
+                    >
+    
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                                <View style={{ backgroundColor: 'white', width: '80%', maxHeight: '80%', borderRadius: 10 }}>
+                                <View flexDirection='row' style={{ borderBottomColor: Color.colorPrimary, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>
+                                <Text style={{
+                                        fontSize: windowWidth * 0.06,
+                                        fontWeight: '400',
+                                        marginVertical: windowHeight * 0.01,
+                                        color: Color.colorPrimary,
+                                        marginLeft: windowWidth * 0.05 
+                                    }}>Service Type</Text>
+                                <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowSelectList(false)} />
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center'  }}>
+                                    
+                                    <FontAwesome name="search" color={Color.colorBlue} style={{ marginLeft: 10, fontSize: 20, marginBottom: windowWidth * 0.02 }} />
+                                    <TextInput
+                                        placeholder='Search...'
+                                        onChangeText={text => setSearchQuery(text)}
+                                        style={{ paddingHorizontal: 10, marginBottom: windowWidth * 0.01 }}
+    
+                                    />
+                                    </View>
+                                    <ScrollView style={{ maxHeight: windowHeight * 0.5 }}>
+                                    {filteredData.map((item, index) => (
+                                        <TouchableOpacity key={item.key} onPress={() => handleSelect(item)} >
+                                            <Text style={{ paddingVertical: 10, paddingHorizontal: 20, fontSize: 15 }}>{item.name}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                    </ScrollView>
+                                </View>
+                            </View>
+                    </Modal>
+                    <Modal animationType="slide" transparent={true} visible={showAvailabilityModal} onRequestClose={() => setShowAvailabilityModal(false)}>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                                <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
+                                <View flexDirection='row' style={{ borderBottomColor: Color.colorPrimary, borderBottomWidth: 1,  alignItems: 'center', justifyContent: 'space-between', marginTop: windowHeight * 0.01 }}>
+                                <Text style={{
+                                        fontSize: windowWidth * 0.06,
+                                        fontWeight: '400',
+                                        marginVertical: windowHeight * 0.01,
+                                        color: Color.colorPrimary,
+                                        marginLeft: windowWidth * 0.05 
+                                    }}>Service Availability</Text>
+                                <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorPrimary} onPress={() => setShowAvailabilityModal(false)} />
+                                </View>
+                                <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
+                               
+                                <View style={{ marginBottom: windowHeight * 0.01 }}>
+                                    
+                                
+                                {serviceAvailability.map((day, index) => (
+                                    <View key={index} style={{flexDirection: 'row', padding: 20, alignItems: 'center'}}>
+                                        
+                                        <Text style={{fontSize: windowWidth * 0.035, marginLeft: windowWidth * 0.002, color: day.flagAvailable ? Color.colorPrimary : Color.colorGray}}>{day.day}</Text>
+                                            
+                                        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}> 
+                                        
+                                        
+                                        
+                                        {day.flagAvailable && (
+                                            
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}>
+                    
+                    
+                    <TouchableOpacity onPress={() => {
+                                                setSelectedDayIndex(index);
+                                                setShowPickerStart(!showPickerStart);
+                                            }}>
+                                                <TextInput
+                                                    placeholder='Start Time'
+                                                    value={day.startTime}
+                                                    style={{
+                                                        width: windowWidth * 0.22,
+                                                        height: windowHeight * 0.055,
+                                                        borderWidth: 1,
+                                                        borderRadius: windowHeight * 0.015,
+                                                        paddingHorizontal: windowWidth * 0.02,
+                                                        borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen,
+                                                    }}
+                                                    editable={false}
+                                                    color={Color.colorBlue}
+                                                />
+                                            </TouchableOpacity>
+                                            {showPickerStart && (
+                                                <Modal animationType="slide" transparent={true} visible={showPickerStart} onRequestClose={() => setShowPickerStart(false)}>
+                                                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                                                        <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
+                                                            <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>
+                                                                <Text style={{
+                                                                        fontSize: windowWidth * 0.06,
+                                                                        fontWeight: '400',
+                                                                        marginVertical: windowHeight * 0.01,
+                                                                        color: Color.colorBlue,
+                                                                        marginLeft: windowWidth * 0.05 
+                                                                    }}>Start Time</Text>
+                                                                <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerStart(false)} />
+                                                            </View>
+    
+                                                            <FlatList
+                                                                data={timeOptions}
+                                                                keyExtractor={(item) => item.value}
+                                                                
+                                                                renderItem={({ item }) => (
+                                                                    <Pressable onPress={() => handleChangeStartTime(item.value, item.numValue)} >
+                                                                        <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
+                                                                        <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
+                                                                        </View>
+                                                                    </Pressable>
+                                                                )}
+                                                            />
+                                                        </View>
+                                                    </View>
+                                                </Modal>
+                                            )}
+    
+                    <Text style={{ fontSize: 20, color: Color.colorBlue }}> - </Text>
+    
+                    <TouchableOpacity onPress={() => {
+                        setSelectedDayIndex(index);
+                        setShowPickerEnd(!showPickerEnd);
+                    }
+                    }>
+                    <TextInput
+                        placeholder='End Time'
+                        value={day.endTime}
+                        style={{
+                            width: windowWidth * 0.22,
+                            height: windowHeight * 0.055,
                             borderWidth: 1,
                             borderRadius: windowHeight * 0.015,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            paddingLeft: windowWidth * 0.025,
-                            paddingHorizontal: windowWidth * 0.14,
-                            flexDirection: 'row',
-                            marginTop: windowHeight * 0.01
-                        }}>
-                            <FontAwesome name="clock-o" color = {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? Color.colorBlue1 : validateAvailabilityValues() ? Color.colorGreen : Color.colorRed} style={{marginRight: 5, fontSize: 24}}/>
-                            <TextInput
-                                placeholder='Set service availability...'
-                                placeholderTextColor={Color.colorBlue}
-                                value={areArraysEqual(serviceAvailability, defaultServiceAvailability) ? '' : 'Configure availability...'}
-                                editable={false}
-                                style={{ flex: 1 }}
-                                color={Color.colorBlack}
-                            />
-                            {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? null : validateAvailabilityValues() ? (
-                            <Feather name="check-circle" color="green" size={24} style={{ position: "absolute", right: 12 }}/>
-                        ) : (
-                            <Error name="error" color="red" size={24} style={{ position: "absolute", right: 12 }}/>
-                        )}
-                        </View>
-                        {areArraysEqual(serviceAvailability, defaultServiceAvailability) ? null : validateAvailabilityValues() ? null : (
-                            <Text style={errorText}>You have missing/incorrect details in your schedule</Text>
-                        )}
-              
-              </TouchableOpacity>
-                        </View>
-                        
-                    </View>
-            
-                    <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={showSelectList}
-                    onRequestClose={() => setShowSelectList(false)}
-                >
-
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                            <View style={{ backgroundColor: 'white', width: '80%', maxHeight: '80%', borderRadius: 10 }}>
-                            <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>
-                            <Text style={{
-                                    fontSize: windowWidth * 0.06,
-                                    fontWeight: '400',
-                                    marginVertical: windowHeight * 0.01,
-                                    color: Color.colorBlue,
-                                    marginLeft: windowWidth * 0.05 
-                                }}>Service Type</Text>
-                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowSelectList(false)} />
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)'  }}>
-                                
-                                <FontAwesome name="search" color={Color.colorBlue} style={{ marginLeft: 10, fontSize: 20, marginBottom: windowWidth * 0.02 }} />
-                                <TextInput
-                                    placeholder='Search...'
-                                    onChangeText={text => setSearchQuery(text)}
-                                    style={{ paddingHorizontal: 10, marginBottom: windowWidth * 0.01 }}
-
-                                />
-                                </View>
-                                <ScrollView style={{ maxHeight: windowHeight * 0.5 }}>
-                                {filteredData.map((item, index) => (
-                                    <TouchableOpacity key={item.key} onPress={() => handleSelect(item)} style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.3)' }}>
-                                        <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.name}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                                </ScrollView>
-                            </View>
-                        </View>
-                </Modal>
-                <Modal animationType="slide" transparent={true} visible={showAvailabilityModal} onRequestClose={() => setShowAvailabilityModal(false)}>
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                            <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-                            <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginTop: windowHeight * 0.01 }}>
-                            <Text style={{
-                                    fontSize: windowWidth * 0.06,
-                                    fontWeight: '400',
-                                    marginVertical: windowHeight * 0.01,
-                                    color: Color.colorBlue,
-                                    marginLeft: windowWidth * 0.05 
-                                }}>Service Availability</Text>
-                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowAvailabilityModal(false)} />
-                            </View>
-                            <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
-                           
-                            <View style={{ marginBottom: windowHeight * 0.01 }}>
-                                
-                            
-                            {serviceAvailability.map((day, index) => (
-                                <View key={index} style={{flexDirection: 'row', padding: 10, alignItems: 'center', borderBottomWidth: index === serviceAvailability.length - 1 ? 0 : 0.5, borderBottomColor: Color.colorBlue, paddingBottom: 30}}>
-                                    
-                                    <Text style={{marginLeft: windowWidth * 0.02, color: day.flagAvailable ? Color.colorBlue : Color.colorGray}}>{day.day}</Text>
-                                        
-                                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}> 
-                                    
-                                    
-                                    
-                                    {day.flagAvailable && (
-                                        
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}>
-                
-                
-                <TouchableOpacity onPress={() => {
-                                            setSelectedDayIndex(index);
-                                            setShowPickerStart(!showPickerStart);
-                                        }}>
-                                            <TextInput
-                                                placeholder='Start Time'
-                                                value={day.startTime}
-                                                style={{
-                                                    width: windowWidth * 0.22,
-                                                    height: windowHeight * 0.055,
-                                                    borderWidth: 1,
-                                                    borderRadius: windowHeight * 0.015,
-                                                    paddingHorizontal: windowWidth * 0.02,
-                                                    borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen,
-                                                }}
-                                                editable={false}
-                                                color={Color.colorBlue}
-                                            />
-                                        </TouchableOpacity>
-                                        {showPickerStart && (
-                                            <Modal animationType="slide" transparent={true} visible={showPickerStart} onRequestClose={() => setShowPickerStart(false)}>
-                                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                                                    <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-                                                        <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.01 }}>
-                                                            <Text style={{
-                                                                    fontSize: windowWidth * 0.06,
-                                                                    fontWeight: '400',
-                                                                    marginVertical: windowHeight * 0.01,
-                                                                    color: Color.colorBlue,
-                                                                    marginLeft: windowWidth * 0.05 
-                                                                }}>Start Time</Text>
-                                                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerStart(false)} />
-                                                        </View>
-
-                                                        <FlatList
-                                                            data={timeOptions}
-                                                            keyExtractor={(item) => item.value}
-                                                            
-                                                            renderItem={({ item }) => (
-                                                                <Pressable onPress={() => handleChangeStartTime(item.value, item.numValue)} >
-                                                                    <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
-                                                                    <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
-                                                                    </View>
-                                                                </Pressable>
-                                                            )}
-                                                        />
-                                                    </View>
-                                                </View>
-                                            </Modal>
-                                        )}
-
-                <Text style={{ fontSize: 20, color: Color.colorBlue }}> - </Text>
-
-                <TouchableOpacity onPress={() => {
-                    setSelectedDayIndex(index);
-                    setShowPickerEnd(!showPickerEnd);
-                }
-                }>
-                <TextInput
-                    placeholder='End Time'
-                    value={day.endTime}
-                    style={{
-                        width: windowWidth * 0.22,
-                        height: windowHeight * 0.055,
-                        borderWidth: 1,
-                        borderRadius: windowHeight * 0.015,
-                        paddingHorizontal: windowWidth * 0.02,
-                        borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen ? Color.colorGreen : Color.colorRed,
-                    }}
-                    editable={false}
-                    color={Color.colorBlue}
-                />
-                </TouchableOpacity>
-                {showPickerEnd && (
-                    <Modal animationType="slide" transparent={true} visible={showPickerEnd} onRequestClose={() => setShowPickerEnd(false)}>
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                            <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-                                <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.02 }}>
-                                    <Text style={{
-                                            fontSize: windowWidth * 0.06,
-                                            fontWeight: '400',
-                                            marginVertical: windowHeight * 0.01,
-                                            color: Color.colorBlue,
-                                            marginLeft: windowWidth * 0.05 
-                                        }}>End Time</Text>
-                                    <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerEnd(false)} />
-                                </View>
-
-                                <FlatList
-                                    data={timeOptions}
-                                    keyExtractor={(item) => item.value}
-                                    
-                                    renderItem={({ item }) => (
-                                        <Pressable onPress={() => handleChangeEndTime(item.value, item.numValue)} >
-                                            <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
-                                            <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
-                                            </View>
-                                        </Pressable>
-                                    )}
-                                />
-                            </View>
-                        </View>
-                    </Modal>
-                )    
-                }
-        
-
-            </View>
-        )}                          
-                                    <Pressable onPress={() => {
-                                        const updatedAvailability = [...serviceAvailability];
-                                        updatedAvailability[index].flagAvailable = !updatedAvailability[index].flagAvailable;
-                                        if (!updatedAvailability[index].flagAvailable) {
-                                            updatedAvailability[index].startTime = '';
-                                            updatedAvailability[index].endTime = '';
-                                        }
-                                        setServiceAvailability(updatedAvailability);
-                                        
-                                    }}>
-                                        <FontAwesome name={day.flagAvailable ? 'check-square' : 'square-o'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.03 }}/>
-                                    </Pressable>
-                                    <View style={{ position:'absolute', top: windowHeight * 0.06, right: windowWidth * 0.145 }}>
-                                        {renderErrorTextPerDay(day)}
+                            paddingHorizontal: windowWidth * 0.02,
+                            borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen ? Color.colorGreen : Color.colorRed,
+                        }}
+                        editable={false}
+                        color={Color.colorBlue}
+                    />
+                    </TouchableOpacity>
+                    {showPickerEnd && (
+                        <Modal animationType="slide" transparent={true} visible={showPickerEnd} onRequestClose={() => setShowPickerEnd(false)}>
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                                <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
+                                    <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: windowHeight * 0.02 }}>
+                                        <Text style={{
+                                                fontSize: windowWidth * 0.06,
+                                                fontWeight: '400',
+                                                marginVertical: windowHeight * 0.01,
+                                                color: Color.colorBlue,
+                                                marginLeft: windowWidth * 0.05 
+                                            }}>End Time</Text>
+                                        <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerEnd(false)} />
                                     </View>
-                                    </View>
-                                    
-                                            
-                                </View>
-                                
-                            ))}
-                             
-                        </View>
-
-                        </ScrollView>
-                        </View>
-                        </View>
-                        </Modal>
-
-                        <Button
-            title="Submit"
-            filled
-            Color={Color.colorWhite}
-            onPress={handleSubmit}
-            style={{ marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.05 }}
-            disabled={serviceName === '' || serviceDescription === '' || !serviceNameVerify || !serviceDescriptionVerify || !priceVerify || !validateAvailabilityValues() || selectedValue === null}
-        />
-
-    </SafeAreaView>
-  )
-}
-
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: Color.colorPrimary,
-    height: windowHeight * 0.1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  title: {
-    fontSize:  23,
-    lineHeight: 50,
-    fontWeight: "700",
-    fontFamily: "Lobster-Regular",
-    color: Color.colorWhite,
-    display: "flex",
-    alignItems: "center",
-    width: 326,
-    textAlign: "left",
-    position: "absolute",
-    marginLeft: 25,
-  },
-  inputLabel: {
-    marginBottom: 0,
-    fontWeight: "bold",
-    textAlign: "left",
-    width: windowWidth * 0.7, 
-    left: 25,
-    color: Color.colorBlack,
-    fontFamily: FontFamily.quicksandSemiBold,
-    fontWeight: "600",
-    fontSize: FontSize.size_mini,
     
-  },
-  locationInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  locationIcon: {
-    marginLeft: 5,
-  },
-  input: {
-    height: windowHeight * 0.045, 
-    width: windowWidth * 0.77,
-    borderColor: Color.colorDarkgray,
-    borderRadius: 5,
-    borderWidth: 1,
-    marginVertical: windowHeight * 0.008, 
-    paddingHorizontal: windowWidth * 0.025, 
-    fontSize: 14,
-    color: 'black',
-    left: windowWidth * 0.070,
-  },
-  arrowContainer: {
-    position: 'absolute',
-    left: -10,
-    top: -20,
-    padding: 10,
+                                    <FlatList
+                                        data={timeOptions}
+                                        keyExtractor={(item) => item.value}
+                                        
+                                        renderItem={({ item }) => (
+                                            <Pressable onPress={() => handleChangeEndTime(item.value, item.numValue)} >
+                                                <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
+                                                <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
+                                                </View>
+                                            </Pressable>
+                                        )}
+                                    />
+                                </View>
+                            </View>
+                        </Modal>
+                    )    
+                    }
+            
+    
+                </View>
+            )}                          
+                                        <Pressable onPress={() => {
+                                            const updatedAvailability = [...serviceAvailability];
+                                            updatedAvailability[index].flagAvailable = !updatedAvailability[index].flagAvailable;
+                                            if (!updatedAvailability[index].flagAvailable) {
+                                                updatedAvailability[index].startTime = '';
+                                                updatedAvailability[index].endTime = '';
+                                            }
+                                            setServiceAvailability(updatedAvailability);
+                                            
+                                        }}>
+                                            <FontAwesome name={day.flagAvailable ? 'check-square' : 'square-o'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.03 }}/>
+                                        </Pressable>
+                                        <View style={{ position:'absolute', top: windowHeight * 0.06, right: windowWidth * 0.145 }}>
+                                            {renderErrorTextPerDay(day)}
+                                        </View>
+                                        </View>
+                                        
+                                                
+                                    </View>
+                                    
+                                ))}
+                                 
+                            </View>
+    
+                            </ScrollView>
+                            </View>
+                            </View>
+                            </Modal>
+    
+                            <Button
+                title="Submit"
+                filled
+                Color={Color.colorWhite}
+                onPress={handleSubmit}
+                style={{ marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.05 }}
+                disabled={serviceName === '' || serviceDescription === '' || !serviceNameVerify || !serviceDescriptionVerify || !priceVerify || !validateAvailabilityValues() || selectedValue === null}
+            />
+    
+        </SafeAreaView>
+      )
+    }
 
-  },
-})
-
-export default Create
+    const styles = StyleSheet.create({
+        header: {
+          backgroundColor: Color.colorPrimary,
+          height: windowHeight * 0.1,
+          justifyContent: 'center',
+          alignItems: 'center'
+        },
+        title: {
+          fontSize:  23,
+          lineHeight: 50,
+          fontWeight: "700",
+          fontFamily: "Lobster-Regular",
+          color: Color.colorWhite,
+          display: "flex",
+          alignItems: "center",
+          width: 326,
+          textAlign: "left",
+          position: "absolute",
+          marginLeft: 25,
+        },
+        inputLabel: {
+          marginBottom: 0,
+          fontWeight: "bold",
+          textAlign: "left",
+          width: windowWidth * 0.7, 
+          left: 25,
+          color: Color.colorBlack,
+          fontFamily: FontFamily.quicksandSemiBold,
+          fontWeight: "600",
+          fontSize: FontSize.size_mini,
+      
+        },
+        locationInput: {
+          flexDirection: 'row',
+          alignItems: 'center',
+        },
+        locationIcon: {
+          marginLeft: 5,
+        },
+        input: {
+          height: windowHeight * 0.045, 
+          width: windowWidth * 0.77,
+          borderColor: Color.colorDarkgray,
+          borderRadius: 5,
+          borderWidth: 1,
+          marginVertical: windowHeight * 0.008, 
+          paddingHorizontal: windowWidth * 0.025, 
+          fontSize: 14,
+          color: 'black',
+          left: windowWidth * 0.070,
+        },
+        arrowContainer: {
+          position: 'absolute',
+          left: -10,
+          top: -20,
+          padding: 10,
+      
+        },
+      })
+      
+      export default Create

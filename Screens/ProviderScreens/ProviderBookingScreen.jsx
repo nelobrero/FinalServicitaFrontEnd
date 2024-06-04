@@ -102,11 +102,11 @@ export default function ProviderBookingScreen({ navigation, route }) {
   
   
   return (
-    <View>
+    <View style={{backgroundColor: 'white', height: '100%'}}>
       <View style={styles.header}>
         <Text style={styles.title}>Bookings ({selectedFilter})</Text>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Ionicons name="filter" size={24} color={Color.colorWhite} style={styles.filterIcon} />
+          <Ionicons name="filter" size={24} color={Color.colorPrimary} style={styles.filterIcon} />
         </TouchableOpacity>
       </View>
       <View>
@@ -148,7 +148,7 @@ export default function ProviderBookingScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#07374d",
+    backgroundColor: "white",
     height: Dimensions.get('window').height * 0.1, // Adjust height according to screen size
     flexDirection: 'row',
     alignItems: 'center',  
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     lineHeight: 50,
     fontWeight: "700",
     fontFamily: "Lobster-Regular",
-    color: Color.colorWhite,
+    color: Color.colorPrimary,
     display: "flex",
     alignItems: "center",
     width: 326,

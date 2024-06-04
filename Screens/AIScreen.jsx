@@ -126,7 +126,7 @@ const AIScreen = ({ route }) => {
 
             <Image
               source={require("../assets/ailogo (5).png")}
-              style={{ width: 200, height: 90, marginTop:10, alignSelf: 'center' }}
+              style={{ width: 200, height: 90, marginTop:25, alignSelf: 'center' }}
             />
 
         <View style={{ flex: 1, flexDirection: "row" }}>
@@ -187,9 +187,9 @@ const styles = StyleSheet.create({
     marginTop: -80,
   },
   inputMessageContainer: {
-    height: 50,
+    height: 40,
     flexDirection: "row",
-    width: 350,
+    width: 320,
     marginBottom: 80,
     borderWidth: 1,
     borderRadius: 50,

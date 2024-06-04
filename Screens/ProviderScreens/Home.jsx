@@ -2,8 +2,6 @@ import { View, Text, Image, StyleSheet, ScrollView, BackHandler, Alert, Dimensio
 import { useFocusEffect } from '@react-navigation/native'
 import React, { useState } from "react";
 import { COLORS, FONTS } from "../../constants/theme";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { MaterialIcons, AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -111,22 +109,23 @@ export default Home = ({ navigation, route }) => {
 
   return (
 
-    <ScrollView>
+    <ScrollView style={{backgroundColor: 'white'}}>
       {/* Notification Button */}
       <View style={styles.notificationButton}>
         <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-        <Ionicons name="notifications" size={24} color={COLORS.primary} />
+        <Ionicons name="notifications" size={24} color={COLORS.white} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.container}>
-        <View style={{ flex: 1, alignItems: "center", marginTop: height * 0.02 }}>
+        <View style={{ flex: 1, alignItems: "center",  backgroundColor: COLORS.primary, height: 155 }}>
           <Image
             source={{ uri: userData.profileImage ? userData.profileImage : DEFAULT_IMAGE_URL_PROVIDER }}
             resizeMode="cover"
             style={{
-              height: 155,
-              width: 155,
+              marginTop: height * 0.12,
+              height: 135,
+              width: 135,
               borderRadius: 999,
               borderColor: COLORS.primary,
               borderWidth: 2,
@@ -134,54 +133,67 @@ export default Home = ({ navigation, route }) => {
             }}
           />
         </View>
-        <View style={{ justifyContent: "center", alignItems: "center" }}>
+        <View style={{ justifyContent: "center", alignItems: "center",  marginTop: height * 0.08,
+ }}>
           <Text
             style={{
               fontSize: 30,
               color: COLORS.primary,
               marginTop: 30,
+              fontWeight: 'bold'
             }}
           > {storeData.name.firstName} {storeData.name.lastName}
           </Text>
         </View>
 
         <View
+  style={{
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingHorizontal:  0.2,
+    marginVertical: height * 0.02,
+    flexWrap: "wrap",
+    marginBottom: 30
+
+  }}
+>
+  {serviceData.map((service, index) => {
+    return (
+      <View
+        key={index}
+        style={{
+          backgroundColor: COLORS.gray,
+          borderRadius: width * 0.1,
+          padding: width * 0.025,
+          margin: width * 0.015,
+          flexBasis: '45%', // Adjusted to fit two items per row
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Text
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            paddingHorizontal: width * 0.1,
-            marginVertical: height * 0.02,
-            flexWrap: "wrap",
+            color: COLORS.primary,
+            fontSize: 12,
+            textAlign: 'center',
           }}
         >
-          {serviceData.map((service, index) => {
-            return (
-              <View
-                key={index}
-                style={{
-                  backgroundColor: COLORS.gray,
-                  borderRadius: width * 0.1,
-                  padding: width * 0.025,
-                  margin: width * 0.02,
-                }}
-              >
-                <Text
-                  style={{
-                    color: COLORS.primary
-                  }}
-                >
-                  {service.data.serviceType}
-                </Text>
-              </View>
-            );
-          }
-          )}
-        </View>
+          {service.data.serviceType}
+        </Text>
+      </View>
+    );
+  })}
+</View>
+
+
+
+
+
         </View>
       <View style={styles.container2}>
         <View
           style={{
-            marginTop: height * 0.005,
+            marginTop: height * 0.02,
             justifyContent: "space-between",
             paddingHorizontal: width * 0.05,
           }}
@@ -202,7 +214,7 @@ export default Home = ({ navigation, route }) => {
 
       <View
         style={{
-          marginTop: 20,  
+          marginTop: -5,  
           flexDirection: "row",
           justifyContent: "space-between",
           paddingHorizontal: 50,
@@ -279,7 +291,7 @@ export default Home = ({ navigation, route }) => {
             style={{
               fontWeight: "bold",
               fontSize: 16,
-              marginTop: height * 0.01,
+              marginTop: height * 0.02,
               color: COLORS.primary,
             }}
           >
@@ -289,48 +301,57 @@ export default Home = ({ navigation, route }) => {
           </View>
           
           </View>
-          <View style={{marginBottom: height * 0.085 }}>
-            {serviceData.map((service, index) => {
-              return (
-                <View
-                  key={index}
-                  style={{
-                    top: height * 0.009,
-                    padding: width * 0.04,
-                    paddingHorizontal: width * 0.07,
-                    borderBottomWidth: 0.2,
-                    borderBottomColor: COLORS.primary,
-                  }}
-                >
-                <Pressable onPress={() => navigation.navigate('ServicePage', {service: service, storeData: storeData, userData: userData})}>
-                <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                 
-                  <Text
-                    style={{
-                      color: COLORS.primary
-                    }}
-                  >
-                    {service.data.name}
-                  </Text>
-                  <AntDesign name="right" size={20} color={COLORS.primary} />
-                  
-                </View>
-                </Pressable>
-                </View>
-              );
-            }
-            
-           
 
-            )}
+          <View style={{ alignItems: 'center', marginBottom: height * 0.085 }}>
+  <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+    {serviceData.map((service, index) => (
+      <Pressable
+        key={index}
+        onPress={() => navigation.navigate('ServicePage', { service: service, storeData: storeData, userData: userData })}
+        style={{
+          margin: 5,
+          width: '35%', // Set width to approximately half the container width (with space between)
+          height: 140, // Set the height for each row
+          borderRadius: 10, // Add border radius for rounded corners
+          justifyContent: 'center', // Vertically center content
+          alignItems: 'center', // Horizontally center content
+          paddingHorizontal: 10, // Add horizontal padding
+          borderColor: COLORS.primary,
+          borderWidth: 1
+        }}
+      >
+        <Image source={service.data.serviceType === 'Home Cleaner Service' ? require('../../assets/CLEN.png') : service.data.serviceType === 'Catering Service' ? require('../../assets/CATE.png') : service.data.serviceType === 'Manicure/Pedicure Service' ? require('../../assets/MANI.png') : service.data.serviceType === 'Septic Tank Service' ? require('../../assets/SEPT.png') : service.data.serviceType === 'Massage Service' ? require('../../assets/MASS.png') : service.data.serviceType === 'Plumbing Service' ? require('../../assets/PLUM.png') : service.data.serviceType === 'Electrical Service' ? require('../../assets/ELEC.png') : service.data.serviceType === 'Hair and Makeup Service' ? require('../../assets/HAIR.png') : require('../../assets/TUTO.png')} style={{ width: width * 0.1, height: width * 0.1 }} />
+        <Text
+          style={{
+            color: '#142d3d',
+            textAlign: 'center' // Ensure text is centered
+          }}
+        >
+          {service.data.name}
+        </Text>
+      </Pressable>
+    ))}
+    <View
+      style={{
+        margin: 5,
+        width: '35%', // Set width to approximately half the container width (with space between)
+        height: 140, // Set the height for each row
+        borderRadius: 10, // Add border radius for rounded corners
+        justifyContent: 'center', // Vertically center content
+        alignItems: 'center', // Horizontally center content
+        paddingHorizontal: 10, // Add horizontal padding
+        borderColor: COLORS.primary,
+        borderWidth: 1
+      }}
+    >
+      <Pressable onPress={() => navigation.navigate('Create', { userEmail })} style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <AntDesign name="plus" size={width * 0.1} color={COLORS.primary} />
+        <Text style={{ color: COLORS.primary, textAlign: 'center' }}>Create a new service</Text>
+      </Pressable>
+    </View>
+  </View>
+</View>
 
-<View style={{flexDirection: "row", justifyContent: "space-between", paddingHorizontal: width * 0.07, padding: width * 0.04, borderBottomWidth: 0.2, borderBottomColor: COLORS.primary, top: height * 0.009,}}>
-              <Pressable onPress={() => navigation.navigate('Create', {userEmail})}>
-                <Text style={{color: COLORS.primary}}>Create a new service</Text>
-              </Pressable>
-              <AntDesign name="plus" size={20} color={COLORS.primary} />
-            </View>
-            </View>
             
         
     
@@ -345,13 +366,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff", // Change this to your desired background color
     shadowColor: "#000",
     paddingBottom: height * 0.001,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 4,
-    shadowRadius: 3.84,
-    elevation: 5,
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 4,
+    // shadowRadius: 3.84,
+    // elevation: 5,
   },
 
   container1: {
@@ -369,13 +390,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff", // Change this to your desired background color
     shadowColor: "#000",
     paddingBottom: 20,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
     borderTopWidth: 1, // Adjust this value to control the "shadow" thickness
     borderTopColor: "rgba(0, 0, 0, 0.1)",
   },

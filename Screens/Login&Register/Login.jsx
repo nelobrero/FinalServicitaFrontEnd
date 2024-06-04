@@ -11,6 +11,7 @@ import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from 're
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import firestore from '@react-native-firebase/firestore';
 import * as Notifications from "expo-notifications";
+import { COLORS } from "./../../constants/theme";
 
 
 export default function LoginPage ({ navigation }) {
@@ -19,6 +20,7 @@ export default function LoginPage ({ navigation }) {
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState(false);
     const [isPasswordShown, setIsPasswordShown] = useState(false);
+    const [loading, setLoading] = useState(false);
     const { width, height } = Dimensions.get('window');
 
 
@@ -331,12 +333,13 @@ export default function LoginPage ({ navigation }) {
     
 
     const handleSubmit = () => {
+      setLoading(true);
         const userData = {
             email: email,
             password: password,
         }
-        console.log(userData);
         axios.post("http://3.26.59.191:5001/user/login", userData).then((res) => {
+      console.log(res.data);
         const storedData = res.data.data;
         const userId = res.data.userId;
         const role = res.data.role;
@@ -381,12 +384,18 @@ export default function LoginPage ({ navigation }) {
                     }
                     ).catch((err) => {
                         console.log(err);
-                        });
+                        }).finally(() => {
+                          setLoading(false);
+                        
+                      });
                     }
                   }
                   ).catch((err) => {
                     console.log(err);
-                  });
+                  }).finally(() => {
+                    setLoading(false);
+                  }
+                  );
                 } else {
                 const formatMessage = remainingTime >= 60 ? `${Math.floor(remainingTime / 60)} hour${Math.floor(remainingTime / 60) > 1 ? 's' : ''} and ${remainingTime % 60} minute${remainingTime % 60 > 1 ? 's' : ''}`: `${remainingTime} minute${remainingTime > 1 ? 's' : ''}`;
                 Alert.alert('Account Suspended', `Your account has been suspended. You will be able to login again in ${formatMessage}.`, [{ text: 'OK' }]);
@@ -426,8 +435,9 @@ export default function LoginPage ({ navigation }) {
           ).catch((err) => {
             console.log(err);
             console.log("Not working");
-          }
-          );
+          }).finally(() => {
+            setLoading(false);
+          });
         }
     }).catch(async (err) => {
         console.log(err);
@@ -440,7 +450,15 @@ export default function LoginPage ({ navigation }) {
         } else {
             Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
         }
-        });
+        })
+    }
+
+    if (loading) {
+      return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
+            <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
+        </View>
+      );
     }
 
     return (

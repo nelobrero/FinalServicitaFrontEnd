@@ -851,15 +851,15 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                         <Modal animationType="slide" transparent={true} visible={showAvailabilityModal} onRequestClose={() => setShowAvailabilityModal(false)}>
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
                             <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-                            <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginTop: windowHeight * 0.01 }}>
+                            <View flexDirection='row' style={{alignItems: 'center', justifyContent: 'space-between', marginTop: windowHeight * 0.01 }}>
                             <Text style={{
                                     fontSize: windowWidth * 0.06,
-                                    fontWeight: '400',
+                                    fontWeight: 'bold',
                                     marginVertical: windowHeight * 0.01,
-                                    color: Color.colorBlue,
+                                    color: Color.colorPrimary,
                                     marginLeft: windowWidth * 0.05 
                                 }}>Service Availability</Text>
-                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowAvailabilityModal(false)} />
+                            <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorPrimary} onPress={() => setShowAvailabilityModal(false)} />
                             </View>
                             <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"}>
                            
@@ -867,9 +867,9 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                                 
                             
                             {serviceAvailability.map((day, index) => (
-                                <View key={index} style={{flexDirection: 'row', padding: 10, alignItems: 'center', borderBottomWidth: index === serviceAvailability.length - 1 ? 0 : 0.5, borderBottomColor: Color.colorBlue, paddingBottom: 30}}>
+                                <View key={index} style={{flexDirection: 'row', padding: 10, alignItems: 'center', paddingBottom: 30}}>
                                     
-                                    <Text style={{marginLeft: windowWidth * 0.02, color: day.flagAvailable ? Color.colorBlue : Color.colorGray}}>{day.day}</Text>
+                                    <Text style={{marginLeft: windowWidth * 0.02, color: day.flagAvailable ? Color.colorPrimary : Color.colorGray}}>{day.day}</Text>
                                         
                                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1}}> 
                                     
@@ -888,12 +888,13 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                                                 placeholder='Start Time'
                                                 value={day.startTime}
                                                 style={{
+                                                  alignItems: 'center',
                                                     width: windowWidth * 0.22,
                                                     height: windowHeight * 0.055,
                                                     borderWidth: 1,
                                                     borderRadius: windowHeight * 0.015,
                                                     paddingHorizontal: windowWidth * 0.02,
-                                                    borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen,
+                                                    borderColor: day.startTime === '' && day.endTime === '' ? Color.colorPrimary : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen,
                                                 }}
                                                 editable={false}
                                                 color={Color.colorBlue}
@@ -908,7 +909,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                                                                     fontSize: windowWidth * 0.06,
                                                                     fontWeight: '400',
                                                                     marginVertical: windowHeight * 0.01,
-                                                                    color: Color.colorBlue,
+                                                                    color: Color.colorPrimary,
                                                                     marginLeft: windowWidth * 0.05 
                                                                 }}>Start Time</Text>
                                                             <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerStart(false)} />
@@ -919,7 +920,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                                                             keyExtractor={(item) => item.value}
                                                             
                                                             renderItem={({ item }) => (
-                                                                <Pressable onPress={() => handleChangeStartTime(item.value, item.numValue)} >
+                                                                <Pressable onPress={() => handleChangeStartTime(item.value)}>
                                                                     <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
                                                                     <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
                                                                     </View>
@@ -947,7 +948,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                         borderWidth: 1,
                         borderRadius: windowHeight * 0.015,
                         paddingHorizontal: windowWidth * 0.02,
-                        borderColor: day.startTime === '' && day.endTime === '' ? Color.colorBlue1 : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen ? Color.colorGreen : Color.colorRed,
+                        borderColor: day.startTime === '' && day.endTime === '' ? Color.colorPrimary : renderErrorPerDay(day) ? Color.colorRed : Color.colorGreen ? Color.colorGreen : Color.colorRed,
                     }}
                     editable={false}
                     color={Color.colorBlue}
@@ -962,7 +963,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                                             fontSize: windowWidth * 0.06,
                                             fontWeight: '400',
                                             marginVertical: windowHeight * 0.01,
-                                            color: Color.colorBlue,
+                                            color: Color.colorPrimary,
                                             marginLeft: windowWidth * 0.05 
                                         }}>End Time</Text>
                                     <AntDesign style = {{ marginRight: windowWidth * 0.05 }} name="close" size= {windowWidth * 0.06} color={Color.colorBlue} onPress={() => setShowPickerEnd(false)} />
@@ -973,7 +974,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                                     keyExtractor={(item) => item.value}
                                     
                                     renderItem={({ item }) => (
-                                        <Pressable onPress={() => handleChangeEndTime(item.value, item.numValue)} >
+                                        <Pressable onPress={() => handleChangeEndTime(item.value)}>
                                             <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
                                             <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
                                             </View>
@@ -999,7 +1000,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
                                         setServiceAvailability(updatedAvailability);
                                         
                                     }}>
-                                        <FontAwesome name={day.flagAvailable ? 'check-square' : 'square-o'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.03 }}/>
+                                        <Feather name={day.flagAvailable ? 'check-square' : 'square'} size={24} color={day.flagAvailable ? 'green' : Color.colorBlue} style={{ marginLeft: 10, marginRight: windowWidth * 0.03 }}/>
                                     </Pressable>
                                     <View style={{ position:'absolute', top: windowHeight * 0.06, right: windowWidth * 0.145 }}>
                                         {renderErrorTextPerDay(day)}
@@ -1024,6 +1025,7 @@ export default function ProviderPreferencePage ({navigation, route, props}) {
      
 
                 </Modal>
+
                 
                                 
 

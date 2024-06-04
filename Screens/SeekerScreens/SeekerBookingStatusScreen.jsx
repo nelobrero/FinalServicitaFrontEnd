@@ -14,7 +14,7 @@ import MapPage from './../MapPage';
 import { askForCameraPermission, askForLibraryPermission } from "./../../helper/helperFunction";
 import { Video } from 'expo-av';
 import { sendPushNotification } from '../NotificationScreen';
-import { COLORS, FONTS } from "./../../constants/theme";
+import { COLORS } from "./../../constants/theme";
 
 
 const windowWidth = Dimensions.get('window').width;
