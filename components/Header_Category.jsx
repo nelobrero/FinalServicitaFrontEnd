@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
-import { Border, FontSize, FontFamily, Color } from "../GlobalStyles";
 import { useNavigation } from '@react-navigation/native';
 
 const Header_Category = ({ title }) => {
@@ -15,7 +14,7 @@ const Header_Category = ({ title }) => {
   return (
     <View style={styles.header}>
       <Pressable onPress={handleBackPress}>
-        <AntDesign name="left" size={24} color="white" style={styles.icon} />
+        <AntDesign name="left" size={24} color="#002F45" style={styles.icon} />
       </Pressable>
       <Text style={styles.title}>{title}</Text>
     </View>
@@ -24,7 +23,7 @@ const Header_Category = ({ title }) => {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#07374d",
+    backgroundColor: "white",
     height: Dimensions.get('window').height * 0.1, // Adjust height according to screen size
     flexDirection: 'row',
     alignItems: 'center',
@@ -35,7 +34,7 @@ const styles = StyleSheet.create({
     lineHeight: 50,
     fontWeight: "700",
     fontFamily: "Lobster-Regular",
-    color: Color.colorWhite,
+    color: "#002F45",
     display: "flex",
     alignItems: "center",
     width: 326,

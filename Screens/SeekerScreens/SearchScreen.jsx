@@ -85,7 +85,7 @@ const SearchScreen = ({navigation, route}) => {
 
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style ={{backgroundColor: 'white', height: '100%'}}>
       
       {/* Header */}
 
@@ -105,7 +105,7 @@ const SearchScreen = ({navigation, route}) => {
             <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.searchBar}>
-          <AntDesign name="search1" size={24} color="#002D62" />
+          <AntDesign name="search1" size={24} color="#002D62" marginLeft={10} />
           <TextInput ref={inputRef} placeholder="Search for services or more" style={styles.searchInput} onChangeText={(text) => setSearchQuery(text)}  />
         </View>
 
@@ -133,20 +133,19 @@ const SearchScreen = ({navigation, route}) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingLeft: 10,
-    paddingRight: 10,
+   
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     backgroundColor: '#07364B',
-    alignItems: 'center'
   },
   searchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     margin: 10,
-    marginHorizontal: 10, // Adjust horizontal margin to change space between search bar and filter icon
-    marginRight: 30,
+    marginHorizontal: 8, // Adjust horizontal margin to change space between search bar and filter icon
+    marginRight: 50,
+    marginLeft: 15
   },
   searchBar: {
     flexDirection: 'row',
@@ -154,9 +153,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingVertical: 8, // Adjust vertical padding to change height
     paddingHorizontal: 5,
-    borderColor: '#002147',
     borderRadius: 20,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: 'white',
     marginLeft: 25
 
   },
@@ -166,7 +164,8 @@ const styles = StyleSheet.create({
   },
 
   filter: {
-    marginLeft:15
+    marginLeft: 15,
+    
   },
 
   container1: {
@@ -201,5 +200,3 @@ const styles = StyleSheet.create({
 });
 
 export default SearchScreen;
- 
-  

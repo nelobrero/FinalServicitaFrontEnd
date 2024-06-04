@@ -102,7 +102,7 @@ function UserRoleScreen({navigation, route}){
           onPress={handleContinuePress}
           disabled={!selectedRole}
         >
-          <Text style={styles.contText}>CONTINUE</Text>
+          <Text style={styles.contText}>Continue</Text>
         </TouchableOpacity>
       </LinearGradient>
       <NotificationsProvider/>

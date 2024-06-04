@@ -15,58 +15,58 @@ const Services = ({navigation, route}) => {
     const data = [
         {
             id: 1,
-            image: require('./../../assets/services/CateringService.png'),
+            image: require('./../../assets/services/E.png'),
             screens: "CategoryScreen",
             type: "Catering Service"
         },
         {
             id: 2,
-            image: require('./../../assets/services/CleaningService.png'),
+            image: require('./../../assets/services/W (1).png'),
             screens: "CategoryScreen",
             type: "Home Cleaner Service"
 
         },
         {
             id: 3,
-            image: require('./../../assets/services/ElectricService.png'),
+            image: require('./../../assets/services/R.png'),
             screens: "CategoryScreen",
             type: "Electrical Service"
         },
         {
             id: 4,
-            image: require('./../../assets/services/HMupService.png'),
+            image: require('./../../assets/services/T.png'),
             screens: "CategoryScreen" ,
             type: "Hair and Makeup Service"
         },
         {
           id: 5,
-          image: require('./../../assets/services/MassageService.png'),
+          image: require('./../../assets/services/O.png'),
           screens: "CategoryScreen",
           type: "Massage Service"
 
       },
       {
         id: 6,
-        image: require('./../../assets/services/MPService.png'),
+        image: require('./../../assets/services/Q.png'),
         screens: "CategoryScreen",
         type: "Manicure/Pedicure Service"
 
     },
     {
       id: 7,
-      image: require('./../../assets/services/PlumbingService.png'),
+      image: require('./../../assets/services/U.png'),
       screens: "CategoryScreen",
         type: "Plumbing Service"
   },
   {
     id: 8,
-    image: require('./../../assets/services/SepticService.png'),
+    image: require('./../../assets/services/Y.png'),
     screens: "CategoryScreen",
     type: "Septic Tank Service"
 },
 {
   id: 9,
-  image: require('./../../assets/services/TutoringService.png'),
+  image: require('./../../assets/services/I.png'),
   screens: "CategoryScreen",
   type: "Tutoring Service"
 },
@@ -75,7 +75,7 @@ const Services = ({navigation, route}) => {
 
     
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{backgroundColor: 'white'}}>
             <Header_Category title="Categories" />
             
             <FlatList

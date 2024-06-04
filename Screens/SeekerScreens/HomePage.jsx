@@ -88,7 +88,7 @@ export default HomePage = ({navigation, route}) => {
   }
   // style={{ paddingBottom: 10 }}
   return (
-    <View style={{ flex: 1, marginBottom: 70 }}>
+    <View style={{ backgroundColor: 'white', flex: 1, marginBottom: 50 }}>
    
     
 
@@ -335,7 +335,7 @@ export default HomePage = ({navigation, route}) => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal:5,
-    marginBottom: 8,
+    marginBottom: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     backgroundColor: '#07364B',
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderColor: '#002147',
     borderRadius: 20,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#FFFFFF',
     width: windowWidth * 0.7
 
   },
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -10,
     // right: 1,
-    marginLeft:16,
+    marginLeft:10,
     zIndex: 1,
     
     
