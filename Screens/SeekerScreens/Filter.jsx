@@ -193,10 +193,10 @@ export default function Filter({navigation, route}) {
                 zIndex: 1
             }}
         >
-            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
+            <MaterialIcons name="arrow-back-ios" size={24} color={COLORS.primary} />
         </TouchableOpacity>
                     <View style={styles.searchBar}>
-                    <Text style={{ margin: 10, fontWeight:"bold", fontSize: 30, color: "#FFFFFF"}}>Search Filters</Text>
+                    <Text style={{ margin: 10, fontWeight:"bold", fontSize: 30, color: "#002F45"}}>Search Filters</Text>
                 
                         
                     </View>
@@ -283,6 +283,7 @@ export default function Filter({navigation, route}) {
             style={{
             backgroundColor: "black",
             color: "white",
+            marginBottom: 40
             }}
             placeholder= {selectedRating != null ? selectedRating == 5 ? '5 Stars' : selectedRating == 1 ? '1 Star and up' : `${selectedRating} Stars and up` : "Select rating"}
             key={clear}
@@ -380,7 +381,7 @@ export default function Filter({navigation, route}) {
         
 
             <StatusBar style="auto" />
-
+<View style={{marginTop: 50}}>
             <View style={styles.buttonContainer}>
             <Button
             title="Search"
@@ -392,6 +393,7 @@ export default function Filter({navigation, route}) {
             />
 
             </View>
+
             <View style={styles.buttonContainer}>
             <Button
             title="Clear"
@@ -399,6 +401,7 @@ export default function Filter({navigation, route}) {
             onPress={() => {setClear(!clear); setSelectedService(""); setSelectedCity(""); setSelectedBarangay(""); setSelectedPriceRange(null); setSelectedRating(null)}}
             />
             </View>
+</View>
         </View>
         </ScrollView>   
         </SafeAreaView>
@@ -411,8 +414,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     buttonContainer: {
-      marginTop: 40,
-      marginBottom: 15,
+      marginTop: 10,
+    //   marginBottom: 15,
       width: 200, // Adjust the width as needed
   },
   buttonContainer1: {
@@ -426,7 +429,7 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
-        backgroundColor: '#07364B',
+        backgroundColor: 'white',
         alignItems: 'center'
     },
     searchContainer: {
@@ -442,7 +445,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 8,
         paddingHorizontal: 5,
-        borderColor: "#002F45",
+        borderColor: "white",
         borderRadius: 20,
         marginLeft: 15,
         width: '100%',

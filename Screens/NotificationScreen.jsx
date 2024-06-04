@@ -9,6 +9,7 @@ import Constants from "expo-constants";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 import { COLORS } from "./../constants/theme";
+import { Entypo } from '@expo/vector-icons';
 
 export const usePushNotifications = () => {
   Notifications.setNotificationHandler({
@@ -262,8 +263,8 @@ const NotificationScreen = ({navigation}) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <AntDesign name="arrowleft" size={24} color="#07364B" />
-        </TouchableOpacity>
+        <Entypo name="chevron-thin-left" size={24} color="black" />
+                </TouchableOpacity>
         <Text style={styles.title}>Notifications</Text>
       </View>
       <ScrollView style={styles.scrollContainer}>

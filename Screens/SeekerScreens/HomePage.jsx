@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -10,
     // right: 1,
-    marginLeft:16,
+    marginLeft:10,
     zIndex: 1,
     
     
