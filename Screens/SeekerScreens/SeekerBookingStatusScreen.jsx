@@ -23,8 +23,8 @@ const windowHeight = Dimensions.get('window').height;
 function SeekerBookingStatusScreen({ navigation, route }) {
     const { data, userData, serviceData } = route.params;
 
-    // const [statusText, setStatusText] = useState(data.status);
-    const [statusText, setStatusText] = useState("Completed");
+    const [statusText, setStatusText] = useState(data.status);
+    // const [statusText, setStatusText] = useState("Completed");
     const [serviceName, setServiceName] = useState(data.serviceName);
     const [buttonsVisible, setButtonsVisible] = useState(true);
     const [buttonsVisible1, setButtonsVisible1] = useState(true);

@@ -83,6 +83,7 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
       sendPushNotification(token, 'Booking Accepted', `Your booking for ${item.serviceName} has been accepted by ${item.providerName}`, item.providerId);
     }
     setActionDone(true);
+    onActionDoneChange(true);
   };
 
   const handleDecline = async (item, userData) => {
@@ -92,10 +93,10 @@ const BookingProvider= ({ navigation, filters, bookingData, userData, onActionDo
       sendPushNotification(token, 'Booking Declined', `Your booking for ${item.serviceName} has been declined by ${item.providerName}`, item.providerId);
     }
     setActionDone(true);
+    onActionDoneChange(true);
   };
 
   useEffect(() => {
-    onActionDoneChange(actionDone);
     setActionDone(false);
   }, [actionDone]);
 

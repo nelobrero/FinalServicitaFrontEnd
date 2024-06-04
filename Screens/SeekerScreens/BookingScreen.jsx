@@ -314,344 +314,347 @@ if ( !bookingDataFetched || !bookingData || !unavailableDatesFetched || !unavail
   );
 }
 
-  return (
-    <SafeAreaView>
-      <ScrollView>
-      <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 20,
-                marginLeft: 20,
-                position: 'absolute',
-                zIndex: 1
-            }}
-        >
-            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
-            </TouchableOpacity>
-    <View style={[styles.bookingscreen2, { marginBottom: 0 }]}>
-        <View style={[styles.bookingscreen2Child, styles.childPosition]} />
-
-        
-        <Text style={[styles.bookingtext]}>{`Start\nBooking...`}</Text>
-
-        <View style={[styles.rectangleParent, styles.groupChildLayout]}>
-          
-          
-          <View style={[styles.groupChild, styles.groupChildLayout]} />
-          <Text style={{  left: 15, fontSize: 15,fontWeight: '500', position: "relative", bottom: 10, }}>Select your preferred date and time-slot</Text>
-          
-          <View style={styles.calenderContainer}>
-          <CalendarPicker
-                onDateChange={onDateChange}
-                onMonthChange={value => renderUnavailableDates(value.getMonth())}
-                minDate={Date.now()}
-                todayTextStyle={{ color: 'white' }}
-                selectedStartDate={chooseFinalStartingSelectedDate()}
-                selectedDayColor="#88D0F1"
-                selectedDayTextStyle={{ color: 'black' }}
-                width={windowWidth * 0.865}
-                disabledDates={unavailableDates}
-                disabledDatesTextStyle={{ color: 'gray' }}
-                nextComponent={<FontAwesome5 name="chevron-right" size={15} color="black"/>}
-                previousComponent={<FontAwesome5 name="chevron-left" size={15} color="black" />} 
-              />
-          </View>
-
-
-          
-          <View style={styles.inputRow}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Start Time</Text>
-              <Dropdown
-                style={[styles.dropdown1, isFocus && {borderColor: 'blue'}]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                data={startTimeOptions}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder={!isFocus ? '' : '...'}
-                value={startTime}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={item => {
-                  setStartTime(item.value);
-                  setStartTimeValue(item.numValue);
-                  setIsFocus(false);
-                }}
-              />
-            </View>
-          
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel1}>End Time</Text>
-              <Dropdown
-                style={[styles.dropdown2, isFocus ]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                data={endTimeOptions}
-                maxHeight={300}
-                labelField={endTimeOptions.length === 0 ? 'No time options' : "label"}
-                valueField={endTimeOptions.length === 0 ? 'No time options' : "value"}
-                placeholder={!isFocus ? '' : '...'}
-                value={endTime}
-                disable={startTime === ''}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={item => {
-                  setEndTime(item.value);
-                  setEndTimeValue(item.numValue);
-                  setIsFocus(false);
-                }}
-              />
-            </View>
-          </View>
-
-          <Text style={styles.inputLabel}>Date</Text>
-            <TextInput
-              style={styles.input}
-              value={date}
-              editable={false} 
-            />
-          
-          <TouchableOpacity onPress={() => navigation.navigate('BookingPage', {
-            getStartingLocation: initializeSelectedLocation,
-          })}>
-          
-
-
-          <Text style={styles.inputLabel}>Location</Text>
-          <View style={styles.locationInput}>
-            <TextInput
-              style={styles.input}
-              placeholder="Choose Location"
-              value={location}
-              onChangeText={setLocation}
-              editable={false}
-            />
-            {/* <FontAwesome5 name="map-marker-alt" size={15} color="gray" style={styles.locationIcon} /> */}
-          </View>
+return (
+  <SafeAreaView>
+    <ScrollView>
+    <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop:  windowHeight * 0.03,
+              marginLeft: 20,
+              position: 'absolute',
+              zIndex: 1
+          }}
+      >
+          <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
           </TouchableOpacity>
+  <View style={[styles.bookingscreen2, { marginBottom: 0 }]}>
+      <View style={[styles.bookingscreen2Child, styles.childPosition]} />
 
-          <Text style={styles.inputLabel}>Calculated Price</Text>
-            <TextInput
-              style={styles.input}
-              value={`₱${calculatePrice()}`}
-              editable={false} 
+      
+      <Text style={[styles.bookingtext]}>{`Start\nBooking...`}</Text>
+
+      <View style={[styles.rectangleParent, styles.groupChildLayout]}>
+        
+        
+        <View style={[styles.groupChild, styles.groupChildLayout]} />
+        <Text style={{  left: 15, fontSize: 15, fontWeight: '500', position: "relative", bottom: 10, }}>Select your preferred date and time-slot</Text>
+        
+        <View style={styles.calenderContainer}>
+        <CalendarPicker
+              onDateChange={onDateChange}
+              onMonthChange={value => renderUnavailableDates(value.getMonth())}
+              minDate={Date.now()}
+              todayTextStyle={{ color: 'white' }}
+              selectedStartDate={chooseFinalStartingSelectedDate()}
+              selectedDayColor="#88D0F1"
+              selectedDayTextStyle={{ color: 'black' }}
+              width={windowWidth * 0.865}
+              disabledDates={unavailableDates}
+              disabledDatesTextStyle={{ color: 'gray' }}
+              nextComponent={<FontAwesome5 name="chevron-right" size={15} color="black"/>}
+              previousComponent={<FontAwesome5 name="chevron-left" size={15} color="black" />} 
             />
         </View>
+
+
         
+        <View style={styles.inputRow}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Start Time</Text>
+            <Dropdown
+              style={[styles.dropdown1, isFocus && {borderColor: '#07374d'}]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              data={startTimeOptions}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              placeholder={!isFocus ? '' : '...'}
+              value={startTime}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              onChange={item => {
+                setStartTime(item.value);
+                setStartTimeValue(item.numValue);
+                setIsFocus(false);
+              }}
+            />
+          </View>
+        
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel1}>End Time</Text>
+            <Dropdown
+              style={[styles.dropdown2, isFocus ]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              data={endTimeOptions}
+              maxHeight={300}
+              labelField={endTimeOptions.length === 0 ? 'No time options' : "label"}
+              valueField={endTimeOptions.length === 0 ? 'No time options' : "value"}
+              placeholder={!isFocus ? '' : '...'}
+              value={endTime}
+              disable={startTime === ''}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              onChange={item => {
+                setEndTime(item.value);
+                setEndTimeValue(item.numValue);
+                setIsFocus(false);
+              }}
+            />
+          </View>
+        </View>
+
+        <Text style={styles.inputLabel}>Date</Text>
+          <TextInput
+            style={styles.input}
+            value={date}
+            editable={false} 
+          />
+        
+        <TouchableOpacity onPress={() => navigation.navigate('BookingPage', {
+          getStartingLocation: initializeSelectedLocation,
+        })}>
         
 
-        <Button title="Continue" filled Color={Color.colorWhite} 
-        style={{ height: 53,
-            width: windowWidth * 0.9,
-            top: 850,
-            position: "absolute", 
-            opacity: date === '' || startTime === '' || endTime === '' || location === '' ? 0.5 : 1
-             }} 
-            onPress={handleContinue} 
-            disabled={date === '' || startTime === '' || endTime === '' || location === ''}
-          
-        />
 
+        <Text style={styles.inputLabel}>Location</Text>
+        <View style={styles.locationInput}>
+          <TextInput
+            style={styles.input}
+            placeholder="Choose Location"
+            value={location}
+            onChangeText={setLocation}
+            editable={false}
+          />
+          {/* <FontAwesome5 name="map-marker-alt" size={15} color="gray" style={styles.locationIcon} /> */}
+        </View>
+        </TouchableOpacity>
+
+        <Text style={styles.inputLabel}>Calculated Price</Text>
+          <TextInput
+            style={styles.input}
+            value={`₱${calculatePrice()}`}
+            editable={false} 
+          />
       </View>
       
-      </ScrollView>
-    </SafeAreaView>
-  );
+      
+
+      <Button title="Continue" filled Color={Color.colorWhite} 
+      style={{ height: 53,
+          width: windowWidth * 0.9,
+          top: 875,
+          position: "absolute", 
+          opacity: date === '' || startTime === '' || endTime === '' || location === '' ? 0.5 : 1
+           }} 
+          onPress={handleContinue} 
+          disabled={date === '' || startTime === '' || endTime === '' || location === ''}
+        
+      />
+
+    </View>
+    
+    </ScrollView>
+  </SafeAreaView>
+);
 };
 
 
 const styles = StyleSheet.create({
-  childPosition: {
-    backgroundColor: Color.colorDarkslategray_500,
-    left: 0,
-    position: "absolute",
-  },
-  groupChildLayout: {
-    height: 650,
-    width: windowWidth * 0.9,
-    position: "absolute",
-
-    
-  },
-
-  zipCodePosition: {
-    left: 26,
-    position: "absolute",
-  },
-  
-  continuebutton: {
-    top: 780,
-    height: 53,
-    width: 358,
-    left: 36,
-    position: "absolute",
-  },
-  bookingscreen2Child: {
-    top: -19,
-    width: windowWidth,
-    height: 378,
-  },
-  groupChild: {
-    shadowColor: "rgba(0, 0, 0, 1s)",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowRadius: 4,
-    elevation: 5,
-    shadowOpacity: 0.5,
-    left: 0,
-    height: 534,
-    top: 0,
-    backgroundColor: Color.colorWhite,
-  },
- 
-  rectangleParent: {
-    justifyContent: 'center',
-    top:170,
-    // marginTop:10,
-    //alignItems: 'center',
-  },
-  bookingtext: {
-    top: windowHeight * 0.06,
-    fontSize: 55,
-    width: windowWidth * 0.9,
-    textAlign: "left",
-    left: 36,
-    color: Color.colorWhite,
-    fontFamily: FontFamily.quicksandBold,
-    fontWeight: "700",
-    lineHeight: windowHeight * 0.073,
-    position: "absolute", 
-
-  },
-  bookingscreen2: {
-    flex: 1,
-    width: "100%",
-    height: 925,
-    overflow: "hidden",
-    backgroundColor: Color.colorWhite,
-    justifyContent: 'center', // Center vertically
-    alignItems: 'center', // Center horizontally
-  },
-  errorMsg: {
-    color: 'red',
-    fontSize: 12, 
-    marginTop: windowHeight * 0.0001, 
-    marginBottom: windowHeight * 0.01,
-    width:  windowWidth * 0.698,
-    left: 25,
-  },
-
-  input: {
-    height: windowHeight * 0.045, 
-    width: windowWidth * 0.77,
-    borderColor: Color.colorDarkgray,
-    borderRadius: 5,
-    borderWidth: 1,
-    marginVertical: windowHeight * 0.008, 
-    paddingHorizontal: windowWidth * 0.025, 
-    fontSize: 14,
-    color: 'black',
-    left: windowWidth * 0.070,
-  },
-  inputLabel: {
-    marginBottom: 0,
-    fontWeight: "bold",
-    textAlign: "left",
-    width: windowWidth * 0.7, 
-    left: 25,
-    color: Color.colorBlack,
-    fontFamily: FontFamily.quicksandSemiBold,
-    fontWeight: "600",
-    fontSize: FontSize.size_mini,
-    
-  },
-  inputLabel1: {
-    marginBottom: 0,
-    fontWeight: "bold",
-    textAlign: "left",
-    width: windowWidth * 0.7, 
-    // left: 175,
-    color: Color.colorBlack,
-    fontFamily: FontFamily.quicksandSemiBold,
-    fontWeight: "600",
-    fontSize: FontSize.size_mini,
-    marginLeft: windowWidth * 0.035,
-    
-  },
-  inputRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    // marginBottom: 20,
-    
-  },
-  inputContainer: {
-    flex: 1,
-
-  },
+childPosition: {
+  backgroundColor: Color.colorDarkslategray_500,
+  left: 0,
+  position: "absolute",
+},
+groupChildLayout: {
+  height: 670,
+  width: windowWidth * 0.9,
+  position: "absolute",
+  paddingTop: 20
 
   
-  calenderContainer: {
-    padding: windowWidth * 0.05,
-    borderRadius: 15,
-    bottom: 10,
-    marginBottom:5,
-    width: windowWidth * 0.9,
-  },
-  locationInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  locationIcon: {
-    marginLeft: 5,
-  },
+},
 
+zipCodePosition: {
+  left: 26,
+  position: "absolute",
+},
 
-  dropdown1: {
-    height: windowHeight * 0.045, 
-    width: windowWidth * 0.35,
-    borderColor: Color.colorDarkgray,
-    borderRadius: 5,
-    borderWidth: 1,
-    marginBottom: windowHeight * 0.008, 
-    paddingHorizontal: windowWidth * 0.025, 
-    marginTop:8,
-    marginLeft: windowWidth * 0.070,
+continuebutton: {
+  top: 780,
+  height: 53,
+  width: 358,
+  left: 36,
+  position: "absolute",
+},
+bookingscreen2Child: {
+  top: -19,
+  width: windowWidth,
+  height: windowHeight * 0.5,
+},
+groupChild: {
+  shadowColor: "rgba(0, 0, 0, 1s)",
+  shadowOffset: {
+    width: 0,
+    height: 5,
   },
-  dropdown2: {
-    height: windowHeight * 0.045, 
-    width: windowWidth * 0.35,
-    borderColor: Color.colorDarkgray,
-    borderRadius: 5,
-    borderWidth: 1,
-    marginBottom: windowHeight * 0.008, 
-    paddingHorizontal: windowWidth * 0.025, 
-    marginTop:8,
-    marginLeft: windowWidth * 0.035,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  label: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
-    fontSize: 14,
-  },
-  placeholderStyle: {
-    fontSize: 14,
-    color:'gray'
-  },
-  selectedTextStyle: {
-    fontSize: 14,
-  }
+  shadowRadius: 4,
+  elevation: 5,
+  shadowOpacity: 0.5,
+  left: 0,
+  height: 534,
+  top: 0,
+  backgroundColor: Color.colorWhite,
+},
+
+rectangleParent: {
+  justifyContent: 'center',
+  marginTop: 15,
+  top:170,
+  // marginTop:10,
+  //alignItems: 'center',
+},
+bookingtext: {
+  top: windowHeight * 0.06,
+  fontSize: 55,
+  width: windowWidth * 0.9,
+  textAlign: "left",
+  left: 36,
+  color: Color.colorWhite,
+  fontFamily: FontFamily.quicksandBold,
+  fontWeight: "700",
+  lineHeight: windowHeight * 0.075,
+  position: "absolute", 
   
+
+},
+bookingscreen2: {
+  flex: 1,
+  width: "100%",
+  height: 950,
+  overflow: "hidden",
+  backgroundColor: Color.colorWhite,
+  justifyContent: 'center', // Center vertically
+  alignItems: 'center', // Center horizontally
+},
+errorMsg: {
+  color: 'red',
+  fontSize: 12, 
+  marginTop: windowHeight * 0.0001, 
+  marginBottom: windowHeight * 0.01,
+  width:  windowWidth * 0.698,
+  left: 25,
+},
+
+input: {
+  height: windowHeight * 0.045, 
+  width: windowWidth * 0.77,
+  borderColor: Color.colorDarkgray,
+  borderRadius: 5,
+  borderWidth: 1,
+  marginVertical: windowHeight * 0.008, 
+  paddingHorizontal: windowWidth * 0.025, 
+  fontSize: 14,
+  color: 'black',
+  left: windowWidth * 0.070,
+},
+inputLabel: {
+  marginBottom: 0,
+  fontWeight: "bold",
+  textAlign: "left",
+  width: windowWidth * 0.7, 
+  left: 25,
+  color: Color.colorBlack,
+  fontFamily: FontFamily.quicksandSemiBold,
+  fontWeight: "600",
+  fontSize: FontSize.size_mini,
+  
+},
+inputLabel1: {
+  marginBottom: 0,
+  fontWeight: "bold",
+  textAlign: "left",
+  width: windowWidth * 0.7, 
+  // left: 175,
+  color: Color.colorBlack,
+  fontFamily: FontFamily.quicksandSemiBold,
+  fontWeight: "600",
+  fontSize: FontSize.size_mini,
+  marginLeft: windowWidth * 0.035,
+  
+},
+inputRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-evenly',
+  // marginBottom: 20,
+  
+},
+inputContainer: {
+  flex: 1,
+
+},
+
+
+calenderContainer: {
+  padding: windowWidth * 0.02,
+  borderRadius: 15,
+  bottom: 10,
+  marginBottom:5,
+  width: windowWidth * 0.9,
+},
+locationInput: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+locationIcon: {
+  marginLeft: 5,
+},
+
+
+dropdown1: {
+  height: windowHeight * 0.045, 
+  width: windowWidth * 0.35,
+  borderColor: Color.colorDarkgray,
+  borderRadius: 5,
+  borderWidth: 1,
+  marginBottom: windowHeight * 0.008, 
+  paddingHorizontal: windowWidth * 0.025, 
+  marginTop:8,
+  marginLeft: windowWidth * 0.070,
+},
+dropdown2: {
+  height: windowHeight * 0.045, 
+  width: windowWidth * 0.35,
+  borderColor: Color.colorDarkgray,
+  borderRadius: 5,
+  borderWidth: 1,
+  marginBottom: windowHeight * 0.008, 
+  paddingHorizontal: windowWidth * 0.025, 
+  marginTop:8,
+  marginLeft: windowWidth * 0.035,
+},
+icon: {
+  marginRight: 5,
+},
+label: {
+  position: 'absolute',
+  backgroundColor: 'white',
+  left: 22,
+  top: 8,
+  zIndex: 999,
+  paddingHorizontal: 8,
+  fontSize: 14,
+},
+placeholderStyle: {
+  fontSize: 14,
+  color:'gray'
+},
+selectedTextStyle: {
+  fontSize: 14,
+}
+
 });

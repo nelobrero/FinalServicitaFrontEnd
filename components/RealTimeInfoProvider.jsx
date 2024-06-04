@@ -1,7 +1,7 @@
 import * as React from "react";
-import { StyleSheet, View, Text, Image, Dimensions, Platform, Linking } from "react-native";
+import { StyleSheet, View, Text, Image, Dimensions, Platform, Linking, TouchableOpacity } from "react-native";
 import { Border, FontFamily, Color, FontSize } from "../GlobalStyles";
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import firestore from '@react-native-firebase/firestore';
 import { sendPushNotification } from './../Screens/NotificationScreen';
 

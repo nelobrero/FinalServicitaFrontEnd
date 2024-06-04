@@ -175,301 +175,183 @@ export default function Filter({navigation, route}) {
         }
     };
 
-    return (
-        <SafeAreaView flex={1} backgroundColor={COLORS.white}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"always"} backgroundColor={COLORS.white}>
-        <View style={styles.container1}>
-       
-            <View style={styles.container}>
-                <View style={styles.searchContainer}>
-                <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 20,
+return (
+  <SafeAreaView style={styles.safeArea}>
+    <View style={styles.container1}>
+      <View style={styles.iconContainer}>
+        <Feather name="check-circle" size={120} color="white" />
+      </View>
+    <View style={{marginTop: 15}}>
+        <Text style={{ fontSize: 30, color: 'white', alignSelf: 'center', marginTop: 163, }}>Booking Confirmed</Text>
+        <Text style={{alignSelf:'center', marginTop: 1, color:'white'}}>You can view your booking details below.</Text>
+      </View>
+      
+    </View>
+    <View style={[styles.container2, { justifyContent: "center", marginTop: 225 }]}>
 
-                position: 'absolute',
-                zIndex: 1
-            }}
-        >
-            <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.white} />
-        </TouchableOpacity>
-                    <View style={styles.searchBar}>
-                    <Text style={{ margin: 10, fontWeight:"bold", fontSize: 30, color: "#FFFFFF"}}>Search Filters</Text>
-                
-                        
-                    </View>
+      <View style={{flexDirection:"row", }}>
+      <Text style={styles.textBold} >Booking ID</Text>
+      <Text style={styles.textRegular}>{bookingId}</Text>
+      </View>
 
-                    {/* <Pressable onPress={()=>navigation.goBack()}>
-                        <Ionicons name="filter" size={24} color="white" style={styles.filter} />
-                    </Pressable> */}
-                </View>
-            </View>
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Provider</Text>
+      <Text style={styles.textRegular}>{providerData.name.firstName} {providerData.name.lastName}</Text>
+      </View>
 
-          <View>
-         
-          </View>
-            {/* SelectList component */}
-            <View style={{marginTop: 30, width: '90%'}}>
-              <Text style={{fontWeight:"bold", fontSize: 20, color: "#002F45", marginBottom: 6}}>Type of Service</Text>
-            <SelectList 
-            data={transformedServices} 
-            setSelected={setSelectedService}
-            style={{
-            backgroundColor: "black",
-            color: "white",
-            }}
-            placeholder= {selectedService != "" ? selectedService : "Select service"}
-            searchPlaceholder="Search service"
-            key={clear}
-            />
-            </View>
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Location</Text>
+      <Text style={styles.textRegular}>{bookingData.location.address}</Text>
+      </View>
 
-            <View style={{marginTop: 30, width: '90%', }}>
-              <Text style={{fontWeight:"bold", fontSize: 20, color: "#002F45", marginBottom: 6}}>Location</Text>
-            <SelectList 
-            data={transformedCities} 
-            setSelected={handleSelectCity}
-            style={{
-            backgroundColor: "black",
-            color: "white",
-            }}
-            placeholder = {selectedCity != "" ? selectedCity : "Select city"}
-            searchPlaceholder="Search city"
-            key={clear}
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Date</Text>
+      <Text style={styles.textRegular}>{bookingData.bookedDate}</Text>
+      </View>
+
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Time</Text>
+      <Text style={styles.textRegular}>{bookingData.startTime} - {bookingData.endTime}</Text>
+      </View>
+
+    </View>
+    <View style={[styles.container3, { justifyContent: "center" }]}>
+    <View style={{flexDirection:"row", }}>
+      <Text style={styles.textBold}>Transaction ID</Text>
+      <Text style={{marginTop: 8, textAlign:'right', position: 'absolute', left: windowWidth * 0.265, fontSize: windowWidth * 0.030}}>{bookingData.paymentId}</Text>
+      </View>
+
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Created At</Text>
+      <Text style={styles.textRegular}>
+      {bookingData.createdAt.toDate().toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+      </Text>
+      </View>
+
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Expires At</Text>
+      <Text style={styles.textRegular}>
+      {bookingData.expiresAt.toDate().toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })}
+</Text>
+
+      </View>
+
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Payment Method</Text>
+      <Text style={styles.textRegular}>{bookingData.paymentMethod === 'gcash' ? 'GCash' : bookingData.paymentMethod === 'grab_pay' ? 'GrabPay' : 'Paymaya'}</Text>
+      </View>
+
+      <View style={{flexDirection:"row"}}>
+      <Text style={styles.textBold}>Amount</Text>
+      <Text style={styles.textRegular}>{bookingData.price}</Text>
+      </View>  
+    </View>
+
     
-            />
-            </View>
-            
-            {selectedCity && (
-                <View style={{marginTop: 30, width: '90%'}}>
-                <SelectList 
-                key={selectedCity || clear}
-                data={filteredBarangays} 
-                setSelected={setSelectedBarangay}
-                style={{
-                backgroundColor: "black",
-                color: "white",
-                }}
-                placeholder= {selectedBarangay || selectedBarangay != "" ? selectedBarangay : "Select barangay"}
-                />
-                </View>
-            )
-            }
-            
+    <View style={styles.buttonContainer2}>
+      {/* <Button  title="Go Back to Home" color={button2Color} onPress={()=>navigation.navigate("BottomTabNavigation", {userRole: userRole, userEmail: userEmail})} /> */}
+      <Button 
+            title="Go Back to Home" 
+            filled 
+            Color={Color.colorWhite} 
+            style={{ 
+              height: 53,
+              // width: windowWidth * 0.890, 
+              width: windowWidth * 0.81, 
+              // top: 540,
+              // bottom: windowHeight * 0.12, 
+              position: "relative", 
+            }} 
+            onPress={()=>navigation.navigate("BottomTabNavigation", {userRole: userRole, userEmail: userEmail})}
+          />
+    </View>
+  </SafeAreaView>
 
-            <View style={{marginTop: 30, width: '90%'}}>
-              <Text style={{fontWeight:"bold", fontSize: 20, color: "#002F45", marginBottom: 6}}>Price Range</Text>
-            <SelectList 
-            data={priceRange}
-            setSelected={setSelectedPriceRange}
-            style={{
-            backgroundColor: "black",
-            color: "white",
-            }}
-            placeholder= {selectedPriceRange != null ? `₱${selectedPriceRange - 99} - ₱${selectedPriceRange}` : "Select price range"}
-            key={clear}
-            search={false}
-    
-            />
-            </View>
-
-            <View style={{marginTop: 30, width: '90%'}}>
-              <Text style={{fontWeight:"bold", fontSize: 20, color: "#002F45", marginBottom: 6}}>Rating</Text>
-            <SelectList 
-            data={rating}
-            setSelected={setSelectedRating}
-            style={{
-            backgroundColor: "black",
-            color: "white",
-            }}
-            placeholder= {selectedRating != null ? selectedRating == 5 ? '5 Stars' : selectedRating == 1 ? '1 Star and up' : `${selectedRating} Stars and up` : "Select rating"}
-            key={clear}
-            search={false}
-            />
-            </View>
+);
+};
 
 
-            {/* <View style={{marginTop: 30, width: '90%'}}>
-              <Text style={{fontWeight:"bold", fontSize: 20, color: "#002F45"}}>Date</Text>
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                style={{
-                  height: screenHeight * 0.06,
-                  width: "100%",
-                  borderColor: COLORS.black,
-                  borderWidth: 0.7,
-                  borderRadius: 10,
-                  marginVertical: 6,
-                  justifyContent: "center",
-                  paddingLeft: 18,
-                }}
-                placeholder="Select date"
-              >
-                <Text>{date.toDateString()}</Text>
-              </TouchableOpacity>
-            </View>
-
-
-            {showDatePicker && (
-                        <DateTimePicker
-                            minimumDate={new Date()}
-                            testID="datePicker"
-                            mode="date"
-                            display="default"
-                            value={date}
-                            onChange={onChangeDate}
-                        />
-                    )}
-
-
-            <View style={{marginTop: 30, width: '90%'}}>
-                <Text style={{fontWeight:"bold", fontSize: 20, color: "#002F45"}}>Time</Text>
-                <TouchableOpacity
-                onPress={() => setShowTimePicker(true)}
-                style={{
-                    height: screenHeight * 0.06,
-                    width: "100%",
-                    borderColor: COLORS.black,
-                    borderWidth: 0.7,
-                    borderRadius: 10,
-                    marginVertical: 6,
-                    justifyContent: "center",
-                    paddingLeft: 18,
-                }}
-                >
-                <TextInput styles={{fontSize: 16}} placeholder="Select time" editable={false} placeholderTextColor={Color.colorBlack} color={Color.colorBlack}>
-                    {time}</TextInput>
-                </TouchableOpacity>
-
-                            </View>
-
-                            {showTimePicker && (
-                                            <Modal animationType="slide" transparent={true} visible={showTimePicker} onRequestClose={() => setShowTimePicker(false)}>
-                                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                                                    <View style={{ backgroundColor: 'white', width: '90%', maxHeight: '80%', borderRadius: 10, }}>
-                                                        <View flexDirection='row' style={{ borderBottomColor: Color.colorBlue, borderBottomWidth: 1, alignItems: 'center', justifyContent: 'space-between', marginVertical: screenHeight * 0.01 }}>
-                                                            <Text style={{
-                                                                    fontSize: screenWidth * 0.06,
-                                                                    fontWeight: '400',
-                                                                    marginVertical: screenHeight * 0.01,
-                                                                    color: Color.colorBlue,
-                                                                    marginLeft: screenWidth * 0.05 
-                                                                }}>Time</Text>
-                                                            <AntDesign style = {{ marginRight: screenWidth * 0.05 }} name="close" size= {screenWidth * 0.06} color={Color.colorBlue} onPress={() => setShowTimePicker(false)} />
-                                                        </View>
-                                                        
-                                                        <FlatList
-                                                            data={timeOptions}
-                                                            keyExtractor={(item) => item.value}
-                                                            
-                                                            renderItem={({ item }) => (
-                                                                <Pressable onPress={() => onChangeTime(item.value, item.numValue)}>
-                                                                    <View style={{ borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.5)' }}>
-                                                                    <Text style={{ paddingVertical: 10, paddingHorizontal: 20 }}>{item.label}</Text>
-                                                                    </View>
-                                                                </Pressable>
-                                                            )}
-                                                        />
-                                                    </View>
-                                                </View>
-                                            </Modal>
-                                        )} */}
-
-        
-
-            <StatusBar style="auto" />
-
-            <View style={styles.buttonContainer}>
-            <Button
-            title="Search"
-            filled
-            color="#002F45"
-            onPress={() => {navigation.navigate('Search', { selectedService, selectedCity, selectedBarangay, selectedPriceRange, selectedRating})}}
-            // disabled={selectedService === '' && selectedCity === '' && selectedPriceRange === null && selectedRating === null}
-            // opacity={selectedService === '' && selectedCity === '' && selectedPriceRange === null && selectedRating === null ? 0.5 : 1}
-            />
-
-            </View>
-            <View style={styles.buttonContainer}>
-            <Button
-            title="Clear"
-            color="#002F45"
-            onPress={() => {setClear(!clear); setSelectedService(""); setSelectedCity(""); setSelectedBarangay(""); setSelectedPriceRange(null); setSelectedRating(null)}}
-            />
-            </View>
-        </View>
-        </ScrollView>   
-        </SafeAreaView>
-    );
-}
 
 const styles = StyleSheet.create({
-    container1: {
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    buttonContainer: {
-      marginTop: 40,
-      marginBottom: 15,
-      width: 200, // Adjust the width as needed
-  },
-  buttonContainer1: {
-    marginBottom: 10,
-    borderRadius: 10,
-    height: 80,
-    width: 150, // Adjust the width as needed
+safeArea: {
+  flex: 1,
+  backgroundColor:"white"
 },
-    container: {
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-        backgroundColor: '#07364B',
-        alignItems: 'center'
-    },
-    searchContainer: {
-    
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginHorizontal: 10,
-        marginRight: 30,
-    },
-    searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 5,
-        borderColor: "#002F45",
-        borderRadius: 20,
-        marginLeft: 15,
-        width: '100%',
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: 8,
-    },
-    Button: {
-        backgroundColor: '#002147',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-    },
-    container2: {
-      margin: 20,
-      width: '90%',
+container1: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '55%',
+  backgroundColor: '#07374D',
+},
+container2: {
+  marginTop: windowHeight * 0.3,
+  // width: '80%',
+  width: windowWidth * 0.81, 
+  // height: '25%',
+  height: windowHeight * 0.25,
+  alignSelf: 'center',
+  backgroundColor: 'white', // For visualization
+  shadowColor: '#000',
+  // borderRadius:5,
+  shadowOffset: {
+    width: 0,
+    height: 3,
   },
-  input: {
-      height: 50,
-      borderWidth: 1,
-      borderColor: '#002147',
-      borderRadius: 10,
-      paddingHorizontal: 10,
-      fontSize: 16
+  shadowOpacity: 0.27,
+  shadowRadius: 4.65,
+  elevation: 6,
+},
+container3: {
+  marginTop: 10,
+  // width: '80%',
+  width: windowWidth * 0.81, 
+  // height: '25%',
+  height: windowHeight * 0.25,
+  alignSelf: 'center',
+  backgroundColor: 'white', // For visualization
+  shadowColor: '#000',
+  // borderRadius:5,
+  shadowOffset: {
+    width: 0,
+    height: 3,
   },
-  filter: {
-    left: 15
-  },
+  shadowOpacity: 0.27,
+  shadowRadius: 4.65,
+  elevation: 6,
+},
+
+buttonContainer1: {
+  marginTop: 30,
+  marginHorizontal: 40,
+},
+
+iconContainer: {
+  position: 'absolute',
+  top: '25%', // Adjust to vertically center
+  left: '50%', // Adjust to horizontally center
+  transform: [{ translateX: -60 }, { translateY: -60 }], // Center the icon
+ 
+},
+textBold:{
+  margin: 8, 
+  fontWeight:'bold',
+  fontSize:  windowWidth * 0.035,
+  textAlign:'left',
+},
+textRegular:{
+  marginTop: 8, 
+  textAlign:'right',
+  fontSize: windowWidth * 0.035,
+  // left: windowWidth * 0.265,
+  // right: windowWidth * 0.09,
+ 
+  
+},
+buttonContainer2: {
+  marginTop: windowHeight * 0.035,
+ // bottom:  windowHeight * 0.03,
+  marginHorizontal: 40,
+},
 });

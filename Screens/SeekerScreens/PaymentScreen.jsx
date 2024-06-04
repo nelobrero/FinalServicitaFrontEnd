@@ -139,8 +139,8 @@ export default PaymentScreen = ({navigation, route}) => {
         <Button 
         onPress={()=>handleContinue()}
         style={styles.button}
-        opacity={!(gcashClicked ^ grabpayClicked)  || loading ? 0.5 : 1}
-        disabled={!(gcashClicked ^ grabpayClicked) || loading}
+        opacity={!(gcashClicked ^ grabpayClicked) ? 0.5 : 1}
+        disabled={!(gcashClicked ^ grabpayClicked)}
         >
           <Text style={styles.buttonText}>Confirm Booking</Text>
         </Button>
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     height: height * 0.43,
     position: "absolute",
     top: 190,
-    borderRadius: 5,
+    // borderRadius: 5,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -201,20 +201,22 @@ const styles = StyleSheet.create({
 
   buttonContainer: {
     alignItems: "center",
-    
+    // marginTop: height * 0.4
   },
+
   buttonContainer2: {
     alignItems: "center",
+    justifyContent: "center",
     position: "absolute",
-    marginTop: 20,
+    margin: height* 0.09,
   },
   
   button: {
     backgroundColor: "#07374D",
     width: 330,
     height: 50,
-    borderRadius: 5,
-    marginTop: height * 0.25,
+    borderRadius: 12,
+    marginTop: height * 0.275,
   },
   buttonClicked: {
     backgroundColor: "white",

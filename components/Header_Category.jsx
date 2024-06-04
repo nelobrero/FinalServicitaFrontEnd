@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
-import { Border, FontSize, FontFamily, Color } from "../GlobalStyles";
 import { useNavigation } from '@react-navigation/native';
 
 const Header_Category = ({ title }) => {
