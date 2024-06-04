@@ -322,7 +322,7 @@ if ( !bookingDataFetched || !bookingData || !unavailableDatesFetched || !unavail
             style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                marginTop:  windowHeight * 0.03,
+                marginTop: 20,
                 marginLeft: 20,
                 position: 'absolute',
                 zIndex: 1
@@ -340,7 +340,7 @@ if ( !bookingDataFetched || !bookingData || !unavailableDatesFetched || !unavail
           
           
           <View style={[styles.groupChild, styles.groupChildLayout]} />
-          <Text style={{  left: 15, fontSize: 15, fontWeight: '500', position: "relative", bottom: 10, }}>Select your preferred date and time-slot</Text>
+          <Text style={{  left: 15, fontSize: 15,fontWeight: '500', position: "relative", bottom: 10, }}>Select your preferred date and time-slot</Text>
           
           <View style={styles.calenderContainer}>
           <CalendarPicker
@@ -365,7 +365,7 @@ if ( !bookingDataFetched || !bookingData || !unavailableDatesFetched || !unavail
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Start Time</Text>
               <Dropdown
-                style={[styles.dropdown1, isFocus && {borderColor: '#07374d'}]}
+                style={[styles.dropdown1, isFocus && {borderColor: 'blue'}]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
                 data={startTimeOptions}
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     color: Color.colorWhite,
     fontFamily: FontFamily.quicksandBold,
     fontWeight: "700",
-    lineHeight: windowHeight * 0.075,
+    lineHeight: windowHeight * 0.073,
     position: "absolute", 
 
   },
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
 
   
   calenderContainer: {
-    padding: windowWidth * 0.02,
+    padding: windowWidth * 0.05,
     borderRadius: 15,
     bottom: 10,
     marginBottom:5,

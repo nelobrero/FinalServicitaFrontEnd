@@ -88,7 +88,7 @@ const [selectedDayIndex, setSelectedDayIndex] = useState(null);
 
   async function getUserId() {
     try {
-      const result = await axios.post("http://3.26.59.191:5001/user/getUserDetailsByEmail", { email: userEmail })
+      const result = await axios.post("http://192.168.254.111:5001/user/getUserDetailsByEmail", { email: userEmail })
       setUserId(result.data.data._id);
       const snapshot = await firestore().collection('providers').doc(result.data.data._id).get();
       setUserData(snapshot.data());
@@ -118,7 +118,7 @@ const [selectedDayIndex, setSelectedDayIndex] = useState(null);
 
   const fetchServices = async () => {
     try {
-        const response = await axios.get('http://3.26.59.191:5001/service/getServices');
+        const response = await axios.get('http://192.168.254.111:5001/service/getServices');
         setData(response.data.data);
         
     } catch (error) {
@@ -287,7 +287,7 @@ const handleValuesChange = (values) => {
             otherUserId: userId,
           };
         
-          await axios.post("http://3.26.59.191:5001/notifications/create", notification)
+          await axios.post("http://192.168.254.111:5001/notifications/create", notification)
 
         Alert.alert('Service submitted for approval', 'Your service has been submitted for approval.', [ { text: 'OK', onPress: () => navigation.goBack() } ]);
 

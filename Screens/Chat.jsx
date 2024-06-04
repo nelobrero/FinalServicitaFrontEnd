@@ -240,7 +240,7 @@ const Chat = ({ navigation, route }) => {
         otherUserId: userId,
       };
 
-      await axios.post("http://3.26.59.191:5001/notifications/create", notification)
+      await axios.post("http://192.168.254.111:5001/notifications/create", notification)
     } else {
       const notification = {
         userId: "66111acbea0491231d30d8a7",
@@ -249,7 +249,7 @@ const Chat = ({ navigation, route }) => {
         otherUserId: userId,
       };
     
-      await axios.post("http://3.26.59.191:5001/notifications/create", notification)
+      await axios.post("http://192.168.254.111:5001/notifications/create", notification)
     }
 
     } catch (error) {

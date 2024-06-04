@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import { Color } from "./../../GlobalStyles";
-import { COLORS } from "./../../constants/theme";
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -22,7 +21,7 @@ export default function PopularServices({ navigation, serviceData, userData }) {
     bookings: item.data.bookings,
   })).slice(0, 5);
 
-  if (!serviceData || !data) {
+  if (!serviceData || serviceData.length === 0 || !data) {
     return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
             <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
@@ -58,11 +57,6 @@ export default function PopularServices({ navigation, serviceData, userData }) {
       keyboardShouldPersistTaps={"always"}
     //   style={{ maxHeight: windowHeight * 0.50 }}
       scrollEnabled={false}
-      ListEmptyComponent={
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 10, color: 'black', marginTop: 100 }}>No Services Available</Text>
-        </View>
-      }
     />
   );
 }
@@ -71,30 +65,31 @@ const styles = StyleSheet.create({
   flatListContainer: {
     backgroundColor: "white",
     marginVertical: windowHeight * 0.01,
-    // marginHorizontal: 16,
+    marginHorizontal: 16,
     paddingBottom: 15,
     // borderRadius: 5,
     borderColor: Color.colorGray_100,
     // borderWidth: 0.5
+    borderBottomWidth: 1,
+    paddingTop: 15,
   },
   Text: {
     fontSize: 20,
     fontWeight: "bold",
-    paddingTop: 1,
-    paddingHorizontal: 15
+    paddingTop: 5,
+    paddingBottom: 10
   },
   Text2: {
     fontSize: 13,
-    paddingHorizontal: 15
   },
   button: {
     backgroundColor: '#07364B', // Set button background color
-    paddingVertical: 12, // Adjust button height
-    paddingHorizontal: 24, // Adjust button width
-    borderRadius: 10,
-    // marginTop: 10,
+    paddingVertical: 10, // Adjust button height
+    paddingHorizontal: 20, // Adjust button width
+    borderRadius: 5,
+    marginTop: 20,
     alignSelf: 'flex-end',
-    marginRight: 15,
+    marginRight: 10,
   },
   buttonText: {
     color: 'white', // Set button text color
@@ -104,10 +99,9 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: windowHeight * 0.25,
-    // borderRadius: 15,
-    // borderTopLeftRadius: 8, 
-    // borderTopRightRadius: 8, 
+    height: windowHeight * 0.3,
+    borderTopLeftRadius: 8, 
+    borderTopRightRadius: 8, 
     marginBottom: windowHeight * 0.01,
   },
 });

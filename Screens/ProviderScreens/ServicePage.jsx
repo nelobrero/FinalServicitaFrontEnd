@@ -175,7 +175,7 @@ const handleChangeEndTime = (value) => {
 useEffect(() => {
   const getPosts = async () => {
     try {
-      const response = await axios.post('http://3.26.59.191:5001/post/getPostsById', { serviceId: service.id });
+      const response = await axios.post('http://192.168.254.111:5001/post/getPostsById', { serviceId: service.id });
       setPostsData(response.data.data);
       
     } catch (error) {
@@ -201,7 +201,7 @@ const convertCreatedAtToTime12HourFormat = (createdAt) => {
 const deletePost = async (postId) => {
   try {
     setIsLoading(true);
-    await axios.post('http://3.26.59.191:5001/post/deletePost', { postId });
+    await axios.post('http://192.168.254.111:5001/post/deletePost', { postId });
     const newPostsData = postsData.filter((post) => post._id !== postId);
     setPostsData(newPostsData);
     Alert.alert('Post deleted successfully');
@@ -372,7 +372,7 @@ const handleSubmitPost = async () => {
 
   await Promise.all(imageUploadPromises);
 
-  await axios.post('http://3.26.59.191:5001/post/createPost', { serviceId: service.id, images: submitImages, postText: reviewText });
+  await axios.post('http://192.168.254.111:5001/post/createPost', { serviceId: service.id, images: submitImages, postText: reviewText });
   setIsLoading(false);
   alert('Post submitted successfully!');
   setImages(null);

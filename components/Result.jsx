@@ -128,20 +128,19 @@ export default Result = ({navigation, searchQuery, filterQuery, serviceData, use
             <View style={styles.hays}>
               <Text style={styles.Service}>{item.service}</Text>
               {/* Render RatingStars component with item.ratingStar */}
+              <RatingService  rating={item.ratingStar} />
               <View style={styles.locationContainer}>
-                <Image
+               
+                <Text style={styles.location}>{item.category}</Text>
+              </View>
+            </View>
+            <Text style={styles.price}>₱{item.minprice} - ₱{item.maxprice}</Text>
+            <Image
                   style={styles.seeDetailsIcon}
                   contentFit="cover"
                   source={item.locationIcon}
                 />
-                <Text style={styles.location}>{item.barangay}, {item.city}</Text>
-              </View>
-              <RatingService  rating={item.ratingStar} />
-              
-            </View>
-            <Text style={styles.price}>₱{item.minprice} - ₱{item.maxprice}</Text>
-            
-            <Text style={styles.seeDetails}>{item.category}</Text>
+            <Text style={styles.seeDetails}>{item.barangay}, {item.city}</Text>
           </View>
         </Pressable>
       )}
@@ -166,23 +165,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     borderStyle: "solid",
     borderColor: Color.colorBlack,
-    borderWidth: 0.1,
     top: 0,
     height: 147,
     position: "relative",
+    borderRadius: 10
   },
   flatListContent: {
     alignItems: "center",
     justifyContent: "center", 
     flexGrow: 1, 
+    borderRadius: 10
+
   },
   location: {
     alignItems: "center",
     display: "flex",
-    // textAlign: "left",
+    textAlign: "left",
     color: Color.colorBlack,
     fontFamily: FontFamily.quicksandRegular,
-    marginLeft: 10,
+    marginLeft: 1.85,
     fontSize: 10,
     letterSpacing: 0.3,
     lineHeight: 10,
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   price: {
-    bottom: screenHeight * 0.02,
+    top: screenHeight * 0.160,
     right: 10,
     color: "#0e638a",
     letterSpacing: 0.9,
@@ -207,9 +208,9 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   seeDetails: {
-    bottom: screenHeight * 0.02,
-    left:125,
-    fontSize: screenWidth * 0.021,
+    top: 78,
+    left: 135,
+    fontSize: screenWidth * 0.02,
     letterSpacing: 0.5,
     color: '#696969',
     textAlign: "right",
@@ -219,8 +220,8 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   seeDetailsIcon: {
-    // top: screenHeight * 0.1600,
-    // left: 125,
+    top: screenHeight * 0.11,
+    left: 125,
     width: 8,
     height: 10,
     position: "absolute",
@@ -244,9 +245,10 @@ const styles = StyleSheet.create({
   providerImage: {
     left: 14,
     width: 105,
-    height: 113,
-    top: 17,
+    height: 105,
+    top: 20,
     position: "absolute",
+    borderRadius: 5
   },
   Service: {
     paddingTop: 15,
@@ -259,7 +261,8 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.quicksandRegular,
     lineHeight: 25,
     letterSpacing: 0.75,
-    fontSize: FontSize.size_lg,
+    fontSize: 15,
+    fontWeight: 'bold',
     position: "relative",
   },
   ratingContainer: {
@@ -274,10 +277,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     width: 77,
     height: 9,
-    marginTop:4,
+    marginTop:6,
     position:  "relative",
-    marginBottom: 3,
-    textAlign: "left",
   },
   hays: {
     marginLeft: 125,

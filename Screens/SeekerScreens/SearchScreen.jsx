@@ -85,7 +85,7 @@ const SearchScreen = ({navigation, route}) => {
 
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style ={{backgroundColor: 'white', height: '100%'}}>
       
       {/* Header */}
 

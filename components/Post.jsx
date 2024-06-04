@@ -163,7 +163,7 @@ export const PostItem = ({ item }) => {
     useEffect(() => {
       const getPosts = async () => {
         try {
-          const response = await axios.post('http://3.26.59.191:5001/post/getPostsById', { serviceId });
+          const response = await axios.post('http://192.168.254.111:5001/post/getPostsById', { serviceId });
           setPostsData(response.data.data);
           setLoading(false);
         } catch (error) {
@@ -234,6 +234,7 @@ export const PostItem = ({ item }) => {
       width: 50,
       height: 50,
       marginRight: 12,
+      borderRadius: 100
     },
     userImages: {
       width: 50,

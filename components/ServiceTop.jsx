@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   bookNow: {
     top: 8,
-    left: windowWidth * 0.14,
+    left: windowWidth * 0.16,
     textAlign: "center",
     fontSize: FontSize.size_xs,
     fontFamily: FontFamily.quicksandRegular,

@@ -29,7 +29,7 @@ export default function SeekerBookingScreen({ navigation, route }) {
 
   const getUserIdAndImage = async () => {
     try {
-      const result = await axios.post("http://3.26.59.191:5001/user/getUserDetailsByEmail", { email: userEmail })
+      const result = await axios.post("http://192.168.254.111:5001/user/getUserDetailsByEmail", { email: userEmail })
       setUserData(result.data.data);
       return { id: result.data.data._id, image: result.data.data.profileImage, mobile: result.data.data.mobile };
     } catch (error) {
@@ -52,7 +52,7 @@ export default function SeekerBookingScreen({ navigation, route }) {
             const serviceData = { id: serviceSnapshot.id, data: serviceSnapshot.data()}
             const providerSnapshot = await firestore().collection('providers').doc(doc.data().providerId).get();
             const providerData = providerSnapshot.data();
-            const result = await axios.post("http://3.26.59.191:5001/user/getUserDetailsById", { id: providerSnapshot.id })
+            const result = await axios.post("http://192.168.254.111:5001/user/getUserDetailsById", { id: providerSnapshot.id })
             const expiresAt = doc.data().expiresAt.toDate();
             
 
@@ -100,11 +100,11 @@ export default function SeekerBookingScreen({ navigation, route }) {
   }
 
   return (
-    <View>
+    <View style={{backgroundColor: 'white', height: "100%"}}>
       <View style={styles.header}>
         <Text style={styles.title}>Bookings ({selectedFilter})</Text>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Ionicons name="filter" size={24} color={Color.colorWhite} style={styles.filterIcon} />
+          <Ionicons name="filter" size={24} color={Color.colorPrimary} style={styles.filterIcon} />
         </TouchableOpacity>
       </View>
       <View >
@@ -138,7 +138,7 @@ export default function SeekerBookingScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#07374d",
+    backgroundColor: "white",
     height: Dimensions.get('window').height * 0.1, // Adjust height according to screen size
     flexDirection: 'row',
     alignItems: 'center',  
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     lineHeight: 50,
     fontWeight: "700",
     fontFamily: "Lobster-Regular",
-    color: Color.colorWhite,
+    color: Color.colorPrimary,
     display: "flex",
     alignItems: "center",
     width: 326,

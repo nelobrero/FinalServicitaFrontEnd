@@ -31,7 +31,7 @@ export default Profile = ({ navigation, route }) => {
   const [hasReported, setHasReported] = useState(false);
 
   async function getUserData() {
-    await axios.post("http://3.26.59.191:5001/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
+    await axios.post("http://192.168.254.111:5001/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
         setUserData(response.data.data);
       const storedId = response.data.data._id;
       getStoreData(storedId);
@@ -59,7 +59,7 @@ export default Profile = ({ navigation, route }) => {
 
   const checkForReport = async () => {
     setIsReportLoading(true);
-    const response = await axios.post("http://3.26.59.191:5001/report/getReportByBookingId", { bookingId: '1', reporterId: userData._id });
+    const response = await axios.post("http://192.168.254.111:5001/report/getReportByBookingId", { bookingId: '1', reporterId: userData._id });
     setHasReported(response.data);
     setIsReportLoading(false);
   }
@@ -92,7 +92,7 @@ export default Profile = ({ navigation, route }) => {
       reason: complaint,
       status: 'PENDING'
     }
-    await axios.post("http://3.26.59.191:5001/report/createReport", reportData);
+    await axios.post("http://192.168.254.111:5001/report/createReport", reportData);
     setIsLoading(false);
     setComplaint('');
     const notification = {
@@ -102,7 +102,7 @@ export default Profile = ({ navigation, route }) => {
       otherUserId: userData._id,
     };
   
-    await axios.post("http://3.26.59.191:5001/notifications/create", notification)
+    await axios.post("http://192.168.254.111:5001/notifications/create", notification)
     setModalVisible(false);
     Alert.alert('Report submitted successfully! The Servicita team will review your report.');
 };
