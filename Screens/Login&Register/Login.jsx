@@ -578,7 +578,7 @@ export default function LoginPage ({ navigation }) {
                         </View>
                       </View>
 
-                      <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: height * 0.15 }}>
+                      <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: height * 0.1 }}>
                           <Text style={{ fontSize: 16, color: Color.colorPrimary }}>Don't have an account?</Text>
                           <Pressable onPress={() => navigation.navigate("UserRole", {email: '', name: '', userId: ''})}>
                               <Text style={{ fontSize: 16, color: Color.colorPrimary, fontWeight: 'bold', marginLeft: 8 }}>Register</Text>

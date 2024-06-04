@@ -464,7 +464,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
                     justifyContent: 'center'
                 }}>
 
-                    <TouchableOpacity
+<TouchableOpacity
                         onPress={onFacebookButtonPress}
                         style={{
                             flex: 1,
@@ -483,7 +483,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
                             style={{
                                 height: windowHeight * 0.05,
                                 width: windowHeight * 0.05,
-                                marginRight: -windowWidth * 0.1
+                                marginLeft: windowWidth * 0.3
                             }}
                         />
                     </TouchableOpacity>
@@ -498,7 +498,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
                             height: windowHeight * 0.08,
                             borderWidth: 1,
                             borderColor: Color.colorWhite,
-                            marginRight: windowWidth * 0.02,
+                            marginRight: windowWidth * 0.09,
                             borderRadius: windowHeight * 0.02
                         }}
                     >
@@ -507,7 +507,7 @@ export default function RegisterPage2 ({navigation, route, props}) {
                             style={{
                                 height: windowHeight * 0.07,
                                 width: windowHeight * 0.07,
-                                marginRight: windowWidth * 0.1
+                                marginRight: windowWidth * 0.09
                             }}
                         />
                     </TouchableOpacity>
