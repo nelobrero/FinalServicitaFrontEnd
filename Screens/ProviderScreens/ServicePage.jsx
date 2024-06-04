@@ -180,6 +180,8 @@ useEffect(() => {
       
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -498,12 +500,13 @@ if (isLoading) {
 }
 
   return (
-    <ScrollView>
     <SafeAreaView
       style={{
         backgroundColor: COLORS.white,
       }}
     >
+    <ScrollView>
+    
         
 
       <View style={styles.container}>
@@ -818,6 +821,7 @@ WEDNESDAY</Text>
       renderItem={({ item }) => (
         <>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+          
           <PostItem
             item={{
               id: item._id,
@@ -826,23 +830,23 @@ WEDNESDAY</Text>
               postImages: item.images,
               postText: item.postText,
               date: convertCreatedAtToDateMonthYear(item.createdAt),
-              time: convertCreatedAtToTime12HourFormat(item.createdAt)
+              time: convertCreatedAtToTime12HourFormat(item.createdAt),
+              verified: true,
             }}
           />
           {/* Delete Post */}
           <TouchableOpacity
             onPress={() => deletePost(item._id)}
             style={{
-              backgroundColor: COLORS.primary,
               padding: 5,
               borderRadius: 5,
               marginRight: 10,
               position: 'absolute',
               right: 0,
-              top: windowHeight * 0.05
+              top: windowHeight * 0.015
             }}
           >
-            <MaterialIcons name="delete" size={15} color={COLORS.white} />
+            <Ionicons name="close-outline" size={windowHeight * 0.043} color={COLORS.primary} />
           </TouchableOpacity>
         </View>
         </>
@@ -1533,8 +1537,9 @@ WEDNESDAY</Text>
               </View>
             </View>
           </Modal>
+          </ScrollView>
         </SafeAreaView>
-        </ScrollView>
+    
       );
     };
     

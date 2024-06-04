@@ -450,7 +450,9 @@ export default function LoginPage ({ navigation }) {
         } else {
             Alert.alert('Error', 'An error occurred while processing your request. Please try again later.', [{ text: 'OK' }]);
         }
-        })
+        }).finally(() => {
+          setLoading(false);
+        });
     }
 
     if (loading) {

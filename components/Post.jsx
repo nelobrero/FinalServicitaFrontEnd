@@ -23,8 +23,80 @@ export const PostItem = ({ item }) => {
       setModalVisible(false);
     };
   
+    if (item.verified) {
+      return (
+
+        <View style={styles.postItemContainer}>
+        
+        <View style={styles.postContent}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Image
+  source={{ uri: item.userImage }}
+  style={[styles.userImage, { borderRadius: 50, overflow: 'hidden' }]}
+/>
+        <View style={{flexDirection: 'column'}}>
+        <Text style={styles.userName}>{item.userName}</Text>
+        <Text style={styles.dateTime}>{item.date}, {item.time}</Text>
+        </View>
+        </View>
+          <View style={{marginTop: windowHeight * 0.02}}>
+          <Text style={styles.postText}>{item.postText}</Text>
+          {item.postImages && item.postImages.length > 0 && (
+            <FlatList
+              horizontal
+              data={item.postImages}
+              renderItem={({ item, index }) => (
+                <Pressable onPress={() => openModal(index)}>
+                  {
+                    item.includes('.mp4') ?
+                    <>
+                    <Video source={{ uri: item }} style={styles.postImage} resizeMode='cover' /> 
+                    <Ionicons name="play-circle" size={36} color="red" style={{ position: 'absolute', top: '50%', left: '50%', marginLeft: -18, marginTop: -18 }} />
+                    </>  : <Image source={{ uri: item }} style={styles.postImage} />
+                  }
+                </Pressable>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+              
+            />
+          )}
+          </View>
+        </View>
+  
+        <Modal visible={modalVisible} transparent={true}>
+          <View style={styles.modalContainer}>
+            <Swiper
+              index={selectedIndex}
+              loop={false}
+              showsPagination={false}
+              onIndexChanged={(index) => {
+                setSelectedIndex(index)
+                videoRef.current.pauseAsync();
+              }}
+            >
+              {item.postImages && item.postImages.map((image, index) => (
+                <View key={index} style={styles.swiperImageContainer}>
+                  { image.includes('.mp4') ?
+                  <>
+                  <Video source={{ uri: image }} style={styles.swiperImage} resizeMode='cover' ref={videoRef} useNativeControls />
+                  </>  : <Image source={{ uri: image }} style={styles.swiperImage} />
+                }
+                </View>
+              ))}
+            </Swiper>
+            <Pressable style={styles.closeButton} onPress={closeModal}>
+              <Ionicons name="close-circle" size={36} color="white" />
+            </Pressable>
+          </View>
+        </Modal>
+      </View>
+      );
+    }
   
     return (
+
+   
+
       <View style={styles.postItemContainer}>
         
         <Image source={{ uri: item.userImage }} style={styles.userImage} />
@@ -159,6 +231,11 @@ export const PostItem = ({ item }) => {
       borderBottomColor: '#E0E0E0',
     },
     userImage: {
+      width: 50,
+      height: 50,
+      marginRight: 12,
+    },
+    userImages: {
       width: 50,
       height: 50,
       marginRight: 12,
