@@ -27,6 +27,8 @@ export default Profile = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [complaint, setComplaint] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isReportLoading, setIsReportLoading] = useState(false);
+  const [hasReported, setHasReported] = useState(false);
 
   async function getUserData() {
     await axios.post("http://3.26.59.191:5001/user/getUserDetailsByEmail", { email: userEmail }).then((response) => {
@@ -53,6 +55,13 @@ export default Profile = ({ navigation, route }) => {
     } catch (error) {
       console.error('Error getting user data from Firestore:', error);
     }
+  }
+
+  const checkForReport = async () => {
+    setIsReportLoading(true);
+    const response = await axios.post("http://3.26.59.191:5001/report/getReportByBookingId", { bookingId: '1', reporterId: userData._id });
+    setHasReported(response.data);
+    setIsReportLoading(false);
   }
   
   async function getServiceData(providerData) {
@@ -106,10 +115,11 @@ export default Profile = ({ navigation, route }) => {
   useFocusEffect(
     React.useCallback(() => {
       getUserData();
+      checkForReport();
     }, [route])
   );
   
-  if (!userDataFetched || isLoading) {
+  if (!userDataFetched || isLoading || isReportLoading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.secondaryGray}} >
           <Image source={require('../../assets/loading.gif')} style={{width: 200, height: 200}} />
@@ -154,6 +164,10 @@ export default Profile = ({ navigation, route }) => {
   }
 
   const navigateToReportProblem = () => {
+    if (hasReported) {
+      Alert.alert('You have already reported an issue. Please wait for the Servicita team to review your report.');
+      return;
+    }
     setModalVisible(true);
   }
 

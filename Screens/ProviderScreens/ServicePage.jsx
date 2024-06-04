@@ -177,7 +177,7 @@ useEffect(() => {
     try {
       const response = await axios.post('http://3.26.59.191:5001/post/getPostsById', { serviceId: service.id });
       setPostsData(response.data.data);
-      setIsLoading(false);
+      
     } catch (error) {
       console.error(error);
     }
@@ -202,6 +202,7 @@ const deletePost = async (postId) => {
     await axios.post('http://3.26.59.191:5001/post/deletePost', { postId });
     const newPostsData = postsData.filter((post) => post._id !== postId);
     setPostsData(newPostsData);
+    Alert.alert('Post deleted successfully');
   } catch (error) {
     console.error('Error deleting post:', error);
   } finally {
